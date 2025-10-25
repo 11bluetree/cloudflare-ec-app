@@ -1,73 +1,85 @@
-# React + TypeScript + Vite
+# Web Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+TanStack Router + Material-UIを使用したSPAフロントエンドアプリケーション。
 
-Currently, two official plugins are available:
+## 技術スタック
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** - UIライブラリ
+- **TanStack Router** - 型安全なファイルベースルーティング
+- **Material-UI (MUI)** - UIコンポーネントライブラリ
+- **Vite** - ビルドツール
+- **TypeScript** - 型安全性
 
-## React Compiler
+## 開発
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# 開発サーバー起動
+pnpm dev
 
-## Expanding the ESLint configuration
+# ビルド
+pnpm build
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# プレビュー
+pnpm preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## プロジェクト構造
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+このプロジェクトは以下の手順で作成されました：
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Vite公式テンプレートでReact + TypeScriptプロジェクトを初期化
+
+   ```bash
+   pnpm create vite web --template react-ts
+   ```
+
+2. TanStack Routerとプラグインをインストール
+
+   ```bash
+   pnpm add @tanstack/react-router
+   pnpm add -D @tanstack/router-plugin @tanstack/router-devtools
+   ```
+
+3. Material-UIをインストール
+
+   ```bash
+   pnpm add @mui/material @emotion/react @emotion/styled
+   ```
+
+4. `vite.config.ts`にTanStack Routerプラグインを追加（reactプラグインの前に配置）
+
+5. ファイルベースルーティング用のディレクトリとファイルを作成
+   - `src/routes/__root.tsx` - ルートレイアウト
+   - `src/routes/index.tsx` - ホームページ
+
+## ディレクトリ構造
+
+```
+src/
+  routes/           # ファイルベースルーティング
+    __root.tsx      # ルートレイアウト（Material-UIテーマ設定を含む）
+    index.tsx       # ホームページ (/)
+  routeTree.gen.ts  # 自動生成されたルートツリー（Git管理外）
+  main.tsx          # エントリーポイント
+  index.css         # グローバルスタイル
+```
+
+## ルーティング
+
+TanStack Routerのファイルベースルーティングを使用：
+
+- `src/routes/index.tsx` → `/`
+- `src/routes/about.tsx` → `/about`
+- `src/routes/products/index.tsx` → `/products`
+- `src/routes/products/$id.tsx` → `/products/:id`
+
+`routeTree.gen.ts`は`@tanstack/router-plugin`によって自動生成されます。
+
+## デプロイ
+
+Cloudflare Pagesにデプロイされます。
+
+```bash
+# ビルド成果物は dist/ に出力される
+pnpm build
 ```
