@@ -1,12 +1,13 @@
 # Web Frontend
 
-TanStack Router + Material-UIを使用したSPAフロントエンドアプリケーション。
+TanStack Router + Radix UI + Tailwind CSSを使用したSPAフロントエンドアプリケーション。
 
 ## 技術スタック
 
 - **React 19** - UIライブラリ
 - **TanStack Router** - 型安全なファイルベースルーティング
-- **Material-UI (MUI)** - UIコンポーネントライブラリ
+- **Radix UI** - ヘッドレスUIコンポーネント
+- **Tailwind CSS** - ユーティリティファーストCSSフレームワーク
 - **Vite** - ビルドツール
 - **TypeScript** - 型安全性
 
@@ -40,10 +41,11 @@ pnpm preview
    pnpm add -D @tanstack/router-plugin @tanstack/router-devtools
    ```
 
-3. Material-UIをインストール
+3. Radix UIとTailwind CSSをインストール
 
    ```bash
-   pnpm add @mui/material @emotion/react @emotion/styled
+   pnpm add @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-label @radix-ui/react-separator
+   pnpm add -D tailwindcss
    ```
 
 4. `vite.config.ts`にTanStack Routerプラグインを追加（reactプラグインの前に配置）
@@ -57,11 +59,11 @@ pnpm preview
 ```
 src/
   routes/           # ファイルベースルーティング
-    __root.tsx      # ルートレイアウト（Material-UIテーマ設定を含む）
+    __root.tsx      # ルートレイアウト
     index.tsx       # ホームページ (/)
   routeTree.gen.ts  # 自動生成されたルートツリー（Git管理外）
   main.tsx          # エントリーポイント
-  index.css         # グローバルスタイル
+  index.css         # グローバルスタイル（Tailwind CSSディレクティブを含む）
 ```
 
 ## ルーティング

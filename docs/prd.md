@@ -15,7 +15,7 @@
 
 #### 1.3 技術スタック
 
-- **フロントエンド**: TanStack Router (SPA) / Material-UI
+- **フロントエンド**: TanStack Router (SPA) / Radix UI + Tailwind CSS
 - **ホスティング**: Cloudflare Pages
 - **バックエンド**: Cloudflare Workers / Hono
 - **データベース**: Cloudflare D1
@@ -310,7 +310,7 @@
 
 #### 6.2 デザインガイドライン
 
-- Material-UI コンポーネントを使用
+- Radix UI + Tailwind CSS を使用
 - シンプルで直感的なUI
 - 統一されたカラースキーム
 - わかりやすいナビゲーション
@@ -335,7 +335,8 @@
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
 - [Cloudflare Pages Documentation](https://developers.cloudflare.com/pages/)
 - [TanStack Router Documentation](https://tanstack.com/router)
-- [Material-UI Documentation](https://mui.com/)
+- [Radix UI Documentation](https://www.radix-ui.com/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/)
 - [Hono Framework](https://hono.dev/)
 - [Stripe Documentation](https://stripe.com/docs)
 - [PCI DSS Requirements](https://www.pcisecuritystandards.org/)

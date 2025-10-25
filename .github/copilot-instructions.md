@@ -9,7 +9,7 @@
 ### モノレポ構成（pnpmワークスペース）
 
 - `apps/api` - Honoフレームワークを使用したCloudflare Workersバックエンド
-- `apps/web` - TanStack Router + Material-UIを使用したSPAフロントエンド（Cloudflare Pagesにデプロイ）
+- `apps/web` - TanStack Router + Radix UI + Tailwind CSSを使用したSPAフロントエンド（Cloudflare Pagesにデプロイ）
 - `packages/library` - 共有ドメインロジックとビジネスルール（DDDコア）
 - `packages/types` - フロントエンド/バックエンド間で共有するTypeScript型定義
 - `packages/config` - 共有設定
@@ -21,7 +21,7 @@
 - **ストレージ**: Cloudflare R2（S3互換オブジェクトストレージ）
 - **認証**: Auth.js（エッジランタイム対応版）
 - **決済**: Stripe
-- **フロントエンド**: TanStack Router（型安全なルーティング）+ Material-UI
+- **フロントエンド**: TanStack Router（型安全なルーティング）+ Radix UI + Tailwind CSS
 
 ## DDD原則
 
