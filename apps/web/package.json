@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "pages:deploy": "pnpm build && npx wrangler pages deploy dist --project-name=cloudflare-ec-app-web"
+    "deploy": "pnpm build && npx wrangler pages deploy dist --project-name=cloudflare-ec-app-web"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",

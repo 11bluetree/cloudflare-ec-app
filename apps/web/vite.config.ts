@@ -11,4 +11,13 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    port: 5173, // Webサーバーのポートを5173に固定
+  },
+  define: {
+    // 環境変数をクライアントに公開
+    'import.meta.env.VITE_API_URL': JSON.stringify(
+      process.env.VITE_API_URL || 'http://localhost:3000'
+    ),
+  },
 })
