@@ -9,7 +9,10 @@
     "dev:web": "pnpm -F web dev",
     "build": "pnpm -F api build && pnpm -F web build",
     "lint": "pnpm -r lint",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "pnpm -F api run deploy && pnpm -F web run deploy",
+    "deploy:api": "pnpm -F api run deploy",
+    "deploy:web": "pnpm -F web run deploy"
   },
   "keywords": [],
   "author": "",
