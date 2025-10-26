@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "pnpm --parallel -F api -F web dev",
+    "dev:api": "pnpm -F api dev",
+    "dev:web": "pnpm -F web dev",
+    "build": "pnpm -F api build && pnpm -F web build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
