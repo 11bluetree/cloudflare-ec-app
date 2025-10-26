@@ -11,6 +11,7 @@
     "deploy": "pnpm build && npx wrangler pages deploy dist --project-name=cloudflare-ec-app-web"
   },
   "dependencies": {
+    "@cloudflare-ec-app/config": "workspace:*",
     "@tailwindcss/vite": "^4.1.16",
     "@tanstack/react-router": "^1.133.27",
     "react": "^19.1.1",

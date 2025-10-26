@@ -8,6 +8,7 @@
     "dev:api": "pnpm -F api dev",
     "dev:web": "pnpm -F web dev",
     "build": "pnpm -F api build && pnpm -F web build",
+    "lint": "pnpm -r lint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -23,6 +23,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@cloudflare-ec-app/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       hono:
         specifier: ^4.10.3
         version: 4.10.3
@@ -42,6 +45,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@cloudflare-ec-app/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@tailwindcss/vite':
         specifier: ^4.1.16
         version: 4.1.16(rolldown-vite@7.1.14(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6))
@@ -102,15 +108,15 @@ importers:
         version: rolldown-vite@7.1.14(@types/node@24.9.1)(esbuild@0.25.11)(jiti@2.6.1)(tsx@4.20.6)
 
   packages/config:
-    devDependencies:
+    dependencies:
       '@eslint/js':
-        specifier: ^9.36.0
+        specifier: ^9.38.0
         version: 9.38.0
       eslint:
-        specifier: ^9.36.0
+        specifier: ^9.38.0
         version: 9.38.0(jiti@2.6.1)
       typescript-eslint:
-        specifier: ^8.45.0
+        specifier: ^8.46.2
         version: 8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
 
 packages:

@@ -39,7 +39,7 @@ function Index() {
 
   useEffect(() => {
     fetchHealthData()
-  }, [])
+  })
 
   return (
     <div className="min-h-screen bg-gray-50">
