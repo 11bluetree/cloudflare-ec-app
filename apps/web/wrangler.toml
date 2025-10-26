@@ -1,0 +1,8 @@
+# Cloudflare Pages configuration for frontend deployment
+name = "cloudflare-ec-app-web"
+compatibility_date = "2025-10-26"
+pages_build_output_dir = "dist"
+
+# Pages configuration
+# Note: Most Pages settings are configured via the Cloudflare dashboard or CLI
+# This file is mainly for reference and local development
