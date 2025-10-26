@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { csrf } from 'hono/csrf'
 import { renderer } from './renderer'
 
 type Bindings = {
@@ -26,11 +27,30 @@ app.use(
     },
     credentials: true, // Cookieを使用する場合は必須
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization'],
+    allowHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
     exposeHeaders: ['Content-Length', 'X-Request-Id'],
     maxAge: 600, // プリフライトリクエストのキャッシュ時間（秒）
   })
 )
+
+// CSRF対策（状態を変更するエンドポイントを保護）
+// Auth.jsのエンドポイント(/api/auth/*)は独自のCSRF保護があるため除外
+app.use('/api/cart/*', csrf())
+app.use('/api/orders/*', csrf())
+app.use('/api/users/*', csrf())
+// 管理者用エンドポイント（POST/PUT/DELETE）
+app.use('/api/products', async (c, next) => {
+  if (c.req.method !== 'GET') {
+    return csrf()(c, next)
+  }
+  await next()
+})
+app.use('/api/categories', async (c, next) => {
+  if (c.req.method !== 'GET') {
+    return csrf()(c, next)
+  }
+  await next()
+})
 
 app.use(renderer)
 
