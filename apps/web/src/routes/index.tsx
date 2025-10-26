@@ -1,9 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
-
-export const Route = createFileRoute('/')({
-  component: Index,
-})
+import { useState } from 'react'
 
 interface HealthResponse {
   status: string
@@ -12,23 +8,38 @@ interface HealthResponse {
   environment: string
 }
 
+// 環境変数からAPIのベースURLを取得
+const API_BASE_URL = import.meta.env.VITE_API_URL
+
+const fetchHealthData = async (): Promise<HealthResponse> => {
+  const response = await fetch(`${API_BASE_URL}/api/health`)
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+  return response.json()
+}
+
+const loader = async () => {
+  const healthData = await fetchHealthData()
+  return { healthData }
+}
+
+export const Route = createFileRoute('/')({
+  loader,
+  component: Index,
+})
+
 function Index() {
-  const [healthData, setHealthData] = useState<HealthResponse | null>(null)
+  const { healthData: initialHealthData } = Route.useLoaderData()
+  const [healthData, setHealthData] = useState<HealthResponse>(initialHealthData)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // 環境変数からAPIのベースURLを取得
-  const API_BASE_URL = import.meta.env.VITE_API_URL
-
-  const fetchHealthData = async () => {
+  const handleRefresh = async () => {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch(`${API_BASE_URL}/api/health`)
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const data = await response.json()
+      const data = await fetchHealthData()
       setHealthData(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred')
@@ -36,10 +47,6 @@ function Index() {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
-    fetchHealthData()
-  })
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -58,7 +65,7 @@ function Index() {
           </h2>
           
           <button
-            onClick={fetchHealthData}
+            onClick={handleRefresh}
             disabled={loading}
             className="mb-4 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
