@@ -29,12 +29,9 @@ importers:
       '@libsql/client':
         specifier: ^0.15.15
         version: 0.15.15
-      better-sqlite3:
-        specifier: ^12.4.1
-        version: 12.4.1
       drizzle-orm:
         specifier: ^0.44.7
-        version: 0.44.7(@libsql/client@0.15.15)(@types/better-sqlite3@7.6.13)(better-sqlite3@12.4.1)(mysql2@3.15.3)
+        version: 0.44.7(@libsql/client@0.15.15)(@types/better-sqlite3@7.6.13)(better-sqlite3@12.4.1)(mysql2@3.15.3)(sql.js@1.13.0)
       hono:
         specifier: ^4.10.3
         version: 4.10.3
@@ -48,9 +45,15 @@ importers:
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
+      better-sqlite3:
+        specifier: ^12.4.1
+        version: 12.4.1
       drizzle-kit:
         specifier: ^0.31.5
         version: 0.31.5
+      sql.js:
+        specifier: ^1.13.0
+        version: 1.13.0
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
@@ -2650,6 +2653,9 @@ packages:
     resolution: {integrity: sha512-i5uvt8C3ikiWeNZSVZNWcfZPItFQOsYTUAOkcUPGd8DqDy1uOUikjt5dG+uRlwyvR108Fb9DOd4GvXfT0N2/uQ==}
     engines: {node: '>= 12'}
 
+  sql.js@1.13.0:
+    resolution: {integrity: sha512-RJbVP1HRDlUUXahJ7VMTcu9Rm1Nzw+EBpoPr94vnbD4LwR715F3CcxE2G2k45PewcaZ57pjetYa+LoSJLAASgA==}
+
   sqlstring@2.3.3:
     resolution: {integrity: sha512-qC9iz2FlN7DQl3+wjwn3802RTyjCx7sDvfQEXchwa6CWOx07/WVfh91gBmQ9fahw8snwGEWU3xGzOt4tFyHLxg==}
     engines: {node: '>= 0.6'}
@@ -4354,12 +4360,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.44.7(@libsql/client@0.15.15)(@types/better-sqlite3@7.6.13)(better-sqlite3@12.4.1)(mysql2@3.15.3):
+  drizzle-orm@0.44.7(@libsql/client@0.15.15)(@types/better-sqlite3@7.6.13)(better-sqlite3@12.4.1)(mysql2@3.15.3)(sql.js@1.13.0):
     optionalDependencies:
       '@libsql/client': 0.15.15
       '@types/better-sqlite3': 7.6.13
       better-sqlite3: 12.4.1
       mysql2: 3.15.3
+      sql.js: 1.13.0
 
   electron-to-chromium@1.5.240: {}
 
@@ -5193,6 +5200,8 @@ snapshots:
   source-map@0.6.1: {}
 
   source-map@0.7.6: {}
+
+  sql.js@1.13.0: {}
 
   sqlstring@2.3.3: {}
 
