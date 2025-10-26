@@ -19,7 +19,7 @@ app.get('/api/health', (c) => {
     status: 'ok',
     message: 'API is running!',
     timestamp: new Date().toISOString(),
-    environment: 'development',
+    environment: import.meta.env.DEV ? 'development' : 'production',
   })
 })
 
