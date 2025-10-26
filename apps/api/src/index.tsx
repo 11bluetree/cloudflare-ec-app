@@ -2,9 +2,12 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { csrf } from 'hono/csrf'
 import { renderer } from './renderer'
+import { createDb } from './infrastructure/internal/db'
+import { usersTable } from './infrastructure/internal/db/schema'
 
 type Bindings = {
   ALLOWED_ORIGINS?: string
+  DB: D1Database
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -66,6 +69,38 @@ app.get('/api/health', (c) => {
     timestamp: new Date().toISOString(),
     environment: import.meta.env.DEV ? 'development' : 'production',
   })
+})
+
+// テスト用のユーザー作成＆一覧取得エンドポイント
+app.get('/api/test', async (c) => {
+  try {
+    const db = createDb(c.env.DB)
+    
+    // 新しいユーザーを作成
+    const newUser = await db.insert(usersTable).values({
+      name: 'Test User',
+      age: 25,
+      email: `test${Date.now()}@example.com`,
+    }).returning()
+
+    // 全ユーザーを取得
+    const allUsers = await db.select().from(usersTable)
+
+    return c.json({
+      success: true,
+      message: 'User created successfully!',
+      newUser: newUser[0],
+      allUsers: allUsers,
+      totalCount: allUsers.length,
+    })
+  } catch (error) {
+    console.error('Error creating user:', error)
+    return c.json({
+      success: false,
+      message: 'Failed to create user',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }, 500)
+  }
 })
 
 export default app

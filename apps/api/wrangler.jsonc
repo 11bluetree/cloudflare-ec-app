@@ -11,7 +11,8 @@
     {
       "binding": "DB",
       "database_name": "ec-app-production",
-      "database_id": "4a472e75-3ca9-4cd0-a2d8-006f2a016a1d"
+      "database_id": "4a472e75-3ca9-4cd0-a2d8-006f2a016a1d",
+      "migrations_dir": "drizzle"
     }
   ],
   // 環境ごとの設定
