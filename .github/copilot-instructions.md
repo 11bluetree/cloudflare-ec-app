@@ -69,6 +69,13 @@ wrangler pages dev <dir>        # Pagesのローカル開発
 
 ## 重要な制約と規約
 
+### 環境変数と設定
+
+- **Viteのビルトイン環境変数を優先使用**: [Vite 環境変数とモード](https://ja.vite.dev/guide/env-and-mode)に記載されている`import.meta.env`の組み込み変数を活用する
+- クライアント公開用の環境変数には`VITE_`プレフィックスを使用
+- `.env.production`はViteが自動で読み込む（`vite.config.ts`で`define`を使わない）
+- Cloudflare Workers固有の環境変数が必要な場合のみ、`wrangler.jsonc`の`vars`や`.dev.vars`を使用
+
 ### バリデーション
 
 - **Zod**を使用してリクエスト/レスポンスのバリデーションを実施
