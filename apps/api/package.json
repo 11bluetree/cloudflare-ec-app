@@ -15,6 +15,9 @@
   },
   "dependencies": {
     "@cloudflare-ec-app/config": "workspace:*",
+    "@cloudflare-ec-app/library": "workspace:*",
+    "@cloudflare-ec-app/types": "workspace:*",
+    "@hono/zod-validator": "^0.7.4",
     "@libsql/client": "^0.15.15",
     "drizzle-orm": "^0.44.7",
     "hono": "^4.10.3",
