@@ -23,7 +23,8 @@
         {
           "binding": "DB",
           "database_name": "ec-app-dev",
-          "preview_database_id": "local"
+          "preview_database_id": "local",
+          "migrations_dir": "drizzle"
         }
       ]
     }
