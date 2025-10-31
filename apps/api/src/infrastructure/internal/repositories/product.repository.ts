@@ -10,12 +10,8 @@ import {
   toProductVariantEntity, 
   toProductImageEntity 
 } from '../mappers/product.mapper';
-import { 
-  productsTable, 
-  productVariantsTable, 
-  productImagesTable 
-} from '../db/schema';
-import { eq, and, gte, lte, like, or, asc, desc, sql, count } from 'drizzle-orm';
+import { productsTable, productVariantsTable, productImagesTable } from '../db/schema';
+import { count, eq, like, and, or, desc, asc, inArray } from 'drizzle-orm';
 import type { Product, ProductVariant, ProductImage } from '@cloudflare-ec-app/library';
 
 export class ProductRepository implements IProductRepository {
@@ -78,14 +74,14 @@ export class ProductRepository implements IProductRepository {
       ? await this.db
           .select()
           .from(productVariantsTable)
-          .where(sql`${productVariantsTable.productId} IN ${productIds}`)
+          .where(inArray(productVariantsTable.productId, productIds))
       : [];
 
     const images = productIds.length > 0
       ? await this.db
           .select()
           .from(productImagesTable)
-          .where(sql`${productImagesTable.productId} IN ${productIds}`)
+          .where(inArray(productImagesTable.productId, productIds))
       : [];
 
     // 価格フィルタリング（バリアント価格を使用）
@@ -113,6 +109,10 @@ export class ProductRepository implements IProductRepository {
         const productImages = images
           .filter(i => i.productId === row.id)
           .map(toProductImageEntity);
+
+        // バリアントと画像をProductエンティティに設定
+        product.setVariants(productVariants);
+        product.setImages(productImages);
 
         return {
           product,
@@ -151,10 +151,18 @@ export class ProductRepository implements IProductRepository {
       .from(productImagesTable)
       .where(eq(productImagesTable.productId, id));
 
+    const product = toProductEntity(productRow);
+    const productVariants = variants.map(toProductVariantEntity);
+    const productImages = images.map(toProductImageEntity);
+
+    // バリアントと画像をProductエンティティに設定
+    product.setVariants(productVariants);
+    product.setImages(productImages);
+
     return {
-      product: toProductEntity(productRow),
-      variants: variants.map(toProductVariantEntity),
-      images: images.map(toProductImageEntity),
+      product,
+      variants: productVariants,
+      images: productImages,
     };
   }
 
