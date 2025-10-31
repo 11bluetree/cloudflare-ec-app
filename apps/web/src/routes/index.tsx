@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
 interface HealthResponse {
@@ -57,6 +57,29 @@ function Index() {
         <p className="text-xl text-gray-600 mb-8">
           TanStack Router SPA with Radix UI & Tailwind CSS
         </p>
+
+        {/* 商品一覧へのリンク */}
+        <div className="mb-8">
+          <Link
+            to="/products"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            商品一覧を見る
+            <svg
+              className="ml-2 w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </Link>
+        </div>
 
         {/* API疎通確認セクション */}
         <div className="mb-8 p-6 bg-white rounded-lg shadow-md">

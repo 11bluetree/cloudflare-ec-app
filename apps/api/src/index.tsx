@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
 import { csrf } from 'hono/csrf'
 import { renderer } from './renderer'
 import productsRoute from './presentation/routes/products'
@@ -10,30 +9,6 @@ type Bindings = {
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
-
-// CORS設定（フロントエンドからのリクエストを許可）
-app.use(
-  '/api/*',
-  cors({
-    origin: (origin, c) => {
-      // 開発環境ではlocalhostを許可
-      if (import.meta.env.DEV) {
-        return origin
-      }
-      // 環境変数から許可するオリジンを取得
-      // wrangler.jsonc の vars または Cloudflare Dashboard で設定
-      const allowedOriginsStr = c.env.ALLOWED_ORIGINS || 'https://cloudflare-ec-app.pages.dev'
-      const allowedOrigins = allowedOriginsStr.split(',').map((o: string) => o.trim())
-      
-      return allowedOrigins.includes(origin) ? origin : allowedOrigins[0]
-    },
-    credentials: true, // Cookieを使用する場合は必須
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
-    exposeHeaders: ['Content-Length', 'X-Request-Id'],
-    maxAge: 600, // プリフライトリクエストのキャッシュ時間（秒）
-  })
-)
 
 // CSRF対策（状態を変更するエンドポイントを保護）
 // Auth.jsのエンドポイント(/api/auth/*)は独自のCSRF保護があるため除外
@@ -57,7 +32,7 @@ app.use('/api/categories', async (c, next) => {
 app.use(renderer)
 
 // ルート
-app.route('/products', productsRoute)
+app.route('/api/products', productsRoute)
 
 app.get('/', (c) => {
   return c.render(<h1>Hello!</h1>)

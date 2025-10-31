@@ -66,7 +66,6 @@ export const apiRequest = async <T>(
       ...getDefaultHeaders(includeAuth),
       ...fetchOptions.headers,
     },
-    credentials: 'include', // Cookieを含める（Auth.js用）
   })
 
   if (!response.ok) {
