@@ -8,6 +8,8 @@ export enum ProductStatus {
 }
 
 export class Product {
+  private static readonly MAX_VARIANTS = 500;
+
   private _variants: ProductVariant[] = [];
   private _images: ProductImage[] = [];
 
@@ -42,7 +44,17 @@ export class Product {
   }
 
   setVariants(variants: ProductVariant[]): void {
+    if (variants.length > Product.MAX_VARIANTS) {
+      throw new Error(`バリアントは${Product.MAX_VARIANTS}種類までしか登録できません`);
+    }
     this._variants = variants;
+  }
+
+  addVariant(variant: ProductVariant): void {
+    if (this._variants.length >= Product.MAX_VARIANTS) {
+      throw new Error(`バリアントは${Product.MAX_VARIANTS}種類までしか登録できません`);
+    }
+    this._variants.push(variant);
   }
 
   setImages(images: ProductImage[]): void {
