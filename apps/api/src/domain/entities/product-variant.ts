@@ -1,71 +1,53 @@
 import { Money } from '../value-objects/money';
 
 export class ProductVariant {
+  private static readonly MAX_SKU_LENGTH = 100;
+  private static readonly MAX_BARCODE_LENGTH = 100;
+  private static readonly MAX_IMAGE_URL_LENGTH = 500;
+  private static readonly MIN_PRICE = 0;
+  private static readonly MAX_PRICE = 1000000;
+  private static readonly MIN_DISPLAY_ORDER = 0;
+  private static readonly MAX_DISPLAY_ORDER = 500;
+
   constructor(
     public readonly id: string,
     public readonly productId: string,
     public readonly sku: string,
+    public readonly barcode: string | null,
+    public readonly imageUrl: string | null,
     private _price: Money,
-    private _stockQuantity: number,
-    public readonly size: string | null,
-    public readonly color: string | null,
     public readonly displayOrder: number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
-    if (_stockQuantity < 0) {
-      throw new Error('在庫数は0以上である必要があります');
+    // SKU制約
+    if (sku.length === 0 || sku.length > ProductVariant.MAX_SKU_LENGTH) {
+      throw new Error(`SKUは1文字以上${ProductVariant.MAX_SKU_LENGTH}文字以内である必要があります`);
+    }
+
+    // バーコード制約
+    if (barcode !== null && barcode.length > ProductVariant.MAX_BARCODE_LENGTH) {
+      throw new Error(`バーコードは${ProductVariant.MAX_BARCODE_LENGTH}文字以内である必要があります`);
+    }
+
+    // 画像URL制約
+    if (imageUrl !== null && imageUrl.length > ProductVariant.MAX_IMAGE_URL_LENGTH) {
+      throw new Error(`画像URLは${ProductVariant.MAX_IMAGE_URL_LENGTH}文字以内である必要があります`);
+    }
+
+    // 価格制約
+    const priceValue = _price.toNumber();
+    if (priceValue < ProductVariant.MIN_PRICE || priceValue >= ProductVariant.MAX_PRICE) {
+      throw new Error(`価格は${ProductVariant.MIN_PRICE}以上${ProductVariant.MAX_PRICE}円未満である必要があります`);
+    }
+
+    // 表示順序制約
+    if (displayOrder < ProductVariant.MIN_DISPLAY_ORDER || displayOrder > ProductVariant.MAX_DISPLAY_ORDER) {
+      throw new Error(`表示順序は${ProductVariant.MIN_DISPLAY_ORDER}以上${ProductVariant.MAX_DISPLAY_ORDER}以下である必要があります`);
     }
   }
 
   get price(): Money {
     return this._price;
-  }
-
-  get stockQuantity(): number {
-    return this._stockQuantity;
-  }
-
-  isInStock(): boolean {
-    return this._stockQuantity > 0;
-  }
-
-  hasEnoughStock(quantity: number): boolean {
-    return this._stockQuantity >= quantity;
-  }
-
-  decreaseStock(quantity: number): void {
-    if (quantity < 0) {
-      throw new Error('数量は0以上である必要があります');
-    }
-    if (!this.hasEnoughStock(quantity)) {
-      throw new Error('在庫が不足しています');
-    }
-    this._stockQuantity -= quantity;
-  }
-
-  increaseStock(quantity: number): void {
-    if (quantity < 0) {
-      throw new Error('数量は0以上である必要があります');
-    }
-    this._stockQuantity += quantity;
-  }
-
-  updatePrice(newPrice: Money): void {
-    this._price = newPrice;
-  }
-
-  setStockQuantity(quantity: number): void {
-    if (quantity < 0) {
-      throw new Error('在庫数は0以上である必要があります');
-    }
-    this._stockQuantity = quantity;
-  }
-
-  getVariantName(): string {
-    const parts: string[] = [];
-    if (this.size) parts.push(this.size);
-    if (this.color) parts.push(this.color);
-    return parts.join(' / ') || 'デフォルト';
   }
 }
