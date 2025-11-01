@@ -1,4 +1,4 @@
-import { Product, ProductVariant, ProductImage, ProductStatus, Money } from '@cloudflare-ec-app/library';
+import { Product, ProductVariant, ProductImage, type ProductStatus, Money } from '../../../domain';
 import type { 
   categoriesTable, 
   productsTable, 

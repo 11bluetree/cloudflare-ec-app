@@ -12,7 +12,7 @@ import {
 } from '../mappers/product.mapper';
 import { productsTable, productVariantsTable, productImagesTable } from '../db/schema';
 import { count, eq, like, and, or, desc, asc, inArray } from 'drizzle-orm';
-import type { Product, ProductVariant, ProductImage } from '@cloudflare-ec-app/library';
+import type { Product, ProductVariant, ProductImage } from '../../../domain';
 
 export class ProductRepository implements IProductRepository {
   constructor(private readonly db: DbInstance) {}

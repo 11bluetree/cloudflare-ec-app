@@ -3,6 +3,8 @@ pre-commit:
   commands:
     gitleaks:
       run: gitleaks protect --verbose --redact --staged
+    typecheck:
+      run: pnpm typecheck
     eslint:
       run: pnpm lint
 
