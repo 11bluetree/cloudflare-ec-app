@@ -69,7 +69,38 @@ describe('ProductVariant Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('SKUは1文字以上100文字以内である必要があります');
+        }).toThrow('SKUは空白のみにできません');
+      });
+
+      it('空白のみの場合はエラー', () => {
+        expect(() => {
+          new ProductVariant(
+            validParams.id,
+            validParams.productId,
+            '   ',
+            validParams.barcode,
+            validParams.imageUrl,
+            validParams.price,
+            validParams.displayOrder,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).toThrow('SKUは空白のみにできません');
+      });
+
+      it('前後の空白は自動でトリミングされる', () => {
+        const variant = new ProductVariant(
+          validParams.id,
+          validParams.productId,
+          '  SKU-001  ',
+          validParams.barcode,
+          validParams.imageUrl,
+          validParams.price,
+          validParams.displayOrder,
+          validParams.createdAt,
+          validParams.updatedAt
+        );
+        expect(variant.sku).toBe('SKU-001');
       });
 
       it('100文字の場合は成功', () => {
@@ -102,7 +133,7 @@ describe('ProductVariant Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('SKUは1文字以上100文字以内である必要があります');
+        }).toThrow('SKUは100文字以内である必要があります');
       });
     });
 

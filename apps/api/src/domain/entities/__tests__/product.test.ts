@@ -43,7 +43,34 @@ describe('Product Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('商品名は1文字以上200文字以内である必要があります');
+        }).toThrow('商品名は空白のみにできません');
+      });
+
+      it('空白のみの場合はエラー', () => {
+        expect(() => {
+          new Product(
+            validParams.id,
+            '   ',
+            validParams.description,
+            validParams.categoryId,
+            validParams.status,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).toThrow('商品名は空白のみにできません');
+      });
+
+      it('前後の空白は自動でトリミングされる', () => {
+        const product = new Product(
+          validParams.id,
+          '  商品名  ',
+          validParams.description,
+          validParams.categoryId,
+          validParams.status,
+          validParams.createdAt,
+          validParams.updatedAt
+        );
+        expect(product.name).toBe('商品名');
       });
 
       it('200文字の場合は成功', () => {
@@ -72,7 +99,7 @@ describe('Product Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('商品名は1文字以上200文字以内である必要があります');
+        }).toThrow('商品名は200文字以内である必要があります');
       });
     });
 
@@ -88,7 +115,34 @@ describe('Product Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('商品説明は1文字以上4096文字以内である必要があります');
+        }).toThrow('商品説明は空白のみにできません');
+      });
+
+      it('空白のみの場合はエラー', () => {
+        expect(() => {
+          new Product(
+            validParams.id,
+            validParams.name,
+            '   ',
+            validParams.categoryId,
+            validParams.status,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).toThrow('商品説明は空白のみにできません');
+      });
+
+      it('前後の空白は自動でトリミングされる', () => {
+        const product = new Product(
+          validParams.id,
+          validParams.name,
+          '  商品説明  ',
+          validParams.categoryId,
+          validParams.status,
+          validParams.createdAt,
+          validParams.updatedAt
+        );
+        expect(product.description).toBe('商品説明');
       });
 
       it('4096文字の場合は成功', () => {
@@ -117,7 +171,7 @@ describe('Product Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('商品説明は1文字以上4096文字以内である必要があります');
+        }).toThrow('商品説明は4096文字以内である必要があります');
       });
     });
   });

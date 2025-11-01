@@ -12,7 +12,7 @@ export class ProductVariant {
   constructor(
     public readonly id: string,
     public readonly productId: string,
-    public readonly sku: string,
+    private _sku: string,
     public readonly barcode: string | null,
     public readonly imageUrl: string | null,
     private _price: Money,
@@ -20,10 +20,18 @@ export class ProductVariant {
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
+    // SKUのトリミング
+    _sku = _sku.trim();
+
     // SKU制約
-    if (sku.length === 0 || sku.length > ProductVariant.MAX_SKU_LENGTH) {
-      throw new Error(`SKUは1文字以上${ProductVariant.MAX_SKU_LENGTH}文字以内である必要があります`);
+    if (_sku.length === 0) {
+      throw new Error('SKUは空白のみにできません');
     }
+    if (_sku.length > ProductVariant.MAX_SKU_LENGTH) {
+      throw new Error(`SKUは${ProductVariant.MAX_SKU_LENGTH}文字以内である必要があります`);
+    }
+
+    this._sku = _sku;
 
     // バーコード制約
     if (barcode !== null && barcode.length > ProductVariant.MAX_BARCODE_LENGTH) {
@@ -49,5 +57,9 @@ export class ProductVariant {
 
   get price(): Money {
     return this._price;
+  }
+
+  get sku(): string {
+    return this._sku;
   }
 }

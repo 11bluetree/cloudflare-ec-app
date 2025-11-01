@@ -19,13 +19,26 @@ export class Product {
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
+    // 名前のトリミング
+    _name = _name.trim();
+    _description = _description.trim();
+
     // 文字数制約のバリデーション
-    if (_name.length === 0 || _name.length > Product.MAX_NAME_LENGTH) {
-      throw new Error(`商品名は1文字以上${Product.MAX_NAME_LENGTH}文字以内である必要があります`);
+    if (_name.length === 0) {
+      throw new Error('商品名は空白のみにできません');
     }
-    if (_description.length === 0 || _description.length > Product.MAX_DESCRIPTION_LENGTH) {
-      throw new Error(`商品説明は1文字以上${Product.MAX_DESCRIPTION_LENGTH}文字以内である必要があります`);
+    if (_name.length > Product.MAX_NAME_LENGTH) {
+      throw new Error(`商品名は${Product.MAX_NAME_LENGTH}文字以内である必要があります`);
     }
+    if (_description.length === 0) {
+      throw new Error('商品説明は空白のみにできません');
+    }
+    if (_description.length > Product.MAX_DESCRIPTION_LENGTH) {
+      throw new Error(`商品説明は${Product.MAX_DESCRIPTION_LENGTH}文字以内である必要があります`);
+    }
+
+    this._name = _name;
+    this._description = _description;
   }
 
   get name(): string {
