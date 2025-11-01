@@ -1,4 +1,4 @@
-import type { Product, ProductVariant, ProductImage } from '@cloudflare-ec-app/library';
+import type { Product, ProductVariant, ProductImage } from '../../../domain'
 
 /**
  * 商品検索条件

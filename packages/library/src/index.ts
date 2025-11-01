@@ -1,4 +1,2 @@
-export * from './domain/entities/product';
-export * from './domain/entities/product-variant';
-export * from './domain/entities/product-image';
-export * from './domain/value-objects/money';
+// このパッケージは将来的に共有ドメインロジックやユーティリティ関数を配置するために予約されています
+// 現在はAPI固有のドメインエンティティはapps/api/src/domainに配置されています
