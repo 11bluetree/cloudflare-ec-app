@@ -12,7 +12,10 @@
     "db:migrate:prod": "wrangler d1 migrations apply DB --remote",
     "db:seed": "tsx src/db/seed.ts",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest --run",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@cloudflare-ec-app/config": "workspace:*",
@@ -28,12 +31,14 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.2.3",
     "@types/better-sqlite3": "^7.6.13",
+    "@vitest/ui": "^4.0.6",
     "better-sqlite3": "^12.4.1",
     "drizzle-kit": "^0.31.5",
     "sql.js": "^1.13.0",
     "tsx": "^4.20.6",
     "vite": "^6.3.5",
     "vite-ssr-components": "^0.5.1",
+    "vitest": "^4.0.6",
     "wrangler": "^4.17.0"
   }
 }
