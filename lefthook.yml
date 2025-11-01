@@ -3,9 +3,13 @@ pre-commit:
   commands:
     gitleaks:
       run: gitleaks protect --verbose --redact --staged
+    eslint:
+      run: pnpm lint
 
 pre-push:
   commands:
     gitleaks:
       run: gitleaks detect --verbose --redact
+    tests:
+      run: pnpm test
 
