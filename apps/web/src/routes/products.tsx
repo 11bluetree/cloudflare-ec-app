@@ -25,7 +25,7 @@ interface ProductsResponse {
   }
 }
 
-const fetchProducts = async (): Promise<ProductsResponse> => {
+const fetchProducts = (): Promise<ProductsResponse> => {
   return apiGet<ProductsResponse>('/api/products')
 }
 
