@@ -14,7 +14,7 @@ describe('ProductImage Entity', () => {
 
   describe('constructor', () => {
     it('正常な値でインスタンスを作成できる', () => {
-      const image = new ProductImage(
+      const image = ProductImage.create(
         validParams.id,
         validParams.productId,
         validParams.productVariantId,
@@ -32,7 +32,7 @@ describe('ProductImage Entity', () => {
     });
 
     it('productVariantIdがnullでも作成できる（商品共通画像）', () => {
-      const image = new ProductImage(
+      const image = ProductImage.create(
         validParams.id,
         validParams.productId,
         null,
@@ -48,7 +48,7 @@ describe('ProductImage Entity', () => {
     describe('productId validation', () => {
       it('productIdが空文字列の場合はエラー', () => {
         expect(() => {
-          new ProductImage(
+          ProductImage.create(
             validParams.id,
             '',
             validParams.productVariantId,
@@ -64,7 +64,7 @@ describe('ProductImage Entity', () => {
     describe('imageUrl validation', () => {
       it('画像URLが空文字列の場合はエラー', () => {
         expect(() => {
-          new ProductImage(
+          ProductImage.create(
             validParams.id,
             validParams.productId,
             validParams.productVariantId,
@@ -78,7 +78,7 @@ describe('ProductImage Entity', () => {
 
       it('画像URLが500文字の場合は成功', () => {
         const imageUrl = 'https://example.com/' + 'a'.repeat(480);
-        const image = new ProductImage(
+        const image = ProductImage.create(
           validParams.id,
           validParams.productId,
           validParams.productVariantId,
@@ -93,7 +93,7 @@ describe('ProductImage Entity', () => {
       it('画像URLが501文字の場合はエラー', () => {
         const imageUrl = 'https://example.com/' + 'a'.repeat(481);
         expect(() => {
-          new ProductImage(
+          ProductImage.create(
             validParams.id,
             validParams.productId,
             validParams.productVariantId,
@@ -108,7 +108,7 @@ describe('ProductImage Entity', () => {
 
     describe('displayOrder validation', () => {
       it('表示順序が1の場合は成功', () => {
-        const image = new ProductImage(
+        const image = ProductImage.create(
           validParams.id,
           validParams.productId,
           validParams.productVariantId,
@@ -122,7 +122,7 @@ describe('ProductImage Entity', () => {
 
       it('表示順序が0の場合はエラー', () => {
         expect(() => {
-          new ProductImage(
+          ProductImage.create(
             validParams.id,
             validParams.productId,
             validParams.productVariantId,
@@ -136,7 +136,7 @@ describe('ProductImage Entity', () => {
 
       it('表示順序が負の場合はエラー', () => {
         expect(() => {
-          new ProductImage(
+          ProductImage.create(
             validParams.id,
             validParams.productId,
             validParams.productVariantId,

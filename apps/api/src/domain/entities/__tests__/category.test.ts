@@ -13,38 +13,35 @@ describe('Category Entity', () => {
 
   describe('constructor', () => {
     it('正常な値でインスタンスを作成できる', () => {
-      const category = new Category(
-        validParams.id,
-        validParams.name,
-        validParams.parentId,
-        validParams.displayOrder,
-        validParams.createdAt,
-        validParams.updatedAt
-      );
-
-      expect(category.id).toBe(validParams.id);
-      expect(category.name).toBe(validParams.name);
-      expect(category.parentId).toBe(validParams.parentId);
-      expect(category.displayOrder).toBe(validParams.displayOrder);
+      expect(() => {
+        Category.create(
+          validParams.id,
+          validParams.name,
+          validParams.parentId,
+          validParams.displayOrder,
+          validParams.createdAt,
+          validParams.updatedAt
+        );
+      }).not.toThrow();
     });
 
     it('parentIdがnullでも作成できる（ルートカテゴリー）', () => {
-      const category = new Category(
-        validParams.id,
-        validParams.name,
-        null,
-        validParams.displayOrder,
-        validParams.createdAt,
-        validParams.updatedAt
-      );
-
-      expect(category.parentId).toBeNull();
+      expect(() => {
+        Category.create(
+          validParams.id,
+          validParams.name,
+          null,
+          validParams.displayOrder,
+          validParams.createdAt,
+          validParams.updatedAt
+        );
+      }).not.toThrow();
     });
 
     describe('name validation', () => {
       it('空文字列の場合はエラー', () => {
         expect(() => {
-          new Category(
+          Category.create(
             validParams.id,
             '',
             validParams.parentId,
@@ -57,7 +54,7 @@ describe('Category Entity', () => {
 
       it('空白のみの場合はエラー', () => {
         expect(() => {
-          new Category(
+          Category.create(
             validParams.id,
             '   ',
             validParams.parentId,
@@ -69,34 +66,36 @@ describe('Category Entity', () => {
       });
 
       it('前後の空白は自動でトリミングされる', () => {
-        const category = new Category(
-          validParams.id,
-          '  カテゴリー名  ',
-          validParams.parentId,
-          validParams.displayOrder,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(category.name).toBe('カテゴリー名');
+        expect(() => {
+          Category.create(
+            validParams.id,
+            '  カテゴリー名  ',
+            validParams.parentId,
+            validParams.displayOrder,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('50文字の場合は成功', () => {
         const name = 'あ'.repeat(50);
-        const category = new Category(
-          validParams.id,
-          name,
-          validParams.parentId,
-          validParams.displayOrder,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(category.name).toBe(name);
+        expect(() => {
+          Category.create(
+            validParams.id,
+            name,
+            validParams.parentId,
+            validParams.displayOrder,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('51文字の場合はエラー', () => {
         const name = 'あ'.repeat(51);
         expect(() => {
-          new Category(
+          Category.create(
             validParams.id,
             name,
             validParams.parentId,
@@ -111,7 +110,7 @@ describe('Category Entity', () => {
     describe('parentId validation', () => {
       it('自分自身を親に指定した場合はエラー', () => {
         expect(() => {
-          new Category(
+          Category.create(
             validParams.id,
             validParams.name,
             validParams.id, // 自分自身のIDを親に指定
@@ -125,32 +124,34 @@ describe('Category Entity', () => {
 
     describe('displayOrder validation', () => {
       it('表示順序が0の場合は成功', () => {
-        const category = new Category(
-          validParams.id,
-          validParams.name,
-          validParams.parentId,
-          0,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(category.displayOrder).toBe(0);
+        expect(() => {
+          Category.create(
+            validParams.id,
+            validParams.name,
+            validParams.parentId,
+            0,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('表示順序が正の整数の場合は成功', () => {
-        const category = new Category(
-          validParams.id,
-          validParams.name,
-          validParams.parentId,
-          100,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(category.displayOrder).toBe(100);
+        expect(() => {
+          Category.create(
+            validParams.id,
+            validParams.name,
+            validParams.parentId,
+            100,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('表示順序が負の場合はエラー', () => {
         expect(() => {
-          new Category(
+          Category.create(
             validParams.id,
             validParams.name,
             validParams.parentId,

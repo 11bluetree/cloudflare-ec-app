@@ -1,39 +1,60 @@
-export class Category {
-  private static readonly MAX_NAME_LENGTH = 50;
+import { z } from 'zod';
 
-  constructor(
+const MAX_NAME_LENGTH = 50;
+const MIN_DISPLAY_ORDER = 0;
+
+const categorySchema = z
+  .object({
+    id: z.string(),
+    name: z
+      .string()
+      .trim()
+      .min(1, { message: 'カテゴリー名は空白のみにできません' })
+      .max(MAX_NAME_LENGTH, { message: `カテゴリー名は${MAX_NAME_LENGTH}文字以内である必要があります` }),
+    parentId: z.string().nullable(),
+    displayOrder: z.number().min(MIN_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上である必要があります` }),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+  })
+  .refine((data) => data.parentId !== data.id, {
+    message: '自分自身を親カテゴリーに指定できません',
+  });
+
+export class Category {
+
+  private constructor(
     public readonly id: string,
-    private _name: string,
+    public readonly name: string,
     public readonly parentId: string | null,
     public readonly displayOrder: number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
-  ) {
-    // 名前のトリミング
-    _name = _name.trim();
+  ) {}
 
-    // 文字数制約
-    if (_name.length === 0) {
-      throw new Error('カテゴリー名は空白のみにできません');
-    }
-    if (_name.length > Category.MAX_NAME_LENGTH) {
-      throw new Error(`カテゴリー名は${Category.MAX_NAME_LENGTH}文字以内である必要があります`);
-    }
+  static create(
+    id: string,
+    name: string,
+    parentId: string | null,
+    displayOrder: number,
+    createdAt: Date,
+    updatedAt: Date
+  ): Category {
+    const validated = categorySchema.parse({
+      id,
+      name,
+      parentId,
+      displayOrder,
+      createdAt,
+      updatedAt,
+    });
 
-    // 自己参照チェック
-    if (parentId === id) {
-      throw new Error('自分自身を親カテゴリーに指定できません');
-    }
-
-    // 表示順序制約（0以上）
-    if (displayOrder < 0) {
-      throw new Error('表示順序は0以上である必要があります');
-    }
-
-    this._name = _name;
-  }
-
-  get name(): string {
-    return this._name;
+    return new Category(
+      validated.id,
+      validated.name,
+      validated.parentId,
+      validated.displayOrder,
+      validated.createdAt,
+      validated.updatedAt
+    );
   }
 }

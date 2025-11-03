@@ -1,15 +1,47 @@
+import { z } from 'zod';
 import { Money } from '../value-objects/money';
 
-export class ProductVariant {
-  private static readonly MAX_SKU_LENGTH = 100;
-  private static readonly MAX_BARCODE_LENGTH = 100;
-  private static readonly MAX_IMAGE_URL_LENGTH = 500;
-  private static readonly MIN_PRICE = 0;
-  private static readonly MAX_PRICE = 1000000;
-  private static readonly MIN_DISPLAY_ORDER = 0;
-  private static readonly MAX_DISPLAY_ORDER = 500;
+const MAX_SKU_LENGTH = 100;
+const MAX_BARCODE_LENGTH = 100;
+const MAX_IMAGE_URL_LENGTH = 500;
+const MIN_PRICE = 0;
+const MAX_PRICE = 1000000;
+const MIN_DISPLAY_ORDER = 0;
+const MAX_DISPLAY_ORDER = 500;
 
-  constructor(
+const productVariantSchema = z.object({
+  id: z.string(),
+  productId: z.string(),
+  sku: z
+    .string()
+    .trim()
+    .min(1, { message: 'SKUは空白のみにできません' })
+    .max(MAX_SKU_LENGTH, { message: `SKUは${MAX_SKU_LENGTH}文字以内である必要があります` }),
+  barcode: z
+    .string()
+    .max(MAX_BARCODE_LENGTH, { message: `バーコードは${MAX_BARCODE_LENGTH}文字以内である必要があります` })
+    .nullable(),
+  imageUrl: z
+    .string()
+    .max(MAX_IMAGE_URL_LENGTH, { message: `画像URLは${MAX_IMAGE_URL_LENGTH}文字以内である必要があります` })
+    .nullable(),
+  price: z.custom<Money>(
+    (val) => val instanceof Money && val.toNumber() >= MIN_PRICE && val.toNumber() < MAX_PRICE,
+    {
+      message: `価格は${MIN_PRICE}以上${MAX_PRICE}円未満である必要があります`,
+    }
+  ),
+  displayOrder: z
+    .number()
+    .min(MIN_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上${MAX_DISPLAY_ORDER}以下である必要があります` })
+    .max(MAX_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上${MAX_DISPLAY_ORDER}以下である必要があります` }),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export class ProductVariant {
+
+  private constructor(
     public readonly id: string,
     public readonly productId: string,
     private _sku: string,
@@ -20,46 +52,42 @@ export class ProductVariant {
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
-    // SKUのトリミング
-    _sku = _sku.trim();
-
-    // SKU制約
-    if (_sku.length === 0) {
-      throw new Error('SKUは空白のみにできません');
-    }
-    if (_sku.length > ProductVariant.MAX_SKU_LENGTH) {
-      throw new Error(`SKUは${ProductVariant.MAX_SKU_LENGTH}文字以内である必要があります`);
-    }
-
     this._sku = _sku;
-
-    // バーコード制約
-    if (barcode !== null && barcode.length > ProductVariant.MAX_BARCODE_LENGTH) {
-      throw new Error(`バーコードは${ProductVariant.MAX_BARCODE_LENGTH}文字以内である必要があります`);
-    }
-
-    // 画像URL制約
-    if (imageUrl !== null && imageUrl.length > ProductVariant.MAX_IMAGE_URL_LENGTH) {
-      throw new Error(`画像URLは${ProductVariant.MAX_IMAGE_URL_LENGTH}文字以内である必要があります`);
-    }
-
-    // 価格制約
-    const priceValue = _price.toNumber();
-    if (priceValue < ProductVariant.MIN_PRICE || priceValue >= ProductVariant.MAX_PRICE) {
-      throw new Error(`価格は${ProductVariant.MIN_PRICE}以上${ProductVariant.MAX_PRICE}円未満である必要があります`);
-    }
-
-    // 表示順序制約
-    if (displayOrder < ProductVariant.MIN_DISPLAY_ORDER || displayOrder > ProductVariant.MAX_DISPLAY_ORDER) {
-      throw new Error(`表示順序は${ProductVariant.MIN_DISPLAY_ORDER}以上${ProductVariant.MAX_DISPLAY_ORDER}以下である必要があります`);
-    }
   }
 
-  get price(): Money {
-    return this._price;
-  }
+  static create(
+    id: string,
+    productId: string,
+    sku: string,
+    barcode: string | null,
+    imageUrl: string | null,
+    price: Money,
+    displayOrder: number,
+    createdAt: Date,
+    updatedAt: Date
+  ): ProductVariant {
+    const validated = productVariantSchema.parse({
+      id,
+      productId,
+      sku,
+      barcode,
+      imageUrl,
+      price,
+      displayOrder,
+      createdAt,
+      updatedAt,
+    });
 
-  get sku(): string {
-    return this._sku;
+    return new ProductVariant(
+      validated.id,
+      validated.productId,
+      validated.sku,
+      validated.barcode,
+      validated.imageUrl,
+      validated.price,
+      validated.displayOrder,
+      validated.createdAt,
+      validated.updatedAt
+    );
   }
 }

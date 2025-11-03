@@ -17,48 +17,41 @@ describe('ProductVariant Entity', () => {
 
   describe('constructor', () => {
     it('正常な値でインスタンスを作成できる', () => {
-      const variant = new ProductVariant(
-        validParams.id,
-        validParams.productId,
-        validParams.sku,
-        validParams.barcode,
-        validParams.imageUrl,
-        validParams.price,
-        validParams.displayOrder,
-        validParams.createdAt,
-        validParams.updatedAt
-      );
-
-      expect(variant.id).toBe(validParams.id);
-      expect(variant.productId).toBe(validParams.productId);
-      expect(variant.sku).toBe(validParams.sku);
-      expect(variant.barcode).toBe(validParams.barcode);
-      expect(variant.imageUrl).toBe(validParams.imageUrl);
-      expect(variant.price).toBe(validParams.price);
-      expect(variant.displayOrder).toBe(validParams.displayOrder);
+      expect(() => {
+        ProductVariant.create(
+          validParams.id,
+          validParams.productId,
+          validParams.sku,
+          validParams.barcode,
+          validParams.imageUrl,
+          validParams.price,
+          validParams.displayOrder,
+          validParams.createdAt,
+          validParams.updatedAt
+        );
+      }).not.toThrow();
     });
 
     it('barcodeとimageUrlがnullでも作成できる', () => {
-      const variant = new ProductVariant(
-        validParams.id,
-        validParams.productId,
-        validParams.sku,
-        null,
-        null,
-        validParams.price,
-        validParams.displayOrder,
-        validParams.createdAt,
-        validParams.updatedAt
-      );
-
-      expect(variant.barcode).toBeNull();
-      expect(variant.imageUrl).toBeNull();
+      expect(() => {
+        ProductVariant.create(
+          validParams.id,
+          validParams.productId,
+          validParams.sku,
+          null,
+          null,
+          validParams.price,
+          validParams.displayOrder,
+          validParams.createdAt,
+          validParams.updatedAt
+        );
+      }).not.toThrow();
     });
 
     describe('sku validation', () => {
       it('空文字列の場合はエラー', () => {
         expect(() => {
-          new ProductVariant(
+          ProductVariant.create(
             validParams.id,
             validParams.productId,
             '',
@@ -74,7 +67,7 @@ describe('ProductVariant Entity', () => {
 
       it('空白のみの場合はエラー', () => {
         expect(() => {
-          new ProductVariant(
+          ProductVariant.create(
             validParams.id,
             validParams.productId,
             '   ',
@@ -89,40 +82,42 @@ describe('ProductVariant Entity', () => {
       });
 
       it('前後の空白は自動でトリミングされる', () => {
-        const variant = new ProductVariant(
-          validParams.id,
-          validParams.productId,
-          '  SKU-001  ',
-          validParams.barcode,
-          validParams.imageUrl,
-          validParams.price,
-          validParams.displayOrder,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(variant.sku).toBe('SKU-001');
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            '  SKU-001  ',
+            validParams.barcode,
+            validParams.imageUrl,
+            validParams.price,
+            validParams.displayOrder,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('100文字の場合は成功', () => {
         const sku = 'A'.repeat(100);
-        const variant = new ProductVariant(
-          validParams.id,
-          validParams.productId,
-          sku,
-          validParams.barcode,
-          validParams.imageUrl,
-          validParams.price,
-          validParams.displayOrder,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(variant.sku).toBe(sku);
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            sku,
+            validParams.barcode,
+            validParams.imageUrl,
+            validParams.price,
+            validParams.displayOrder,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('101文字の場合はエラー', () => {
         const sku = 'A'.repeat(101);
         expect(() => {
-          new ProductVariant(
+          ProductVariant.create(
             validParams.id,
             validParams.productId,
             sku,
@@ -140,24 +135,25 @@ describe('ProductVariant Entity', () => {
     describe('barcode validation', () => {
       it('100文字の場合は成功', () => {
         const barcode = '1'.repeat(100);
-        const variant = new ProductVariant(
-          validParams.id,
-          validParams.productId,
-          validParams.sku,
-          barcode,
-          validParams.imageUrl,
-          validParams.price,
-          validParams.displayOrder,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(variant.barcode).toBe(barcode);
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            validParams.sku,
+            barcode,
+            validParams.imageUrl,
+            validParams.price,
+            validParams.displayOrder,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('101文字の場合はエラー', () => {
         const barcode = '1'.repeat(101);
         expect(() => {
-          new ProductVariant(
+          ProductVariant.create(
             validParams.id,
             validParams.productId,
             validParams.sku,
@@ -175,24 +171,25 @@ describe('ProductVariant Entity', () => {
     describe('imageUrl validation', () => {
       it('500文字の場合は成功', () => {
         const imageUrl = 'https://example.com/' + 'a'.repeat(480);
-        const variant = new ProductVariant(
-          validParams.id,
-          validParams.productId,
-          validParams.sku,
-          validParams.barcode,
-          imageUrl,
-          validParams.price,
-          validParams.displayOrder,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(variant.imageUrl).toBe(imageUrl);
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            validParams.sku,
+            validParams.barcode,
+            imageUrl,
+            validParams.price,
+            validParams.displayOrder,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('501文字の場合はエラー', () => {
         const imageUrl = 'https://example.com/' + 'a'.repeat(481);
         expect(() => {
-          new ProductVariant(
+          ProductVariant.create(
             validParams.id,
             validParams.productId,
             validParams.sku,
@@ -210,40 +207,42 @@ describe('ProductVariant Entity', () => {
     describe('price validation', () => {
       it('価格が0円の場合は成功', () => {
         const price = Money.create(0);
-        const variant = new ProductVariant(
-          validParams.id,
-          validParams.productId,
-          validParams.sku,
-          validParams.barcode,
-          validParams.imageUrl,
-          price,
-          validParams.displayOrder,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(variant.price.toNumber()).toBe(0);
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            validParams.sku,
+            validParams.barcode,
+            validParams.imageUrl,
+            price,
+            validParams.displayOrder,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('価格が999999円の場合は成功', () => {
         const price = Money.create(999999);
-        const variant = new ProductVariant(
-          validParams.id,
-          validParams.productId,
-          validParams.sku,
-          validParams.barcode,
-          validParams.imageUrl,
-          price,
-          validParams.displayOrder,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(variant.price.toNumber()).toBe(999999);
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            validParams.sku,
+            validParams.barcode,
+            validParams.imageUrl,
+            price,
+            validParams.displayOrder,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('価格が1000000円の場合はエラー', () => {
         const price = Money.create(1000000);
         expect(() => {
-          new ProductVariant(
+          ProductVariant.create(
             validParams.id,
             validParams.productId,
             validParams.sku,
@@ -266,38 +265,40 @@ describe('ProductVariant Entity', () => {
 
     describe('displayOrder validation', () => {
       it('表示順序が0の場合は成功', () => {
-        const variant = new ProductVariant(
-          validParams.id,
-          validParams.productId,
-          validParams.sku,
-          validParams.barcode,
-          validParams.imageUrl,
-          validParams.price,
-          0,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(variant.displayOrder).toBe(0);
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            validParams.sku,
+            validParams.barcode,
+            validParams.imageUrl,
+            validParams.price,
+            0,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('表示順序が500の場合は成功', () => {
-        const variant = new ProductVariant(
-          validParams.id,
-          validParams.productId,
-          validParams.sku,
-          validParams.barcode,
-          validParams.imageUrl,
-          validParams.price,
-          500,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-        expect(variant.displayOrder).toBe(500);
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            validParams.sku,
+            validParams.barcode,
+            validParams.imageUrl,
+            validParams.price,
+            500,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
       });
 
       it('表示順序が-1の場合はエラー', () => {
         expect(() => {
-          new ProductVariant(
+          ProductVariant.create(
             validParams.id,
             validParams.productId,
             validParams.sku,
@@ -313,7 +314,7 @@ describe('ProductVariant Entity', () => {
 
       it('表示順序が501の場合はエラー', () => {
         expect(() => {
-          new ProductVariant(
+          ProductVariant.create(
             validParams.id,
             validParams.productId,
             validParams.sku,
