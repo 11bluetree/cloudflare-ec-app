@@ -1,0 +1,15 @@
+# ビルド成果物
+dist
+.wrangler
+node_modules
+
+# 自動生成ファイル
+routeTree.gen.ts
+worker-configuration.d.ts
+pnpm-lock.yaml
+
+# ログファイル
+*.log
+
+# SQLマイグレーション（手動編集の可能性があるため除外）
+drizzle/*.sql
