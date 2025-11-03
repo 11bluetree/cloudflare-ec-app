@@ -3,3 +3,5 @@
 
 # 許可するオリジン（カンマ区切りで複数指定可能）
 ALLOWED_ORIGINS=http://localhost:5173
+
+DB_FILE_PATH="path to .sqlite file"
