@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import product from './presentation/routes/products'
 
 type Bindings = {
   ALLOWED_ORIGINS?: string
@@ -16,5 +17,8 @@ app.get('/api/health', (c) => {
     environment: import.meta.env.DEV ? 'development' : 'production',
   })
 })
+
+// 商品ルート
+app.route('/api/products', product)
 
 export default app
