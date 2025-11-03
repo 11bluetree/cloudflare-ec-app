@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest';
+import { faker } from '@faker-js/faker';
 import { Category } from '../category';
 
 describe('Category Entity', () => {
   const validParams = {
-    id: '01JCQZ8X9Y0CATEGORYID1234',
-    name: 'カテゴリー名',
-    parentId: '01JCQZ8X9Y0PARENTID123456',
-    displayOrder: 1,
+    id: faker.string.uuid(),
+    name: faker.commerce.department(),
+    parentId: faker.string.uuid(),
+    displayOrder: faker.number.int({ min: 1, max: 100 }),
     createdAt: new Date(),
     updatedAt: new Date(),
   };

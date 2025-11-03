@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest';
+import { faker } from '@faker-js/faker';
 import { ProductImage } from '../product-image';
 
 describe('ProductImage Entity', () => {
   const validParams = {
-    id: '01JCQZ8X9Y0IMAGEID1234567',
-    productId: '01JCQZ8X9Y0PRODUCTID12345',
-    productVariantId: '01JCQZ8X9Y0VARIANTID12345',
-    imageUrl: 'https://example.com/image.jpg',
-    displayOrder: 1,
+    id: faker.string.uuid(),
+    productId: faker.string.uuid(),
+    productVariantId: faker.string.uuid(),
+    imageUrl: faker.image.url(),
+    displayOrder: faker.number.int({ min: 1, max: 10 }),
     createdAt: new Date(),
     updatedAt: new Date(),
   };

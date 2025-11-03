@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { faker } from '@faker-js/faker';
 import { Product, ProductStatus } from '../product';
 import { ProductOption } from '../product-option';
 
@@ -9,15 +10,15 @@ const MAX_OPTIONS_PER_PRODUCT = 5;
 
 describe('Product Entity', () => {
   const validParams = {
-    id: '01JCQZ8X9Y0ABCDEFGHIJKLMN',
-    name: '商品名',
-    description: '商品説明',
-    categoryId: '01JCQZ8X9Y0CATEGORYID123',
+    id: faker.string.uuid(),
+    name: faker.commerce.productName(),
+    description: faker.commerce.productDescription(),
+    categoryId: faker.string.uuid(),
     status: ProductStatus.DRAFT,
     options: [
       ProductOption.create(
-        '01JCQZ8X9Y0OPTIONID123456',
-        '01JCQZ8X9Y0ABCDEFGHIJKLMN',
+        faker.string.uuid(),
+        faker.string.uuid(),
         'タイトル',
         0,
         new Date(),

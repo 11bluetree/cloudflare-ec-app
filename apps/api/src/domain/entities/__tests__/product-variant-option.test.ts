@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest';
+import { faker } from '@faker-js/faker';
 import { ProductVariantOption } from '../product-variant-option';
 
 describe('ProductVariantOption Entity', () => {
   const validParams = {
-    id: '01JCQZ8X9Y0VAROPTID123456',
-    productVariantId: '01JCQZ8X9Y0VARIANTID12345',
+    id: faker.string.uuid(),
+    productVariantId: faker.string.uuid(),
     optionName: '色',
     optionValue: '赤',
-    displayOrder: 1,
+    displayOrder: faker.number.int({ min: 0, max: 10 }),
     createdAt: new Date(),
     updatedAt: new Date(),
   };

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { faker } from '@faker-js/faker';
 import { ProductVariant } from '../product-variant';
 import { ProductVariantOption } from '../product-variant-option';
 import { Money } from '../../value-objects/money';
@@ -15,17 +16,17 @@ const MAX_OPTIONS_PER_VARIANT = 5;
 
 describe('ProductVariant Entity', () => {
   const validParams = {
-    id: '01JCQZ8X9Y0VARIANTID12345',
-    productId: '01JCQZ8X9Y0PRODUCTID12345',
-    sku: 'SKU-001',
-    barcode: '1234567890123',
-    imageUrl: 'https://example.com/image.jpg',
-    price: Money.create(1000),
-    displayOrder: 1,
+    id: faker.string.uuid(),
+    productId: faker.string.uuid(),
+    sku: faker.string.alphanumeric(10).toUpperCase(),
+    barcode: faker.string.numeric(13),
+    imageUrl: faker.image.url(),
+    price: Money.create(faker.number.int({ min: 100, max: 99999 })),
+    displayOrder: faker.number.int({ min: 1, max: 50 }),
     options: [
       ProductVariantOption.create(
-        '01JCQZ8X9Y0VAROPTID123456',
-        '01JCQZ8X9Y0VARIANTID12345',
+        faker.string.uuid(),
+        faker.string.uuid(),
         'タイトル',
         'デフォルト',
         0,
