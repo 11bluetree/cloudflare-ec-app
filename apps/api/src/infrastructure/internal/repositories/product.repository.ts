@@ -1,6 +1,7 @@
 import type { ProductListQuery } from '@cloudflare-ec-app/types';
 import type { IProductRepository } from '../../../application/ports/repositories/product-repository.interface';
 import type { ProductAggregate } from '../../../domain/entities/product-aggregate';
+import type { ProductDetails } from '../../../domain/entities/product-details';
 import { Product, ProductStatus } from '../../../domain/entities/product';
 import { ProductOption } from '../../../domain/entities/product-option';
 import { ProductVariant } from '../../../domain/entities/product-variant';
@@ -234,5 +235,74 @@ export class ProductRepository implements IProductRepository {
         row.updatedAt,
       ),
     );
+  }
+
+  /**
+   * 商品を作成
+   */
+  async create(details: ProductDetails): Promise<void> {
+    const product = details.product;
+    const variants = details.variants;
+
+    await this.db.transaction(async (tx) => {
+      // 1. 商品基本情報を挿入
+      await tx.insert(products).values({
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        categoryId: product.categoryId,
+        status: product.status,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+      });
+
+      // 2. オプション定義を挿入（空配列の場合はスキップ）
+      if (product.options.length > 0) {
+        await tx.insert(productOptions).values(
+          product.options.map((option) => ({
+            id: option.id,
+            productId: product.id,
+            optionName: option.optionName,
+            displayOrder: option.displayOrder,
+            createdAt: option.createdAt,
+            updatedAt: option.updatedAt,
+          })),
+        );
+      }
+
+      // 3. バリアントを挿入（空配列の場合はスキップ）
+      if (variants.length > 0) {
+        await tx.insert(productVariants).values(
+          variants.map((variant) => ({
+            id: variant.id,
+            productId: product.id,
+            sku: variant.sku,
+            barcode: variant.barcode,
+            imageUrl: variant.imageUrl,
+            price: variant.price.toNumber(),
+            displayOrder: variant.displayOrder,
+            createdAt: variant.createdAt,
+            updatedAt: variant.updatedAt,
+          })),
+        );
+
+        // 4. バリアントオプションを挿入
+        const allVariantOptions = variants.flatMap((variant) =>
+          variant.options.map((opt) => ({
+            id: opt.id,
+            productVariantId: variant.id,
+            optionName: opt.optionName,
+            optionValue: opt.optionValue,
+            displayOrder: opt.displayOrder,
+            createdAt: opt.createdAt,
+            updatedAt: opt.updatedAt,
+          })),
+        );
+
+        if (allVariantOptions.length > 0) {
+          await tx.insert(productVariantOptions).values(allVariantOptions);
+        }
+      }
+    });
   }
 }

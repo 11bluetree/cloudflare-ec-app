@@ -1,5 +1,6 @@
 import type { ProductListQuery } from '@cloudflare-ec-app/types';
 import type { ProductAggregate } from '../../../domain/entities/product-aggregate';
+import type { ProductDetails } from '../../../domain/entities/product-details';
 
 /**
  * 商品リポジトリのインターフェース
@@ -14,4 +15,10 @@ export interface IProductRepository {
     products: ProductAggregate[];
     total: number;
   }>;
+
+  /**
+   * 商品を作成
+   * @param details - 商品詳細集約ルート
+   */
+  create(details: ProductDetails): Promise<void>;
 }
