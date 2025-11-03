@@ -44,16 +44,14 @@ export class ProductVariant {
   private constructor(
     public readonly id: string,
     public readonly productId: string,
-    private _sku: string,
+    public readonly sku: string,
     public readonly barcode: string | null,
     public readonly imageUrl: string | null,
-    private _price: Money,
+    public readonly price: Money,
     public readonly displayOrder: number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
-  ) {
-    this._sku = _sku;
-  }
+  ) {}
 
   static create(
     id: string,
