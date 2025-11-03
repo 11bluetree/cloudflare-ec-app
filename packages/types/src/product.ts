@@ -1,6 +1,6 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-export const ProductStatusSchema = z.enum(['draft', 'published', 'archived']);
+export const ProductStatusSchema = z.enum(["draft", "published", "archived"]);
 export type ProductStatus = z.infer<typeof ProductStatusSchema>;
 
 // ============================================================================
@@ -18,8 +18,8 @@ export const ProductListQuerySchema = z.object({
   minPrice: z.coerce.number().int().min(0).optional(),
   maxPrice: z.coerce.number().int().min(0).max(999999).optional(),
   status: ProductStatusSchema.optional(),
-  sortBy: z.enum(['createdAt', 'price', 'name']).default('createdAt'),
-  order: z.enum(['asc', 'desc']).default('desc'),
+  sortBy: z.enum(["createdAt", "price", "name"]).default("createdAt"),
+  order: z.enum(["asc", "desc"]).default("desc"),
 });
 
 export type ProductListQuery = z.infer<typeof ProductListQuerySchema>;
