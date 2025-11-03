@@ -7,7 +7,7 @@ const MAX_IMAGE_URL_LENGTH = 500;
 const MIN_PRICE = 0;
 const MAX_PRICE = 1000000;
 const MIN_DISPLAY_ORDER = 0;
-const MAX_DISPLAY_ORDER = 500;
+const MAX_DISPLAY_ORDER = 100;
 
 const productVariantSchema = z.object({
   id: z.string(),

@@ -280,7 +280,7 @@ describe('ProductVariant Entity', () => {
         }).not.toThrow();
       });
 
-      it('表示順序が500の場合は成功', () => {
+      it('表示順序が100の場合は成功', () => {
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -289,7 +289,7 @@ describe('ProductVariant Entity', () => {
             validParams.barcode,
             validParams.imageUrl,
             validParams.price,
-            500,
+            100,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -309,10 +309,10 @@ describe('ProductVariant Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('表示順序は0以上500以下である必要があります');
+        }).toThrow('表示順序は0以上100以下である必要があります');
       });
 
-      it('表示順序が501の場合はエラー', () => {
+      it('表示順序が101の場合はエラー', () => {
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -325,7 +325,7 @@ describe('ProductVariant Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('表示順序は0以上500以下である必要があります');
+        }).toThrow('表示順序は0以上100以下である必要があります');
       });
     });
   });
