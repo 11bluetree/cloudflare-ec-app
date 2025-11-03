@@ -2,15 +2,18 @@ import type {
   Pagination,
   ProductListQuery,
   ProductListResponse,
-} from '@cloudflare-ec-app/types';
-import type { IProductRepository } from '../../ports/repositories/product-repository.interface';
-import type { ICategoryRepository } from '../../ports/repositories/category-repository.interface';
-import { ProductList, ProductListItem } from '../../../domain/entities/product-list';
-import { ProductMapper } from '../../../infrastructure/internal/mappers/product.mapper';
+} from "@cloudflare-ec-app/types";
+import type { IProductRepository } from "../../ports/repositories/product-repository.interface";
+import type { ICategoryRepository } from "../../ports/repositories/category-repository.interface";
+import {
+  ProductList,
+  ProductListItem,
+} from "../../../domain/entities/product-list";
+import { ProductMapper } from "../../../infrastructure/internal/mappers/product.mapper";
 
 /**
  * 商品一覧取得ユースケース
- * 
+ *
  * 商品一覧を取得し、ページネーション情報を含むレスポンスを返す。
  * ProductRepositoryとCategoryRepositoryを組み合わせてProductListエンティティを構築する。
  */
@@ -24,11 +27,13 @@ export class ListProductsUseCase {
     // 公開済み商品のみを取得（statusが指定されていない場合）
     const searchQuery: ProductListQuery = {
       ...query,
-      status: query.status || 'published',
+      status: query.status || "published",
     };
 
     // 1. Product集約を取得（options, variants, images込み）
-    const { products, total } = await this.productRepository.findMany(searchQuery);
+    const { products, total } = await this.productRepository.findMany(
+      searchQuery
+    );
 
     if (products.length === 0) {
       // 空の結果を返す
@@ -48,16 +53,14 @@ export class ListProductsUseCase {
     const categoriesMap = await this.categoryRepository.findByIds(categoryIds);
 
     // 4. ProductListItemエンティティを構築
-    const productListItems = products.map((product) => {
-      const category = categoriesMap.get(product.categoryId);
+    const productListItems = products.map((productAggregate) => {
+      const category = categoriesMap.get(productAggregate.categoryId);
       if (!category) {
-        throw new Error(`Category not found: ${product.categoryId}`);
+        throw new Error(`Category not found: ${productAggregate.categoryId}`);
       }
 
-      // Productエンティティからvarientsとimagesプロパティをanyキャストで取り出す
-      // TODO: Product entityにvariantsとimagesプロパティを追加する
-      const variants = (product as any).variants || [];
-      const images = (product as any).images || [];
+      // ProductAggregateから必要な情報を取得（型安全）
+      const { variants, images, ...product } = productAggregate;
 
       return ProductListItem.create(product, category, images, variants);
     });

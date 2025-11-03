@@ -1,7 +1,8 @@
 // ドメインエンティティのエクスポート
-export * from './entities/product';
-export * from './entities/product-variant';
-export * from './entities/product-image';
+export * from "./entities/product";
+export * from "./entities/product-aggregate";
+export * from "./entities/product-variant";
+export * from "./entities/product-image";
 
 // 値オブジェクトのエクスポート
-export * from './value-objects/money';
+export * from "./value-objects/money";

@@ -1,14 +1,21 @@
-import type { ProductListQuery } from '@cloudflare-ec-app/types';
-import type { IProductRepository } from '../../../application/ports/repositories/product-repository.interface';
-import { Product, ProductStatus } from '../../../domain/entities/product';
-import { ProductOption } from '../../../domain/entities/product-option';
-import { ProductVariant } from '../../../domain/entities/product-variant';
-import { ProductVariantOption } from '../../../domain/entities/product-variant-option';
-import { ProductImage } from '../../../domain/entities/product-image';
-import { Money } from '../../../domain/value-objects/money';
-import { eq, and, like, or, sql } from 'drizzle-orm';
-import { products, productOptions, productVariants, productVariantOptions, productImages } from '../db/schema';
-import type { DrizzleDB } from '../db/connection';
+import type { ProductListQuery } from "@cloudflare-ec-app/types";
+import type { IProductRepository } from "../../../application/ports/repositories/product-repository.interface";
+import type { ProductAggregate } from "../../../domain/entities/product-aggregate";
+import { Product, ProductStatus } from "../../../domain/entities/product";
+import { ProductOption } from "../../../domain/entities/product-option";
+import { ProductVariant } from "../../../domain/entities/product-variant";
+import { ProductVariantOption } from "../../../domain/entities/product-variant-option";
+import { ProductImage } from "../../../domain/entities/product-image";
+import { Money } from "../../../domain/value-objects/money";
+import { eq, and, like, or, sql } from "drizzle-orm";
+import {
+  products,
+  productOptions,
+  productVariants,
+  productVariantOptions,
+  productImages,
+} from "../db/schema";
+import type { DrizzleDB } from "../db/connection";
 
 /**
  * 商品リポジトリ実装（Drizzle ORM + Cloudflare D1）
@@ -17,11 +24,20 @@ export class ProductRepository implements IProductRepository {
   constructor(private readonly db: DrizzleDB) {}
 
   async findMany(query: ProductListQuery): Promise<{
-    products: Product[];
+    products: ProductAggregate[];
     total: number;
   }> {
-    const { page, perPage, categoryId, keyword, minPrice, 
-      maxPrice, status: statusParam, sortBy, order: orderDir } = query;
+    const {
+      page,
+      perPage,
+      categoryId,
+      keyword,
+      minPrice,
+      maxPrice,
+      status: statusParam,
+      sortBy,
+      order: orderDir,
+    } = query;
     const offset = (page - 1) * perPage;
 
     // WHERE句の条件を構築
@@ -46,14 +62,15 @@ export class ProductRepository implements IProductRepository {
     }
 
     // 価格フィルタは後で処理（EXISTS相当の処理が必要）
-    const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
+    const whereCondition =
+      conditions.length > 0 ? and(...conditions) : undefined;
 
     // 総件数を取得
     const countResult = await this.db
       .select({ count: sql<number>`count(*)` })
       .from(products)
       .where(whereCondition);
-    
+
     const total = countResult[0]?.count ?? 0;
 
     if (total === 0) {
@@ -69,13 +86,15 @@ export class ProductRepository implements IProductRepository {
       .offset(offset);
 
     // ソート順を適用
-    if (sortBy === 'name') {
+    if (sortBy === "name") {
       productQuery = productQuery.orderBy(
-        orderDir === 'asc' ? products.name : sql`${products.name} DESC`
+        orderDir === "asc" ? products.name : sql`${products.name} DESC`
       ) as any;
     } else {
       productQuery = productQuery.orderBy(
-        orderDir === 'asc' ? products.createdAt : sql`${products.createdAt} DESC`
+        orderDir === "asc"
+          ? products.createdAt
+          : sql`${products.createdAt} DESC`
       ) as any;
     }
 
@@ -110,7 +129,7 @@ export class ProductRepository implements IProductRepository {
   /**
    * 商品を取得（Product集約全体：options, variants, images込み）
    */
-  private async getProduct(productId: string): Promise<Product> {
+  private async getProduct(productId: string): Promise<ProductAggregate> {
     const productRows = await this.db
       .select()
       .from(products)
@@ -142,12 +161,12 @@ export class ProductRepository implements IProductRepository {
       row.updatedAt
     );
 
-    // NOTE: 現在のProductエンティティにvariantsとimagesのプロパティがない場合、
-    // 一時的にanyでキャストして追加（後でProductエンティティを拡張する）
-    (product as any).variants = variants;
-    (product as any).images = images;
-
-    return product;
+    // ProductAggregateとして返す（variantsとimagesを含む）
+    return {
+      ...product,
+      variants,
+      images,
+    };
   }
 
   /**
@@ -198,7 +217,9 @@ export class ProductRepository implements IProductRepository {
   /**
    * 商品のバリアント一覧を取得（ドメインエンティティ）
    */
-  private async getProductVariants(productId: string): Promise<ProductVariant[]> {
+  private async getProductVariants(
+    productId: string
+  ): Promise<ProductVariant[]> {
     const rows = await this.db
       .select()
       .from(productVariants)
@@ -230,7 +251,9 @@ export class ProductRepository implements IProductRepository {
   /**
    * バリアントのオプション一覧を取得（ドメインエンティティ）
    */
-  private async getVariantOptions(variantId: string): Promise<ProductVariantOption[]> {
+  private async getVariantOptions(
+    variantId: string
+  ): Promise<ProductVariantOption[]> {
     const rows = await this.db
       .select()
       .from(productVariantOptions)
