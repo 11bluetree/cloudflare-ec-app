@@ -1,36 +1,13 @@
-/**
- * カテゴリー
- */
-export interface Category {
-  id: string;
-  name: string;
-  parentId: string | null;
-  displayOrder: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import type { Category } from '../../../domain/entities/category';
 
 /**
- * カテゴリーリポジトリインターフェース
+ * カテゴリリポジトリのインターフェース
  */
 export interface ICategoryRepository {
   /**
-   * 全カテゴリーを取得
+   * 複数のカテゴリをIDで一括取得（N+1問題の解消用）
+   * @param categoryIds - 取得するカテゴリIDの配列
+   * @returns カテゴリIDをキーとするMap
    */
-  findAll(): Promise<Category[]>;
-
-  /**
-   * IDでカテゴリーを取得
-   */
-  findById(id: string): Promise<Category | null>;
-
-  /**
-   * 親カテゴリーの子カテゴリーを取得
-   */
-  findByParentId(parentId: string | null): Promise<Category[]>;
-
-  /**
-   * カテゴリーを作成
-   */
-  create(category: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>): Promise<Category>;
+  findByIds(categoryIds: string[]): Promise<Map<string, Category>>;
 }
