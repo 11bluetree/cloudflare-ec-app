@@ -1,14 +1,7 @@
-import type {
-  Pagination,
-  ProductListQuery,
-  ProductListResponse,
-} from '@cloudflare-ec-app/types';
+import type { Pagination, ProductListQuery, ProductListResponse } from '@cloudflare-ec-app/types';
 import type { IProductRepository } from '../../ports/repositories/product-repository.interface';
 import type { ICategoryRepository } from '../../ports/repositories/category-repository.interface';
-import {
-  ProductList,
-  ProductListItem,
-} from '../../../domain/entities/product-list';
+import { ProductList, ProductListItem } from '../../../domain/entities/product-list';
 import { ProductMapper } from '../../../infrastructure/internal/mappers/product.mapper';
 
 /**
@@ -20,16 +13,14 @@ import { ProductMapper } from '../../../infrastructure/internal/mappers/product.
 export class ListProductsUseCase {
   constructor(
     private readonly productRepository: IProductRepository,
-    private readonly categoryRepository: ICategoryRepository
+    private readonly categoryRepository: ICategoryRepository,
   ) {}
 
   async execute(query: ProductListQuery): Promise<ProductListResponse> {
     const searchQuery: ProductListQuery = query;
 
     // 1. Product集約を取得（options, variants, images込み）
-    const { products, total } = await this.productRepository.findMany(
-      searchQuery
-    );
+    const { products, total } = await this.productRepository.findMany(searchQuery);
 
     if (products.length === 0) {
       // 空の結果を返す
@@ -65,9 +56,7 @@ export class ListProductsUseCase {
     const productList = ProductList.create(productListItems);
 
     // 6. ドメインエンティティ → レスポンスDTOに変換
-    const items = productList.items.map((item: ProductListItem) =>
-      ProductMapper.toProductListItemDTO(item)
-    );
+    const items = productList.items.map((item: ProductListItem) => ProductMapper.toProductListItemDTO(item));
 
     // 7. ページネーション情報を計算
     const pagination: Pagination = {

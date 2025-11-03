@@ -7,9 +7,9 @@
  * CookieからCSRFトークンを取得
  */
 export const getCsrfToken = (): string | null => {
-  const match = document.cookie.match(/csrf-token=([^;]+)/)
-  return match ? match[1] : null
-}
+  const match = document.cookie.match(/csrf-token=([^;]+)/);
+  return match ? match[1] : null;
+};
 
 /**
  * APIのベースURL
@@ -17,11 +17,11 @@ export const getCsrfToken = (): string | null => {
 export const getApiBaseUrl = (): string => {
   // 開発環境
   if (import.meta.env.DEV) {
-    return 'http://localhost:3000'
+    return 'http://localhost:3000';
   }
   // 本番環境
-  return import.meta.env.VITE_API_URL || 'https://api.bluetree-hono.workers.dev'
-}
+  return import.meta.env.VITE_API_URL || 'https://api.bluetree-hono.workers.dev';
+};
 
 /**
  * API共通リクエストオプション
@@ -29,12 +29,12 @@ export const getApiBaseUrl = (): string => {
 const getDefaultHeaders = (includeAuth = true): HeadersInit => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-  }
+  };
 
   // CSRFトークンを追加
-  const csrfToken = getCsrfToken()
+  const csrfToken = getCsrfToken();
   if (csrfToken) {
-    headers['X-CSRF-Token'] = csrfToken
+    headers['X-CSRF-Token'] = csrfToken;
   }
 
   // 認証トークン（将来的にAuth.jsのセッションを使用）
@@ -42,23 +42,20 @@ const getDefaultHeaders = (includeAuth = true): HeadersInit => {
     // TODO: Auth.js実装時に追加
   }
 
-  return headers
-}
+  return headers;
+};
 
 /**
  * APIリクエストのラッパー関数
  */
 interface ApiRequestOptions extends RequestInit {
-  includeAuth?: boolean
+  includeAuth?: boolean;
 }
 
-export const apiRequest = async <T>(
-  endpoint: string,
-  options: ApiRequestOptions = {}
-): Promise<T> => {
-  const { includeAuth = true, ...fetchOptions } = options
+export const apiRequest = async <T>(endpoint: string, options: ApiRequestOptions = {}): Promise<T> => {
+  const { includeAuth = true, ...fetchOptions } = options;
 
-  const url = `${getApiBaseUrl()}${endpoint}`
+  const url = `${getApiBaseUrl()}${endpoint}`;
 
   const response = await fetch(url, {
     ...fetchOptions,
@@ -66,58 +63,50 @@ export const apiRequest = async <T>(
       ...getDefaultHeaders(includeAuth),
       ...fetchOptions.headers,
     },
-  })
+  });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({
       message: 'APIリクエストに失敗しました',
-    }))
-    throw new Error(error.message || `HTTP Error: ${response.status}`)
+    }));
+    throw new Error(error.message || `HTTP Error: ${response.status}`);
   }
 
-  return response.json()
-}
+  return response.json();
+};
 
 /**
  * GET リクエスト
  */
 export const apiGet = <T>(endpoint: string, options?: ApiRequestOptions): Promise<T> => {
-  return apiRequest<T>(endpoint, { ...options, method: 'GET' })
-}
+  return apiRequest<T>(endpoint, { ...options, method: 'GET' });
+};
 
 /**
  * POST リクエスト
  */
-export const apiPost = <T>(
-  endpoint: string,
-  data?: unknown,
-  options?: ApiRequestOptions
-): Promise<T> => {
+export const apiPost = <T>(endpoint: string, data?: unknown, options?: ApiRequestOptions): Promise<T> => {
   return apiRequest<T>(endpoint, {
     ...options,
     method: 'POST',
     body: data ? JSON.stringify(data) : undefined,
-  })
-}
+  });
+};
 
 /**
  * PUT リクエスト
  */
-export const apiPut = <T>(
-  endpoint: string,
-  data?: unknown,
-  options?: ApiRequestOptions
-): Promise<T> => {
+export const apiPut = <T>(endpoint: string, data?: unknown, options?: ApiRequestOptions): Promise<T> => {
   return apiRequest<T>(endpoint, {
     ...options,
     method: 'PUT',
     body: data ? JSON.stringify(data) : undefined,
-  })
-}
+  });
+};
 
 /**
  * DELETE リクエスト
  */
 export const apiDelete = <T>(endpoint: string, options?: ApiRequestOptions): Promise<T> => {
-  return apiRequest<T>(endpoint, { ...options, method: 'DELETE' })
-}
+  return apiRequest<T>(endpoint, { ...options, method: 'DELETE' });
+};

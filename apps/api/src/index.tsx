@@ -1,12 +1,12 @@
-import { Hono } from 'hono'
-import product from './presentation/routes/products'
+import { Hono } from 'hono';
+import product from './presentation/routes/products';
 
 type Bindings = {
-  ALLOWED_ORIGINS?: string
-  DB: D1Database
-}
+  ALLOWED_ORIGINS?: string;
+  DB: D1Database;
+};
 
-const app = new Hono<{ Bindings: Bindings }>()
+const app = new Hono<{ Bindings: Bindings }>();
 
 // ヘルスチェックエンドポイント
 app.get('/api/health', (c) => {
@@ -15,10 +15,10 @@ app.get('/api/health', (c) => {
     message: 'API is running!',
     timestamp: new Date().toISOString(),
     environment: import.meta.env.DEV ? 'development' : 'production',
-  })
-})
+  });
+});
 
 // 商品ルート
-app.route('/api/products', product)
+app.route('/api/products', product);
 
-export default app
+export default app;

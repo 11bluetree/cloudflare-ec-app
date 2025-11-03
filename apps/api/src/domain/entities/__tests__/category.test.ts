@@ -21,7 +21,7 @@ describe('Category Entity', () => {
           validParams.parentId,
           validParams.displayOrder,
           validParams.createdAt,
-          validParams.updatedAt
+          validParams.updatedAt,
         );
       }).not.toThrow();
     });
@@ -34,7 +34,7 @@ describe('Category Entity', () => {
           null,
           validParams.displayOrder,
           validParams.createdAt,
-          validParams.updatedAt
+          validParams.updatedAt,
         );
       }).not.toThrow();
     });
@@ -48,7 +48,7 @@ describe('Category Entity', () => {
             validParams.parentId,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('カテゴリー名は空白のみにできません');
       });
@@ -61,7 +61,7 @@ describe('Category Entity', () => {
             validParams.parentId,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('カテゴリー名は空白のみにできません');
       });
@@ -74,7 +74,7 @@ describe('Category Entity', () => {
             validParams.parentId,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -88,7 +88,7 @@ describe('Category Entity', () => {
             validParams.parentId,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -102,7 +102,7 @@ describe('Category Entity', () => {
             validParams.parentId,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('カテゴリー名は50文字以内である必要があります');
       });
@@ -117,7 +117,7 @@ describe('Category Entity', () => {
             validParams.id, // 自分自身のIDを親に指定
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('自分自身を親カテゴリーに指定できません');
       });
@@ -132,7 +132,7 @@ describe('Category Entity', () => {
             validParams.parentId,
             0,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -145,7 +145,7 @@ describe('Category Entity', () => {
             validParams.parentId,
             100,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -158,7 +158,7 @@ describe('Category Entity', () => {
             validParams.parentId,
             -1,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('表示順序は0以上である必要があります');
       });

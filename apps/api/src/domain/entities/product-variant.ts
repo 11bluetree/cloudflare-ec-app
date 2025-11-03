@@ -34,15 +34,9 @@ const productVariantSchema = z.object({
       message: `画像URLは${MAX_IMAGE_URL_LENGTH}文字以内である必要があります`,
     })
     .nullable(),
-  price: z.custom<Money>(
-    (val) =>
-      val instanceof Money &&
-      val.toNumber() >= MIN_PRICE &&
-      val.toNumber() < MAX_PRICE,
-    {
-      message: `価格は${MIN_PRICE}以上${MAX_PRICE}円未満である必要があります`,
-    }
-  ),
+  price: z.custom<Money>((val) => val instanceof Money && val.toNumber() >= MIN_PRICE && val.toNumber() < MAX_PRICE, {
+    message: `価格は${MIN_PRICE}以上${MAX_PRICE}円未満である必要があります`,
+  }),
   displayOrder: z
     .number()
     .min(MIN_DISPLAY_ORDER, {
@@ -74,7 +68,7 @@ export class ProductVariant {
     public readonly displayOrder: number,
     public readonly options: ProductVariantOption[],
     public readonly createdAt: Date,
-    public readonly updatedAt: Date
+    public readonly updatedAt: Date,
   ) {}
 
   static create(
@@ -87,7 +81,7 @@ export class ProductVariant {
     displayOrder: number,
     options: ProductVariantOption[],
     createdAt: Date,
-    updatedAt: Date
+    updatedAt: Date,
   ): ProductVariant {
     const validated = productVariantSchema.parse({
       id,
@@ -112,7 +106,7 @@ export class ProductVariant {
       validated.displayOrder,
       validated.options,
       validated.createdAt,
-      validated.updatedAt
+      validated.updatedAt,
     );
   }
 }

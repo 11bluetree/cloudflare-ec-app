@@ -22,7 +22,7 @@ describe('ProductImage Entity', () => {
         validParams.imageUrl,
         validParams.displayOrder,
         validParams.createdAt,
-        validParams.updatedAt
+        validParams.updatedAt,
       );
 
       expect(image.id).toBe(validParams.id);
@@ -40,7 +40,7 @@ describe('ProductImage Entity', () => {
         validParams.imageUrl,
         validParams.displayOrder,
         validParams.createdAt,
-        validParams.updatedAt
+        validParams.updatedAt,
       );
 
       expect(image.productVariantId).toBeNull();
@@ -56,7 +56,7 @@ describe('ProductImage Entity', () => {
             validParams.imageUrl,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('product_idは必須です');
       });
@@ -72,7 +72,7 @@ describe('ProductImage Entity', () => {
             '',
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('画像URLは1文字以上500文字以内である必要があります');
       });
@@ -86,7 +86,7 @@ describe('ProductImage Entity', () => {
           imageUrl,
           validParams.displayOrder,
           validParams.createdAt,
-          validParams.updatedAt
+          validParams.updatedAt,
         );
         expect(image.imageUrl).toBe(imageUrl);
       });
@@ -101,7 +101,7 @@ describe('ProductImage Entity', () => {
             imageUrl,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('画像URLは1文字以上500文字以内である必要があります');
       });
@@ -116,7 +116,7 @@ describe('ProductImage Entity', () => {
           validParams.imageUrl,
           1,
           validParams.createdAt,
-          validParams.updatedAt
+          validParams.updatedAt,
         );
         expect(image.displayOrder).toBe(1);
       });
@@ -130,7 +130,7 @@ describe('ProductImage Entity', () => {
             validParams.imageUrl,
             0,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('表示順序は1以上である必要があります');
       });
@@ -144,7 +144,7 @@ describe('ProductImage Entity', () => {
             validParams.imageUrl,
             -1,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('表示順序は1以上である必要があります');
       });

@@ -15,23 +15,13 @@ export class CategoryRepository implements ICategoryRepository {
       return new Map();
     }
 
-    const rows = await this.db
-      .select()
-      .from(categories)
-      .where(inArray(categories.id, categoryIds));
+    const rows = await this.db.select().from(categories).where(inArray(categories.id, categoryIds));
 
     // MapオブジェクトにID → Categoryのマッピングを構築
     const categoriesMap = new Map<string, Category>();
 
     for (const row of rows) {
-      const category = Category.create(
-        row.id,
-        row.name,
-        row.parentId,
-        row.displayOrder,
-        row.createdAt,
-        row.updatedAt
-      );
+      const category = Category.create(row.id, row.name, row.parentId, row.displayOrder, row.createdAt, row.updatedAt);
       categoriesMap.set(category.id, category);
     }
 

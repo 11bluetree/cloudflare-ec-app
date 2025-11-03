@@ -17,7 +17,9 @@ const productVariantOptionSchema = z.object({
     .trim()
     .min(1, { message: 'オプション値は空白のみにできません' })
     .max(MAX_OPTION_VALUE_LENGTH, { message: `オプション値は${MAX_OPTION_VALUE_LENGTH}文字以内である必要があります` }),
-  displayOrder: z.number().min(MIN_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上である必要があります` }),
+  displayOrder: z
+    .number()
+    .min(MIN_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上である必要があります` }),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -30,7 +32,7 @@ export class ProductVariantOption {
     public readonly optionValue: string,
     public readonly displayOrder: number,
     public readonly createdAt: Date,
-    public readonly updatedAt: Date
+    public readonly updatedAt: Date,
   ) {}
 
   static create(
@@ -40,7 +42,7 @@ export class ProductVariantOption {
     optionValue: string,
     displayOrder: number,
     createdAt: Date,
-    updatedAt: Date
+    updatedAt: Date,
   ): ProductVariantOption {
     const validated = productVariantOptionSchema.parse({
       id,
@@ -59,7 +61,7 @@ export class ProductVariantOption {
       validated.optionValue,
       validated.displayOrder,
       validated.createdAt,
-      validated.updatedAt
+      validated.updatedAt,
     );
   }
 }

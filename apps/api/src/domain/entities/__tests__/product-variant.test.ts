@@ -31,7 +31,7 @@ describe('ProductVariant Entity', () => {
         'デフォルト',
         0,
         new Date(),
-        new Date()
+        new Date(),
       ),
     ],
     createdAt: new Date(),
@@ -51,7 +51,7 @@ describe('ProductVariant Entity', () => {
           validParams.displayOrder,
           validParams.options,
           validParams.createdAt,
-          validParams.updatedAt
+          validParams.updatedAt,
         );
       }).not.toThrow();
     });
@@ -68,7 +68,7 @@ describe('ProductVariant Entity', () => {
           validParams.displayOrder,
           validParams.options,
           validParams.createdAt,
-          validParams.updatedAt
+          validParams.updatedAt,
         );
       }).not.toThrow();
     });
@@ -84,9 +84,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('SKUは空白のみにできません');
       });
@@ -101,9 +101,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('SKUは空白のみにできません');
       });
@@ -118,9 +118,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -136,9 +136,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -154,9 +154,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('SKUは100文字以内である必要があります');
       });
@@ -174,9 +174,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -192,9 +192,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('バーコードは100文字以内である必要があります');
       });
@@ -213,9 +213,9 @@ describe('ProductVariant Entity', () => {
             imageUrl,
             validParams.price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -232,9 +232,9 @@ describe('ProductVariant Entity', () => {
             imageUrl,
             validParams.price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('画像URLは500文字以内である必要があります');
       });
@@ -252,9 +252,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -270,9 +270,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -288,9 +288,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             price,
             validParams.displayOrder,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('価格は0以上1000000円未満である必要があります');
       });
@@ -313,9 +313,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             MIN_DISPLAY_ORDER,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -330,9 +330,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             MAX_DISPLAY_ORDER,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -347,9 +347,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             MIN_DISPLAY_ORDER - 1,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('表示順序は0以上100以下である必要があります');
       });
@@ -364,9 +364,9 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             MAX_DISPLAY_ORDER + 1,
-          validParams.options,
+            validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('表示順序は0以上100以下である必要があります');
       });
@@ -385,7 +385,7 @@ describe('ProductVariant Entity', () => {
             validParams.displayOrder,
             [],
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプションは最低1個必要です');
       });
@@ -399,8 +399,8 @@ describe('ProductVariant Entity', () => {
             i === 0 ? 'デフォルト' : `値${i}`,
             i,
             new Date(),
-            new Date()
-          )
+            new Date(),
+          ),
         );
         expect(() => {
           ProductVariant.create(
@@ -413,7 +413,7 @@ describe('ProductVariant Entity', () => {
             validParams.displayOrder,
             options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -427,8 +427,8 @@ describe('ProductVariant Entity', () => {
             `値${i}`,
             i,
             new Date(),
-            new Date()
-          )
+            new Date(),
+          ),
         );
         expect(() => {
           ProductVariant.create(
@@ -441,7 +441,7 @@ describe('ProductVariant Entity', () => {
             validParams.displayOrder,
             options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -455,8 +455,8 @@ describe('ProductVariant Entity', () => {
             `値${i}`,
             i,
             new Date(),
-            new Date()
-          )
+            new Date(),
+          ),
         );
         expect(() => {
           ProductVariant.create(
@@ -469,7 +469,7 @@ describe('ProductVariant Entity', () => {
             validParams.displayOrder,
             options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプションは5個以内である必要があります');
       });

@@ -1,6 +1,6 @@
 /**
  * D1データベースのシードデータスクリプト
- * 
+ *
  * 実行方法: pnpm db:seed
  */
 
@@ -44,7 +44,7 @@ async function seed() {
     // 1. カテゴリーを作成
     // ============================================================================
     console.log('📁 Creating categories...');
-    
+
     const categoryId = ulid();
     const categoryData: InsertCategory = {
       name: 'Tシャツ',
@@ -65,7 +65,7 @@ async function seed() {
     // 2. 商品1: ベーシックTシャツ（1種類のバリアント）
     // ============================================================================
     console.log('\n👕 Creating Product 1: ベーシックTシャツ...');
-    
+
     const product1Id = ulid();
     const product1Data: InsertProduct = {
       name: 'ベーシックTシャツ',
@@ -177,7 +177,7 @@ async function seed() {
     // 3. 商品2: プレミアムTシャツ（3種類のバリアント: S, M, L）
     // ============================================================================
     console.log('\n👕 Creating Product 2: プレミアムTシャツ...');
-    
+
     const product2Id = ulid();
     const product2Data: InsertProduct = {
       name: 'プレミアムTシャツ',
@@ -306,11 +306,12 @@ async function seed() {
     // 4. 商品3: カスタマイズTシャツ（色×サイズ×質感の組み合わせ）
     // ============================================================================
     console.log('\n👕 Creating Product 3: カスタマイズTシャツ...');
-    
+
     const product3Id = ulid();
     const product3Data: InsertProduct = {
       name: 'カスタマイズTシャツ',
-      description: '自分好みにカスタマイズできる高機能Tシャツ。色・サイズ・質感を自由に組み合わせて、あなただけの一枚を。',
+      description:
+        '自分好みにカスタマイズできる高機能Tシャツ。色・サイズ・質感を自由に組み合わせて、あなただけの一枚を。',
       categoryId,
       status: 'published',
     };
@@ -434,7 +435,7 @@ async function seed() {
     }
 
     // 商品3のバリアント（色×サイズ×質感の組み合わせ = 3×2×2 = 12種類）
-    const colorCodes: Record<string, string> = { '白': 'ffffff', '黒': '000000', 'グレー': '808080' };
+    const colorCodes: Record<string, string> = { 白: 'ffffff', 黒: '000000', グレー: '808080' };
     let variantCounter = 0;
 
     for (const color of colorValues) {
@@ -528,7 +529,6 @@ async function seed() {
     console.log('  - 5 product options created');
     console.log('  - 11 option values created (1 size + 3 sizes + 3 colors + 2 sizes + 2 textures)');
     console.log(`  - ${4 + variantCounter} images created`);
-
   } catch (error) {
     console.error('❌ Error seeding database:', error);
     throw error;

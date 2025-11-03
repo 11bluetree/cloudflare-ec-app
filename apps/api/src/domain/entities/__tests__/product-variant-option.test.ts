@@ -23,7 +23,7 @@ describe('ProductVariantOption Entity', () => {
           validParams.optionValue,
           validParams.displayOrder,
           validParams.createdAt,
-          validParams.updatedAt
+          validParams.updatedAt,
         );
       }).not.toThrow();
     });
@@ -38,7 +38,7 @@ describe('ProductVariantOption Entity', () => {
             validParams.optionValue,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプション名は空白のみにできません');
       });
@@ -52,7 +52,7 @@ describe('ProductVariantOption Entity', () => {
             validParams.optionValue,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプション名は空白のみにできません');
       });
@@ -66,7 +66,7 @@ describe('ProductVariantOption Entity', () => {
             validParams.optionValue,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -81,7 +81,7 @@ describe('ProductVariantOption Entity', () => {
             validParams.optionValue,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -96,7 +96,7 @@ describe('ProductVariantOption Entity', () => {
             validParams.optionValue,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプション名は50文字以内である必要があります');
       });
@@ -112,7 +112,7 @@ describe('ProductVariantOption Entity', () => {
             '',
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプション値は空白のみにできません');
       });
@@ -126,7 +126,7 @@ describe('ProductVariantOption Entity', () => {
             '   ',
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプション値は空白のみにできません');
       });
@@ -140,7 +140,7 @@ describe('ProductVariantOption Entity', () => {
             '  赤  ',
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -155,7 +155,7 @@ describe('ProductVariantOption Entity', () => {
             optionValue,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -170,7 +170,7 @@ describe('ProductVariantOption Entity', () => {
             optionValue,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプション値は50文字以内である必要があります');
       });
@@ -186,7 +186,7 @@ describe('ProductVariantOption Entity', () => {
             validParams.optionValue,
             0,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -200,7 +200,7 @@ describe('ProductVariantOption Entity', () => {
             validParams.optionValue,
             100,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -214,7 +214,7 @@ describe('ProductVariantOption Entity', () => {
             validParams.optionValue,
             -1,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('表示順序は0以上である必要があります');
       });

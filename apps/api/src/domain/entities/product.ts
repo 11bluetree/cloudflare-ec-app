@@ -48,7 +48,7 @@ export class Product {
     public readonly status: ProductStatus,
     public readonly options: ProductOption[],
     public readonly createdAt: Date,
-    public readonly updatedAt: Date
+    public readonly updatedAt: Date,
   ) {}
 
   static create(
@@ -59,7 +59,7 @@ export class Product {
     status: ProductStatus,
     options: ProductOption[],
     createdAt: Date,
-    updatedAt: Date
+    updatedAt: Date,
   ): Product {
     const validated = productSchema.parse({
       id,
@@ -80,7 +80,7 @@ export class Product {
       validated.status as ProductStatus,
       validated.options,
       validated.createdAt,
-      validated.updatedAt
+      validated.updatedAt,
     );
   }
 }

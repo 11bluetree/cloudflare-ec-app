@@ -14,16 +14,7 @@ describe('Product Entity', () => {
     description: faker.commerce.productDescription(),
     categoryId: faker.string.uuid(),
     status: ProductStatus.DRAFT,
-    options: [
-      ProductOption.create(
-        faker.string.uuid(),
-        faker.string.uuid(),
-        'タイトル',
-        0,
-        new Date(),
-        new Date()
-      ),
-    ],
+    options: [ProductOption.create(faker.string.uuid(), faker.string.uuid(), 'タイトル', 0, new Date(), new Date())],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -39,7 +30,7 @@ describe('Product Entity', () => {
           validParams.status,
           validParams.options,
           validParams.createdAt,
-          validParams.updatedAt
+          validParams.updatedAt,
         );
       }).not.toThrow();
     });
@@ -55,7 +46,7 @@ describe('Product Entity', () => {
             validParams.status,
             validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('商品名は空白のみにできません');
       });
@@ -70,7 +61,7 @@ describe('Product Entity', () => {
             validParams.status,
             validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('商品名は空白のみにできません');
       });
@@ -85,7 +76,7 @@ describe('Product Entity', () => {
             validParams.status,
             validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -101,7 +92,7 @@ describe('Product Entity', () => {
             validParams.status,
             validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -117,7 +108,7 @@ describe('Product Entity', () => {
             validParams.status,
             validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('商品名は200文字以内である必要があります');
       });
@@ -134,7 +125,7 @@ describe('Product Entity', () => {
             validParams.status,
             validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('商品説明は空白のみにできません');
       });
@@ -149,7 +140,7 @@ describe('Product Entity', () => {
             validParams.status,
             validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('商品説明は空白のみにできません');
       });
@@ -164,7 +155,7 @@ describe('Product Entity', () => {
             validParams.status,
             validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -180,7 +171,7 @@ describe('Product Entity', () => {
             validParams.status,
             validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -196,7 +187,7 @@ describe('Product Entity', () => {
             validParams.status,
             validParams.options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('商品説明は4096文字以内である必要があります');
       });
@@ -213,7 +204,7 @@ describe('Product Entity', () => {
             validParams.status,
             [],
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -226,8 +217,8 @@ describe('Product Entity', () => {
             i === 0 ? 'タイトル' : `オプション${i}`,
             i,
             new Date(),
-            new Date()
-          )
+            new Date(),
+          ),
         );
         expect(() => {
           Product.create(
@@ -238,23 +229,14 @@ describe('Product Entity', () => {
             validParams.status,
             options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
 
       it('オプションが最大数の場合は成功', () => {
-        const options = Array.from(
-          { length: MAX_OPTIONS_PER_PRODUCT },
-          (_, i) =>
-            ProductOption.create(
-              `01JCQZ8X9Y0OPTIONID${i}`,
-              validParams.id,
-              `オプション${i}`,
-              i,
-              new Date(),
-              new Date()
-            )
+        const options = Array.from({ length: MAX_OPTIONS_PER_PRODUCT }, (_, i) =>
+          ProductOption.create(`01JCQZ8X9Y0OPTIONID${i}`, validParams.id, `オプション${i}`, i, new Date(), new Date()),
         );
         expect(() => {
           Product.create(
@@ -265,23 +247,14 @@ describe('Product Entity', () => {
             validParams.status,
             options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
 
       it('オプションが最大数を超えた場合はエラー', () => {
-        const options = Array.from(
-          { length: MAX_OPTIONS_PER_PRODUCT + 1 },
-          (_, i) =>
-            ProductOption.create(
-              `01JCQZ8X9Y0OPTIONID${i}`,
-              validParams.id,
-              `オプション${i}`,
-              i,
-              new Date(),
-              new Date()
-            )
+        const options = Array.from({ length: MAX_OPTIONS_PER_PRODUCT + 1 }, (_, i) =>
+          ProductOption.create(`01JCQZ8X9Y0OPTIONID${i}`, validParams.id, `オプション${i}`, i, new Date(), new Date()),
         );
         expect(() => {
           Product.create(
@@ -292,7 +265,7 @@ describe('Product Entity', () => {
             validParams.status,
             options,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプションは5個以内である必要があります');
       });

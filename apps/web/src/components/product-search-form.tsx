@@ -1,18 +1,14 @@
-import { useState } from 'react'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
-import { Label } from './ui/label'
+import { useState } from 'react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 export interface ProductSearchFormProps {
-  initialKeyword?: string
-  initialMinPrice?: number
-  initialMaxPrice?: number
-  onSearch: (filters: {
-    keyword?: string
-    minPrice?: number
-    maxPrice?: number
-  }) => void
-  onClear: () => void
+  initialKeyword?: string;
+  initialMinPrice?: number;
+  initialMaxPrice?: number;
+  onSearch: (filters: { keyword?: string; minPrice?: number; maxPrice?: number }) => void;
+  onClear: () => void;
 }
 
 /**
@@ -26,25 +22,25 @@ export function ProductSearchForm({
   onSearch,
   onClear,
 }: ProductSearchFormProps) {
-  const [keyword, setKeyword] = useState(initialKeyword)
-  const [minPrice, setMinPrice] = useState(initialMinPrice?.toString() || '')
-  const [maxPrice, setMaxPrice] = useState(initialMaxPrice?.toString() || '')
+  const [keyword, setKeyword] = useState(initialKeyword);
+  const [minPrice, setMinPrice] = useState(initialMinPrice?.toString() || '');
+  const [maxPrice, setMaxPrice] = useState(initialMaxPrice?.toString() || '');
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     onSearch({
       keyword: keyword || undefined,
       minPrice: minPrice ? Number(minPrice) : undefined,
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
-    })
-  }
+    });
+  };
 
   const handleClear = () => {
-    setKeyword('')
-    setMinPrice('')
-    setMaxPrice('')
-    onClear()
-  }
+    setKeyword('');
+    setMinPrice('');
+    setMaxPrice('');
+    onClear();
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -101,5 +97,5 @@ export function ProductSearchForm({
         </div>
       </form>
     </div>
-  )
+  );
 }

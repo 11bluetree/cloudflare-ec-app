@@ -1,60 +1,56 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { apiGet } from '../lib/api'
-import { 
+import { createFileRoute } from '@tanstack/react-router';
+import { apiGet } from '../lib/api';
+import {
   ProductListQuerySchema,
   type ProductListResponse,
   type ProductListQuery,
-  type ProductListItem
-} from '@cloudflare-ec-app/types'
-import { ProductSearchForm } from '../components/product-search-form'
-import { ProductSortControls, type SortBy } from '../components/product-sort-controls'
-import { ProductCard } from '../components/product-card'
-import { EmptyState } from '../components/ui/empty-state'
-import { Pagination } from '../components/ui/pagination'
+  type ProductListItem,
+} from '@cloudflare-ec-app/types';
+import { ProductSearchForm } from '../components/product-search-form';
+import { ProductSortControls, type SortBy } from '../components/product-sort-controls';
+import { ProductCard } from '../components/product-card';
+import { EmptyState } from '../components/ui/empty-state';
+import { Pagination } from '../components/ui/pagination';
 
 const fetchProducts = (search: ProductListQuery): Promise<ProductListResponse> => {
   // クエリパラメータを構築
-  const params = new URLSearchParams()
-  
+  const params = new URLSearchParams();
+
   Object.entries(search).forEach(([key, value]) => {
     if (value !== undefined && value !== '') {
       // statusesは配列なので個別に追加
       if (key === 'statuses' && Array.isArray(value)) {
-        value.forEach((status) => params.append('statuses', status))
+        value.forEach((status) => params.append('statuses', status));
       } else {
-        params.append(key, String(value))
+        params.append(key, String(value));
       }
     }
-  })
-  
-  return apiGet<ProductListResponse>(`/api/products?${params.toString()}`)
-}
+  });
+
+  return apiGet<ProductListResponse>(`/api/products?${params.toString()}`);
+};
 
 export const Route = createFileRoute('/products')({
   validateSearch: ProductListQuerySchema,
   loaderDeps: ({ search }) => search,
   loader: ({ deps }) => fetchProducts(deps),
   component: ProductsPage,
-})
+});
 
 function ProductsPage() {
-  const data = Route.useLoaderData()
-  const search = Route.useSearch()
-  const navigate = Route.useNavigate()
+  const data = Route.useLoaderData();
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
 
-  const handleSearch = (filters: {
-    keyword?: string
-    minPrice?: number
-    maxPrice?: number
-  }) => {
+  const handleSearch = (filters: { keyword?: string; minPrice?: number; maxPrice?: number }) => {
     navigate({
       search: {
         ...search,
         page: 1, // 検索時は1ページ目に戻る
         ...filters,
       },
-    })
-  }
+    });
+  };
 
   const handleSortChange = (sortBy: SortBy) => {
     navigate({
@@ -63,8 +59,8 @@ function ProductsPage() {
         sortBy,
         order: search.sortBy === sortBy && search.order === 'desc' ? 'asc' : 'desc',
       },
-    })
-  }
+    });
+  };
 
   const handlePageChange = (newPage: number) => {
     navigate({
@@ -72,8 +68,8 @@ function ProductsPage() {
         ...search,
         page: newPage,
       },
-    })
-  }
+    });
+  };
 
   const clearFilters = () => {
     navigate({
@@ -83,14 +79,14 @@ function ProductsPage() {
         sortBy: 'createdAt',
         order: 'desc',
       },
-    })
-  }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">商品一覧</h1>
-        
+
         {/* 検索・フィルターエリア */}
         <ProductSearchForm
           initialKeyword={search.keyword}
@@ -109,19 +105,15 @@ function ProductsPage() {
           />
 
           <div className="text-sm text-gray-600">
-            {data.pagination.total}件中{' '}
-            {(data.pagination.page - 1) * data.pagination.perPage + 1} -{' '}
+            {data.pagination.total}件中 {(data.pagination.page - 1) * data.pagination.perPage + 1} -{' '}
             {Math.min(data.pagination.page * data.pagination.perPage, data.pagination.total)}
             件表示
           </div>
         </div>
-        
+
         {/* 商品一覧 */}
         {data.items.length === 0 ? (
-          <EmptyState
-            title="商品が見つかりませんでした"
-            description="検索条件を変更してお試しください"
-          />
+          <EmptyState title="商品が見つかりませんでした" description="検索条件を変更してお試しください" />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {data.items.map((product: ProductListItem) => (
@@ -140,5 +132,5 @@ function ProductsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

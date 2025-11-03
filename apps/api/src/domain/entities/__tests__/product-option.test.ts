@@ -21,7 +21,7 @@ describe('ProductOption Entity', () => {
           validParams.optionName,
           validParams.displayOrder,
           validParams.createdAt,
-          validParams.updatedAt
+          validParams.updatedAt,
         );
       }).not.toThrow();
     });
@@ -35,7 +35,7 @@ describe('ProductOption Entity', () => {
             '',
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプション名は空白のみにできません');
       });
@@ -48,7 +48,7 @@ describe('ProductOption Entity', () => {
             '   ',
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプション名は空白のみにできません');
       });
@@ -61,7 +61,7 @@ describe('ProductOption Entity', () => {
             '  色  ',
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -75,7 +75,7 @@ describe('ProductOption Entity', () => {
             optionName,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -89,7 +89,7 @@ describe('ProductOption Entity', () => {
             optionName,
             validParams.displayOrder,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('オプション名は50文字以内である必要があります');
       });
@@ -104,7 +104,7 @@ describe('ProductOption Entity', () => {
             validParams.optionName,
             0,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -117,7 +117,7 @@ describe('ProductOption Entity', () => {
             validParams.optionName,
             100,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).not.toThrow();
       });
@@ -130,7 +130,7 @@ describe('ProductOption Entity', () => {
             validParams.optionName,
             -1,
             validParams.createdAt,
-            validParams.updatedAt
+            validParams.updatedAt,
           );
         }).toThrow('表示順序は0以上である必要があります');
       });

@@ -18,10 +18,7 @@ describe('ListProductsUseCase', () => {
   let mockCategoryRepository: ICategoryRepository;
 
   // テストヘルパー: ProductAggregateを生成
-  const createMockProduct = (overrides?: {
-    categoryId?: string;
-    status?: ProductStatus;
-  }): ProductAggregate => {
+  const createMockProduct = (overrides?: { categoryId?: string; status?: ProductStatus }): ProductAggregate => {
     const productId = faker.string.ulid();
     const optionId = faker.string.ulid();
 
@@ -31,7 +28,7 @@ describe('ListProductsUseCase', () => {
       faker.commerce.productAdjective(),
       0,
       new Date(),
-      new Date()
+      new Date(),
     );
 
     const variantId = faker.string.ulid();
@@ -42,7 +39,7 @@ describe('ListProductsUseCase', () => {
       faker.commerce.productMaterial(),
       0,
       new Date(),
-      new Date()
+      new Date(),
     );
 
     const variant = ProductVariant.create(
@@ -55,7 +52,7 @@ describe('ListProductsUseCase', () => {
       0,
       [variantOption],
       new Date(),
-      new Date()
+      new Date(),
     );
 
     const product = Product.create(
@@ -66,7 +63,7 @@ describe('ListProductsUseCase', () => {
       overrides?.status || ProductStatus.PUBLISHED,
       [option],
       new Date(),
-      new Date()
+      new Date(),
     );
 
     // ProductAggregateとして返す（variantsとimagesを追加）
@@ -79,14 +76,7 @@ describe('ListProductsUseCase', () => {
 
   // テストヘルパー: Categoryエンティティを生成
   const createMockCategory = (id: string): Category => {
-    return Category.create(
-      id,
-      faker.commerce.department(),
-      null,
-      0,
-      new Date(),
-      new Date()
-    );
+    return Category.create(id, faker.commerce.department(), null, 0, new Date(), new Date());
   };
 
   beforeEach(() => {
@@ -108,20 +98,14 @@ describe('ListProductsUseCase', () => {
       delete: vi.fn(),
     } as unknown as ICategoryRepository;
 
-    useCase = new ListProductsUseCase(
-      mockProductRepository,
-      mockCategoryRepository
-    );
+    useCase = new ListProductsUseCase(mockProductRepository, mockCategoryRepository);
   });
 
   describe('正常系 - 基本動作', () => {
     it('公開済み商品一覧を取得できる', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
-      const mockProducts = [
-        createMockProduct({ categoryId }),
-        createMockProduct({ categoryId }),
-      ];
+      const mockProducts = [createMockProduct({ categoryId }), createMockProduct({ categoryId })];
       const mockCategory = createMockCategory(categoryId);
 
       vi.mocked(mockProductRepository.findMany).mockResolvedValue({
@@ -129,9 +113,7 @@ describe('ListProductsUseCase', () => {
         total: mockProducts.length,
       });
 
-      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
-        new Map([[categoryId, mockCategory]])
-      );
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(new Map([[categoryId, mockCategory]]));
 
       const query: ProductListQuery = {
         page: 1,
@@ -162,9 +144,7 @@ describe('ListProductsUseCase', () => {
         total: 1,
       });
 
-      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
-        new Map([[categoryId, mockCategory]])
-      );
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(new Map([[categoryId, mockCategory]]));
 
       const query: ProductListQuery = {
         page: 1,
@@ -184,9 +164,7 @@ describe('ListProductsUseCase', () => {
     it('ページネーション情報が正しく計算される', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
-      const mockProducts = Array.from({ length: 10 }, () =>
-        createMockProduct({ categoryId })
-      );
+      const mockProducts = Array.from({ length: 10 }, () => createMockProduct({ categoryId }));
       const mockCategory = createMockCategory(categoryId);
 
       vi.mocked(mockProductRepository.findMany).mockResolvedValue({
@@ -194,9 +172,7 @@ describe('ListProductsUseCase', () => {
         total: 25, // 総数25件
       });
 
-      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
-        new Map([[categoryId, mockCategory]])
-      );
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(new Map([[categoryId, mockCategory]]));
 
       const query: ProductListQuery = {
         page: 2,
@@ -228,9 +204,7 @@ describe('ListProductsUseCase', () => {
         total: 1,
       });
 
-      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
-        new Map([[categoryId, mockCategory]])
-      );
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(new Map([[categoryId, mockCategory]]));
 
       const query: ProductListQuery = {
         page: 1,
@@ -249,12 +223,12 @@ describe('ListProductsUseCase', () => {
         expect.objectContaining({
           page: 1,
           perPage: 20,
-        })
+        }),
       );
       expect(mockProductRepository.findMany).toHaveBeenCalledWith(
         expect.not.objectContaining({
           statuses: expect.anything(),
-        })
+        }),
       );
     });
 
@@ -272,9 +246,7 @@ describe('ListProductsUseCase', () => {
         total: 1,
       });
 
-      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
-        new Map([[categoryId, mockCategory]])
-      );
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(new Map([[categoryId, mockCategory]]));
 
       const query: ProductListQuery = {
         page: 1,
@@ -291,7 +263,7 @@ describe('ListProductsUseCase', () => {
       expect(mockProductRepository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           statuses: ['draft'],
-        })
+        }),
       );
     });
 
@@ -309,9 +281,7 @@ describe('ListProductsUseCase', () => {
         total: 2,
       });
 
-      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
-        new Map([[categoryId, mockCategory]])
-      );
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(new Map([[categoryId, mockCategory]]));
 
       const query: ProductListQuery = {
         page: 1,
@@ -328,7 +298,7 @@ describe('ListProductsUseCase', () => {
       expect(mockProductRepository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           statuses: ['draft', 'published'],
-        })
+        }),
       );
     });
   });
@@ -405,9 +375,7 @@ describe('ListProductsUseCase', () => {
       };
 
       // Act & Assert
-      await expect(useCase.execute(query)).rejects.toThrow(
-        `Category not found: ${categoryId}`
-      );
+      await expect(useCase.execute(query)).rejects.toThrow(`Category not found: ${categoryId}`);
     });
   });
 
@@ -433,9 +401,7 @@ describe('ListProductsUseCase', () => {
         total: 3,
       });
 
-      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
-        mockCategories
-      );
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(mockCategories);
 
       const query: ProductListQuery = {
         page: 1,
@@ -468,9 +434,7 @@ describe('ListProductsUseCase', () => {
         total: 3,
       });
 
-      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
-        new Map([[categoryId, mockCategory]])
-      );
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(new Map([[categoryId, mockCategory]]));
 
       const query: ProductListQuery = {
         page: 1,
@@ -483,20 +447,14 @@ describe('ListProductsUseCase', () => {
       await useCase.execute(query);
 
       // Assert: 重複が排除され、1つのIDのみ渡される
-      expect(mockCategoryRepository.findByIds).toHaveBeenCalledWith([
-        categoryId,
-      ]);
+      expect(mockCategoryRepository.findByIds).toHaveBeenCalledWith([categoryId]);
     });
   });
 
   describe('統合テスト - 複雑なケース', () => {
     it('複数カテゴリの商品が混在する場合でも正しく動作する', async () => {
       // Arrange
-      const categoryIds = [
-        faker.string.ulid(),
-        faker.string.ulid(),
-        faker.string.ulid(),
-      ];
+      const categoryIds = [faker.string.ulid(), faker.string.ulid(), faker.string.ulid()];
 
       const mockProducts = [
         createMockProduct({ categoryId: categoryIds[0] } as Partial<Product>),
@@ -504,18 +462,14 @@ describe('ListProductsUseCase', () => {
         createMockProduct({ categoryId: categoryIds[2] } as Partial<Product>),
       ];
 
-      const mockCategories = new Map(
-        categoryIds.map((id) => [id, createMockCategory(id)])
-      );
+      const mockCategories = new Map(categoryIds.map((id) => [id, createMockCategory(id)]));
 
       vi.mocked(mockProductRepository.findMany).mockResolvedValue({
         products: mockProducts,
         total: 3,
       });
 
-      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
-        mockCategories
-      );
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(mockCategories);
 
       const query: ProductListQuery = {
         page: 1,
@@ -531,9 +485,7 @@ describe('ListProductsUseCase', () => {
       expect(result.items).toHaveLength(3);
       result.items.forEach((item, index) => {
         expect(item.categoryId).toBe(categoryIds[index]);
-        expect(item.categoryName).toBe(
-          mockCategories.get(categoryIds[index])?.name
-        );
+        expect(item.categoryName).toBe(mockCategories.get(categoryIds[index])?.name);
       });
     });
   });
@@ -565,9 +517,7 @@ describe('ListProductsUseCase', () => {
     it('perPageが最大値の場合でも正しく動作する', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
-      const mockProducts = Array.from({ length: 100 }, () =>
-        createMockProduct({ categoryId })
-      );
+      const mockProducts = Array.from({ length: 100 }, () => createMockProduct({ categoryId }));
       const mockCategory = createMockCategory(categoryId);
 
       vi.mocked(mockProductRepository.findMany).mockResolvedValue({
@@ -575,9 +525,7 @@ describe('ListProductsUseCase', () => {
         total: 100,
       });
 
-      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
-        new Map([[categoryId, mockCategory]])
-      );
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(new Map([[categoryId, mockCategory]]));
 
       const query: ProductListQuery = {
         page: 1,
@@ -606,9 +554,7 @@ describe('ListProductsUseCase', () => {
         total: 10,
       });
 
-      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
-        new Map([[categoryId, mockCategory]])
-      );
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(new Map([[categoryId, mockCategory]]));
 
       const query: ProductListQuery = {
         page: 1,

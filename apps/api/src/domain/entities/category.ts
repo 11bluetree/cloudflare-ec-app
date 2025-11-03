@@ -12,7 +12,9 @@ const categorySchema = z
       .min(1, { message: 'カテゴリー名は空白のみにできません' })
       .max(MAX_NAME_LENGTH, { message: `カテゴリー名は${MAX_NAME_LENGTH}文字以内である必要があります` }),
     parentId: z.string().nullable(),
-    displayOrder: z.number().min(MIN_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上である必要があります` }),
+    displayOrder: z
+      .number()
+      .min(MIN_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上である必要があります` }),
     createdAt: z.date(),
     updatedAt: z.date(),
   })
@@ -21,14 +23,13 @@ const categorySchema = z
   });
 
 export class Category {
-
   private constructor(
     public readonly id: string,
     public readonly name: string,
     public readonly parentId: string | null,
     public readonly displayOrder: number,
     public readonly createdAt: Date,
-    public readonly updatedAt: Date
+    public readonly updatedAt: Date,
   ) {}
 
   static create(
@@ -37,7 +38,7 @@ export class Category {
     parentId: string | null,
     displayOrder: number,
     createdAt: Date,
-    updatedAt: Date
+    updatedAt: Date,
   ): Category {
     const validated = categorySchema.parse({
       id,
@@ -54,7 +55,7 @@ export class Category {
       validated.parentId,
       validated.displayOrder,
       validated.createdAt,
-      validated.updatedAt
+      validated.updatedAt,
     );
   }
 }

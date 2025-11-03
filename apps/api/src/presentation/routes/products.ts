@@ -7,11 +7,11 @@ import { CategoryRepository } from '../../infrastructure/internal/repositories/c
 import { createDbConnection } from '../../infrastructure/internal/db/connection';
 
 type Bindings = {
-  ALLOWED_ORIGINS?: string
-  DB: D1Database
-}
+  ALLOWED_ORIGINS?: string;
+  DB: D1Database;
+};
 
-const product = new Hono<{ Bindings: Bindings }>()
+const product = new Hono<{ Bindings: Bindings }>();
 
 /**
  * GET /api/products
@@ -30,10 +30,7 @@ product.get('/', zValidator('query', ProductListQuerySchema), async (c) => {
   const categoryRepository = new CategoryRepository(db);
 
   // ユースケースのインスタンスを作成（両方のリポジトリを注入）
-  const listProductsUseCase = new ListProductsUseCase(
-    productRepository,
-    categoryRepository
-  );
+  const listProductsUseCase = new ListProductsUseCase(productRepository, categoryRepository);
 
   // ユースケースを実行
   const response = await listProductsUseCase.execute(query);

@@ -85,7 +85,7 @@ export const productOptions = sqliteTable(
     displayOrder: integer('display_order').notNull(),
     ...timestamps,
   },
-  (table) => [unique().on(table.productId, table.optionName)]
+  (table) => [unique().on(table.productId, table.optionName)],
 );
 
 export const insertProductOptionSchema = createInsertSchema(productOptions, {
@@ -114,23 +114,17 @@ export const productOptionValues = sqliteTable(
     displayOrder: integer('display_order').notNull(),
     ...timestamps,
   },
-  (table) => [unique().on(table.productOptionId, table.value)]
+  (table) => [unique().on(table.productOptionId, table.value)],
 );
 
-export const insertProductOptionValueSchema = createInsertSchema(
-  productOptionValues,
-  {
-    value: (schema) => schema.min(1).max(50),
-    displayOrder: (schema) => schema.min(0),
-  }
-).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertProductOptionValueSchema = createInsertSchema(productOptionValues, {
+  value: (schema) => schema.min(1).max(50),
+  displayOrder: (schema) => schema.min(0),
+}).omit({ id: true, createdAt: true, updatedAt: true });
 
-export const selectProductOptionValueSchema =
-  createSelectSchema(productOptionValues);
+export const selectProductOptionValueSchema = createSelectSchema(productOptionValues);
 
-export type InsertProductOptionValue = z.infer<
-  typeof insertProductOptionValueSchema
->;
+export type InsertProductOptionValue = z.infer<typeof insertProductOptionValueSchema>;
 export type ProductOptionValue = z.infer<typeof selectProductOptionValueSchema>;
 
 // ============================================================================
@@ -181,28 +175,19 @@ export const productVariantOptions = sqliteTable(
     displayOrder: integer('display_order').notNull(),
     ...timestamps,
   },
-  (table) => [unique().on(table.productVariantId, table.optionName)]
+  (table) => [unique().on(table.productVariantId, table.optionName)],
 );
 
-export const insertProductVariantOptionSchema = createInsertSchema(
-  productVariantOptions,
-  {
-    optionName: (schema) => schema.min(1).max(50),
-    optionValue: (schema) => schema.min(1).max(50),
-    displayOrder: (schema) => schema.min(0),
-  }
-).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertProductVariantOptionSchema = createInsertSchema(productVariantOptions, {
+  optionName: (schema) => schema.min(1).max(50),
+  optionValue: (schema) => schema.min(1).max(50),
+  displayOrder: (schema) => schema.min(0),
+}).omit({ id: true, createdAt: true, updatedAt: true });
 
-export const selectProductVariantOptionSchema = createSelectSchema(
-  productVariantOptions
-);
+export const selectProductVariantOptionSchema = createSelectSchema(productVariantOptions);
 
-export type InsertProductVariantOption = z.infer<
-  typeof insertProductVariantOptionSchema
->;
-export type ProductVariantOption = z.infer<
-  typeof selectProductVariantOptionSchema
->;
+export type InsertProductVariantOption = z.infer<typeof insertProductVariantOptionSchema>;
+export type ProductVariantOption = z.infer<typeof selectProductVariantOptionSchema>;
 
 // ============================================================================
 // Product Images（商品画像）
@@ -214,10 +199,7 @@ export const productImages = sqliteTable('product_images', {
   productId: text('product_id')
     .notNull()
     .references(() => products.id, { onDelete: 'cascade' }),
-  productVariantId: text('product_variant_id').references(
-    () => productVariants.id,
-    { onDelete: 'cascade' }
-  ),
+  productVariantId: text('product_variant_id').references(() => productVariants.id, { onDelete: 'cascade' }),
   imageUrl: text('image_url', { length: 500 }).notNull(),
   displayOrder: integer('display_order').notNull(),
   ...timestamps,

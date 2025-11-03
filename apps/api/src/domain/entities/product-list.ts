@@ -43,11 +43,8 @@ const productListItemSchema = z
   .transform((data) => {
     const { minPrice, maxPrice } = calculatePriceRange(data.variants);
     // 表示順序で並び替えて最初の画像をサムネイルとする
-    const sortedImages = [...data.images].sort(
-      (a, b) => a.displayOrder - b.displayOrder
-    );
-    const thumbnailImageUrl =
-      sortedImages.length > 0 ? sortedImages[0].imageUrl : null;
+    const sortedImages = [...data.images].sort((a, b) => a.displayOrder - b.displayOrder);
+    const thumbnailImageUrl = sortedImages.length > 0 ? sortedImages[0].imageUrl : null;
 
     return {
       product: data.product,
@@ -67,14 +64,14 @@ export class ProductListItem {
     public readonly category: Category,
     public readonly thumbnailImageUrl: string | null,
     public readonly minPrice: Money,
-    public readonly maxPrice: Money
+    public readonly maxPrice: Money,
   ) {}
 
   static create(
     product: Product,
     category: Category,
     images: ProductImage[],
-    variants: ProductVariant[]
+    variants: ProductVariant[],
   ): ProductListItem {
     // Zodバリデーション（バリアント所属チェック + 価格帯計算 + サムネイル選択を含む）
     const validated = productListItemSchema.parse({
@@ -89,7 +86,7 @@ export class ProductListItem {
       validated.category,
       validated.thumbnailImageUrl,
       validated.minPrice,
-      validated.maxPrice
+      validated.maxPrice,
     );
   }
 }

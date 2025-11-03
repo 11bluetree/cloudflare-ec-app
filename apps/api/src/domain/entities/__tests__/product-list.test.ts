@@ -20,7 +20,7 @@ describe('ProductListItem', () => {
       null,
       1,
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
   };
 
@@ -32,7 +32,7 @@ describe('ProductListItem', () => {
       faker.commerce.productMaterial(),
       1,
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
 
     return Product.create(
@@ -43,7 +43,7 @@ describe('ProductListItem', () => {
       ProductStatus.PUBLISHED,
       [option],
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
   };
 
@@ -55,7 +55,7 @@ describe('ProductListItem', () => {
       faker.image.url(),
       displayOrder,
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
   };
 
@@ -68,7 +68,7 @@ describe('ProductListItem', () => {
       faker.commerce.productAdjective(),
       1,
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
 
     return ProductVariant.create(
@@ -81,7 +81,7 @@ describe('ProductListItem', () => {
       1,
       [variantOption],
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
   };
 
@@ -93,12 +93,7 @@ describe('ProductListItem', () => {
       const images = [createTestProductImage(productId, 1)];
       const variants = [createTestVariant(productId)];
 
-      const productListItem = ProductListItem.create(
-        product,
-        category,
-        images,
-        variants
-      );
+      const productListItem = ProductListItem.create(product, category, images, variants);
 
       expect(productListItem.product).toBe(product);
       expect(productListItem.category).toBe(category);
@@ -114,12 +109,7 @@ describe('ProductListItem', () => {
       const images: ProductImage[] = [];
       const variants = [createTestVariant(productId)];
 
-      const productListItem = ProductListItem.create(
-        product,
-        category,
-        images,
-        variants
-      );
+      const productListItem = ProductListItem.create(product, category, images, variants);
 
       expect(productListItem.thumbnailImageUrl).toBeNull();
     });
@@ -135,12 +125,7 @@ describe('ProductListItem', () => {
       ];
       const variants = [createTestVariant(productId)];
 
-      const productListItem = ProductListItem.create(
-        product,
-        category,
-        images,
-        variants
-      );
+      const productListItem = ProductListItem.create(product, category, images, variants);
 
       // displayOrder=1の画像がサムネイルになる
       const thumbnailImage = images.find((img) => img.displayOrder === 1);
@@ -158,12 +143,7 @@ describe('ProductListItem', () => {
         createTestVariant(productId, 1500),
       ];
 
-      const productListItem = ProductListItem.create(
-        product,
-        category,
-        images,
-        variants
-      );
+      const productListItem = ProductListItem.create(product, category, images, variants);
 
       expect(productListItem.minPrice.toNumber()).toBe(1000);
       expect(productListItem.maxPrice.toNumber()).toBe(2000);
@@ -175,9 +155,9 @@ describe('ProductListItem', () => {
       const images: ProductImage[] = [];
       const variants: ProductVariant[] = [];
 
-      expect(() =>
-        ProductListItem.create(product, category, images, variants)
-      ).toThrow('商品には最低1つのバリアントが必要です');
+      expect(() => ProductListItem.create(product, category, images, variants)).toThrow(
+        '商品には最低1つのバリアントが必要です',
+      );
     });
 
     it('異常系：異なる商品IDのバリアントが含まれる場合はエラー', () => {
@@ -190,9 +170,9 @@ describe('ProductListItem', () => {
         createTestVariant(faker.string.uuid()), // 異なる商品ID
       ];
 
-      expect(() =>
-        ProductListItem.create(product, category, images, variants)
-      ).toThrow('すべてのバリアントは同じ商品に属する必要があります');
+      expect(() => ProductListItem.create(product, category, images, variants)).toThrow(
+        'すべてのバリアントは同じ商品に属する必要があります',
+      );
     });
   });
 });
@@ -206,7 +186,7 @@ describe('ProductList', () => {
       null,
       1,
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
   };
 
@@ -218,7 +198,7 @@ describe('ProductList', () => {
       faker.commerce.productMaterial(),
       1,
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
 
     return Product.create(
@@ -229,7 +209,7 @@ describe('ProductList', () => {
       ProductStatus.PUBLISHED,
       [option],
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
   };
 
@@ -241,7 +221,7 @@ describe('ProductList', () => {
       faker.image.url(),
       displayOrder,
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
   };
 
@@ -254,7 +234,7 @@ describe('ProductList', () => {
       faker.commerce.productAdjective(),
       1,
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
 
     return ProductVariant.create(
@@ -267,7 +247,7 @@ describe('ProductList', () => {
       1,
       [variantOption],
       faker.date.past(),
-      faker.date.recent()
+      faker.date.recent(),
     );
   };
 
@@ -301,9 +281,7 @@ describe('ProductList', () => {
     });
 
     it('正常系：最大数の商品を含む一覧を作成できる', () => {
-      const items = Array.from({ length: MAX_PRODUCTS_PER_PAGE }, () =>
-        createTestProductListItem()
-      );
+      const items = Array.from({ length: MAX_PRODUCTS_PER_PAGE }, () => createTestProductListItem());
 
       const productList = ProductList.create(items);
 
@@ -312,13 +290,9 @@ describe('ProductList', () => {
     });
 
     it('異常系：商品数が最大数を超える場合はエラー', () => {
-      const items = Array.from({ length: MAX_PRODUCTS_PER_PAGE + 1 }, () =>
-        createTestProductListItem()
-      );
+      const items = Array.from({ length: MAX_PRODUCTS_PER_PAGE + 1 }, () => createTestProductListItem());
 
-      expect(() => ProductList.create(items)).toThrow(
-        '1ページあたりの商品数は100件以下である必要があります'
-      );
+      expect(() => ProductList.create(items)).toThrow('1ページあたりの商品数は100件以下である必要があります');
     });
   });
 

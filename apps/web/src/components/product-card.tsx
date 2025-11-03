@@ -1,12 +1,12 @@
 export interface ProductCardProps {
-  id: string
-  name: string
-  categoryName: string
-  description?: string
-  imageUrl?: string
-  minPrice: number
-  maxPrice: number
-  status: 'draft' | 'published' | 'archived'
+  id: string;
+  name: string;
+  categoryName: string;
+  description?: string;
+  imageUrl?: string;
+  minPrice: number;
+  maxPrice: number;
+  status: 'draft' | 'published' | 'archived';
 }
 
 /**
@@ -26,18 +26,9 @@ export function ProductCard({
       {/* 商品画像 */}
       <div className="aspect-square bg-gray-200 flex items-center justify-center">
         {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={name}
-            className="w-full h-full object-cover"
-          />
+          <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
         ) : (
-          <svg
-            className="w-20 h-20 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-20 h-20 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -50,45 +41,31 @@ export function ProductCard({
 
       {/* 商品情報 */}
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-          {name}
-        </h3>
-        
-        <p className="text-xs text-gray-500 mb-2">
-          {categoryName}
-        </p>
-        
-        {description && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-            {description}
-          </p>
-        )}
+        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{name}</h3>
+
+        <p className="text-xs text-gray-500 mb-2">{categoryName}</p>
+
+        {description && <p className="text-sm text-gray-600 mb-3 line-clamp-2">{description}</p>}
 
         <div className="flex items-center justify-between">
           <div>
             {minPrice === maxPrice ? (
-              <p className="text-xl font-bold text-gray-900">
-                ¥{minPrice.toLocaleString()}
-              </p>
+              <p className="text-xl font-bold text-gray-900">¥{minPrice.toLocaleString()}</p>
             ) : (
               <p className="text-xl font-bold text-gray-900">
                 ¥{minPrice.toLocaleString()} - ¥{maxPrice.toLocaleString()}
               </p>
             )}
           </div>
-          
+
           {status === 'archived' && (
-            <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded">
-              販売終了
-            </span>
+            <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded">販売終了</span>
           )}
           {status === 'draft' && (
-            <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
-              下書き
-            </span>
+            <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">下書き</span>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

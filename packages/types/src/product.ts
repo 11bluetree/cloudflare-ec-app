@@ -68,3 +68,94 @@ export const ProductListResponseSchema = z.object({
 });
 
 export type ProductListResponse = z.infer<typeof ProductListResponseSchema>;
+
+// ============================================================================
+// Product Create Request/Response Schemas
+// ============================================================================
+
+/**
+ * 商品オプション定義（リクエスト用）
+ */
+const CreateProductOptionSchema = z.object({
+  optionName: z.string().min(1).max(50).trim(),
+  displayOrder: z.number().int().min(1).default(1),
+});
+
+export type CreateProductOption = z.infer<typeof CreateProductOptionSchema>;
+
+/**
+ * バリアントオプション（リクエスト用）
+ */
+const CreateProductVariantOptionSchema = z.object({
+  optionName: z.string().min(1).max(50).trim(),
+  optionValue: z.string().min(1).max(50).trim(),
+  displayOrder: z.number().int().min(1).default(1),
+});
+
+export type CreateProductVariantOption = z.infer<typeof CreateProductVariantOptionSchema>;
+
+/**
+ * バリアント（リクエスト用）
+ */
+const CreateProductVariantSchema = z.object({
+  sku: z.string().min(1).max(100).trim(),
+  barcode: z.string().max(100).trim().nullable().optional(),
+  imageUrl: z.string().url().max(500).nullable().optional(),
+  price: z.number().int().min(0).max(999999),
+  displayOrder: z.number().int().min(1).default(1),
+  options: z.array(CreateProductVariantOptionSchema).min(1),
+});
+
+export type CreateProductVariant = z.infer<typeof CreateProductVariantSchema>;
+
+/**
+ * 商品登録リクエスト
+ */
+export const CreateProductRequestSchema = z.object({
+  name: z.string().min(1).max(200).trim(),
+  description: z.string().min(1).max(4096).trim(),
+  categoryId: z.string().length(26), // ULID
+  status: ProductStatusSchema.default('draft'),
+  // オプション定義（省略時は空配列）
+  options: z.array(CreateProductOptionSchema).min(0).max(5).optional(),
+  // バリアント（省略時は空配列）
+  variants: z.array(CreateProductVariantSchema).min(0).max(100).optional(),
+});
+
+export type CreateProductRequest = z.infer<typeof CreateProductRequestSchema>;
+
+/**
+ * 商品登録レスポンス
+ */
+export const CreateProductResponseSchema = z.object({
+  id: z.string().length(26),
+  name: z.string(),
+  description: z.string(),
+  categoryId: z.string(),
+  status: ProductStatusSchema,
+  options: z.array(
+    z.object({
+      id: z.string(),
+      optionName: z.string(),
+      displayOrder: z.number(),
+    }),
+  ),
+  variants: z.array(
+    z.object({
+      id: z.string(),
+      sku: z.string(),
+      price: z.number(),
+      displayOrder: z.number(),
+      options: z.array(
+        z.object({
+          optionName: z.string(),
+          optionValue: z.string(),
+        }),
+      ),
+    }),
+  ),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type CreateProductResponse = z.infer<typeof CreateProductResponseSchema>;
