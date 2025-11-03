@@ -1,6 +1,6 @@
-import { z } from 'zod';
-import { Money } from '../value-objects/money';
-import { ProductVariantOption } from './product-variant-option';
+import { z } from "zod";
+import { Money } from "../value-objects/money";
+import { ProductVariantOption } from "./product-variant-option";
 
 const MAX_SKU_LENGTH = 100;
 const MAX_BARCODE_LENGTH = 100;
@@ -18,26 +18,39 @@ const productVariantSchema = z.object({
   sku: z
     .string()
     .trim()
-    .min(1, { message: 'SKUは空白のみにできません' })
-    .max(MAX_SKU_LENGTH, { message: `SKUは${MAX_SKU_LENGTH}文字以内である必要があります` }),
+    .min(1, { message: "SKUは空白のみにできません" })
+    .max(MAX_SKU_LENGTH, {
+      message: `SKUは${MAX_SKU_LENGTH}文字以内である必要があります`,
+    }),
   barcode: z
     .string()
-    .max(MAX_BARCODE_LENGTH, { message: `バーコードは${MAX_BARCODE_LENGTH}文字以内である必要があります` })
+    .max(MAX_BARCODE_LENGTH, {
+      message: `バーコードは${MAX_BARCODE_LENGTH}文字以内である必要があります`,
+    })
     .nullable(),
   imageUrl: z
     .string()
-    .max(MAX_IMAGE_URL_LENGTH, { message: `画像URLは${MAX_IMAGE_URL_LENGTH}文字以内である必要があります` })
+    .max(MAX_IMAGE_URL_LENGTH, {
+      message: `画像URLは${MAX_IMAGE_URL_LENGTH}文字以内である必要があります`,
+    })
     .nullable(),
   price: z.custom<Money>(
-    (val) => val instanceof Money && val.toNumber() >= MIN_PRICE && val.toNumber() < MAX_PRICE,
+    (val) =>
+      val instanceof Money &&
+      val.toNumber() >= MIN_PRICE &&
+      val.toNumber() < MAX_PRICE,
     {
       message: `価格は${MIN_PRICE}以上${MAX_PRICE}円未満である必要があります`,
     }
   ),
   displayOrder: z
     .number()
-    .min(MIN_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上${MAX_DISPLAY_ORDER}以下である必要があります` })
-    .max(MAX_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上${MAX_DISPLAY_ORDER}以下である必要があります` }),
+    .min(MIN_DISPLAY_ORDER, {
+      message: `表示順序は${MIN_DISPLAY_ORDER}以上${MAX_DISPLAY_ORDER}以下である必要があります`,
+    })
+    .max(MAX_DISPLAY_ORDER, {
+      message: `表示順序は${MIN_DISPLAY_ORDER}以上${MAX_DISPLAY_ORDER}以下である必要があります`,
+    }),
   options: z
     .array(z.custom<ProductVariantOption>())
     .min(MIN_OPTIONS_PER_VARIANT, {
@@ -51,7 +64,6 @@ const productVariantSchema = z.object({
 });
 
 export class ProductVariant {
-
   private constructor(
     public readonly id: string,
     public readonly productId: string,
