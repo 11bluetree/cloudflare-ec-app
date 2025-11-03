@@ -83,11 +83,45 @@ async function seed() {
 
     console.log(`✅ Created product: ${product1Data.name} (${product1Id})`);
 
-    // 商品1のバリアント（1種類: Mサイズのみ）
+    // 商品1のオプション定義（デフォルトバリアント用）
+    const defaultOption1Id = ulid();
+    const defaultOption1Data: InsertProductOption = {
+      productId: product1Id,
+      optionName: 'title',
+      displayOrder: 1,
+    };
+
+    await db.insert(productOptions).values({
+      id: defaultOption1Id,
+      ...defaultOption1Data,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    console.log(`  ✅ Created option: ${defaultOption1Data.optionName}`);
+
+    // オプション値（default）
+    const defaultValue1Id = ulid();
+    const defaultValue1Data: InsertProductOptionValue = {
+      productOptionId: defaultOption1Id,
+      value: 'default',
+      displayOrder: 1,
+    };
+
+    await db.insert(productOptionValues).values({
+      id: defaultValue1Id,
+      ...defaultValue1Data,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    console.log(`    ✅ Created option value: default`);
+
+    // 商品1のバリアント（単品商品）
     const variant1Id = ulid();
     const variant1Data: InsertProductVariant = {
       productId: product1Id,
-      sku: 'BASIC-TSH-M-001',
+      sku: 'BASIC-TSH-001',
       barcode: '4901234567890',
       imageUrl: 'https://placehold.co/600x600/e3e3e3/333333?text=Basic+T-Shirt',
       price: 2980,
@@ -102,6 +136,24 @@ async function seed() {
     });
 
     console.log(`  ✅ Created variant: ${variant1Data.sku} (¥${variant1Data.price})`);
+
+    // バリアントオプション（デフォルト）
+    const variantOption1Id = ulid();
+    const variantOption1Data: InsertProductVariantOption = {
+      productVariantId: variant1Id,
+      optionName: 'title',
+      optionValue: 'default',
+      displayOrder: 0,
+    };
+
+    await db.insert(productVariantOptions).values({
+      id: variantOption1Id,
+      ...variantOption1Data,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    console.log(`    ✅ Linked option: title = default`);
 
     // 商品1の画像
     const image1Id = ulid();
@@ -473,8 +525,8 @@ async function seed() {
     console.log('  - 1 category created');
     console.log('  - 3 products created');
     console.log(`  - ${4 + variantCounter} variants created (1 + 3 + ${variantCounter})`);
-    console.log('  - 4 product options created');
-    console.log('  - 10 option values created (3 sizes + 3 colors + 2 sizes + 2 textures)');
+    console.log('  - 5 product options created');
+    console.log('  - 11 option values created (1 size + 3 sizes + 3 colors + 2 sizes + 2 textures)');
     console.log(`  - ${4 + variantCounter} images created`);
 
   } catch (error) {
