@@ -1,14 +1,13 @@
-import { describe, it, expect } from 'vitest';
-import { faker } from '@faker-js/faker';
-import { Product, ProductStatus } from '../product';
-import { ProductOption } from '../product-option';
+import { describe, it, expect } from "vitest";
+import { faker } from "@faker-js/faker";
+import { Product, ProductStatus } from "../product";
+import { ProductOption } from "../product-option";
 
 const MAX_NAME_LENGTH = 200;
 const MAX_DESCRIPTION_LENGTH = 4096;
-const MIN_OPTIONS_PER_PRODUCT = 1;
 const MAX_OPTIONS_PER_PRODUCT = 5;
 
-describe('Product Entity', () => {
+describe("Product Entity", () => {
   const validParams = {
     id: faker.string.uuid(),
     name: faker.commerce.productName(),
@@ -19,7 +18,7 @@ describe('Product Entity', () => {
       ProductOption.create(
         faker.string.uuid(),
         faker.string.uuid(),
-        'タイトル',
+        "タイトル",
         0,
         new Date(),
         new Date()
@@ -29,8 +28,8 @@ describe('Product Entity', () => {
     updatedAt: new Date(),
   };
 
-  describe('constructor', () => {
-    it('正常な値でインスタンスを作成できる', () => {
+  describe("constructor", () => {
+    it("正常な値でインスタンスを作成できる", () => {
       expect(() => {
         Product.create(
           validParams.id,
@@ -45,12 +44,12 @@ describe('Product Entity', () => {
       }).not.toThrow();
     });
 
-    describe('name validation', () => {
-      it('空文字列の場合はエラー', () => {
+    describe("name validation", () => {
+      it("空文字列の場合はエラー", () => {
         expect(() => {
           Product.create(
             validParams.id,
-            '',
+            "",
             validParams.description,
             validParams.categoryId,
             validParams.status,
@@ -58,14 +57,14 @@ describe('Product Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('商品名は空白のみにできません');
+        }).toThrow("商品名は空白のみにできません");
       });
 
-      it('空白のみの場合はエラー', () => {
+      it("空白のみの場合はエラー", () => {
         expect(() => {
           Product.create(
             validParams.id,
-            '   ',
+            "   ",
             validParams.description,
             validParams.categoryId,
             validParams.status,
@@ -73,14 +72,14 @@ describe('Product Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('商品名は空白のみにできません');
+        }).toThrow("商品名は空白のみにできません");
       });
 
-      it('前後の空白は自動でトリミングされる', () => {
+      it("前後の空白は自動でトリミングされる", () => {
         expect(() => {
           Product.create(
             validParams.id,
-            '  商品名  ',
+            "  商品名  ",
             validParams.description,
             validParams.categoryId,
             validParams.status,
@@ -91,8 +90,8 @@ describe('Product Entity', () => {
         }).not.toThrow();
       });
 
-      it('最大文字数の場合は成功', () => {
-        const name = 'あ'.repeat(MAX_NAME_LENGTH);
+      it("最大文字数の場合は成功", () => {
+        const name = "あ".repeat(MAX_NAME_LENGTH);
         expect(() => {
           Product.create(
             validParams.id,
@@ -107,8 +106,8 @@ describe('Product Entity', () => {
         }).not.toThrow();
       });
 
-      it('最大文字数を超えた場合はエラー', () => {
-        const name = 'あ'.repeat(MAX_NAME_LENGTH + 1);
+      it("最大文字数を超えた場合はエラー", () => {
+        const name = "あ".repeat(MAX_NAME_LENGTH + 1);
         expect(() => {
           Product.create(
             validParams.id,
@@ -120,47 +119,47 @@ describe('Product Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('商品名は200文字以内である必要があります');
+        }).toThrow("商品名は200文字以内である必要があります");
       });
     });
 
-    describe('description validation', () => {
-      it('空文字列の場合はエラー', () => {
+    describe("description validation", () => {
+      it("空文字列の場合はエラー", () => {
         expect(() => {
           Product.create(
             validParams.id,
             validParams.name,
-            '',
+            "",
             validParams.categoryId,
             validParams.status,
             validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('商品説明は空白のみにできません');
+        }).toThrow("商品説明は空白のみにできません");
       });
 
-      it('空白のみの場合はエラー', () => {
+      it("空白のみの場合はエラー", () => {
         expect(() => {
           Product.create(
             validParams.id,
             validParams.name,
-            '   ',
+            "   ",
             validParams.categoryId,
             validParams.status,
             validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('商品説明は空白のみにできません');
+        }).toThrow("商品説明は空白のみにできません");
       });
 
-      it('前後の空白は自動でトリミングされる', () => {
+      it("前後の空白は自動でトリミングされる", () => {
         expect(() => {
           Product.create(
             validParams.id,
             validParams.name,
-            '  商品説明  ',
+            "  商品説明  ",
             validParams.categoryId,
             validParams.status,
             validParams.options,
@@ -170,8 +169,8 @@ describe('Product Entity', () => {
         }).not.toThrow();
       });
 
-      it('最大文字数の場合は成功', () => {
-        const description = 'あ'.repeat(MAX_DESCRIPTION_LENGTH);
+      it("最大文字数の場合は成功", () => {
+        const description = "あ".repeat(MAX_DESCRIPTION_LENGTH);
         expect(() => {
           Product.create(
             validParams.id,
@@ -186,8 +185,8 @@ describe('Product Entity', () => {
         }).not.toThrow();
       });
 
-      it('最大文字数を超えた場合はエラー', () => {
-        const description = 'あ'.repeat(MAX_DESCRIPTION_LENGTH + 1);
+      it("最大文字数を超えた場合はエラー", () => {
+        const description = "あ".repeat(MAX_DESCRIPTION_LENGTH + 1);
         expect(() => {
           Product.create(
             validParams.id,
@@ -199,12 +198,12 @@ describe('Product Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('商品説明は4096文字以内である必要があります');
+        }).toThrow("商品説明は4096文字以内である必要があります");
       });
     });
 
-    describe('options validation', () => {
-      it('オプションが最小数未満の場合はエラー', () => {
+    describe("options validation", () => {
+      it("オプションが0個でも成功する", () => {
         expect(() => {
           Product.create(
             validParams.id,
@@ -216,15 +215,15 @@ describe('Product Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('オプションは最低1個必要です');
+        }).not.toThrow();
       });
 
-      it('オプションが最小数の場合は成功', () => {
-        const options = Array.from({ length: MIN_OPTIONS_PER_PRODUCT }, (_, i) =>
+      it("オプションが1個の場合は成功", () => {
+        const options = Array.from({ length: 1 }, (_, i) =>
           ProductOption.create(
             `01JCQZ8X9Y0OPTIONID${i}`,
             validParams.id,
-            i === 0 ? 'タイトル' : `オプション${i}`,
+            i === 0 ? "タイトル" : `オプション${i}`,
             i,
             new Date(),
             new Date()
@@ -244,16 +243,18 @@ describe('Product Entity', () => {
         }).not.toThrow();
       });
 
-      it('オプションが最大数の場合は成功', () => {
-        const options = Array.from({ length: MAX_OPTIONS_PER_PRODUCT }, (_, i) =>
-          ProductOption.create(
-            `01JCQZ8X9Y0OPTIONID${i}`,
-            validParams.id,
-            `オプション${i}`,
-            i,
-            new Date(),
-            new Date()
-          )
+      it("オプションが最大数の場合は成功", () => {
+        const options = Array.from(
+          { length: MAX_OPTIONS_PER_PRODUCT },
+          (_, i) =>
+            ProductOption.create(
+              `01JCQZ8X9Y0OPTIONID${i}`,
+              validParams.id,
+              `オプション${i}`,
+              i,
+              new Date(),
+              new Date()
+            )
         );
         expect(() => {
           Product.create(
@@ -269,16 +270,18 @@ describe('Product Entity', () => {
         }).not.toThrow();
       });
 
-      it('オプションが最大数を超えた場合はエラー', () => {
-        const options = Array.from({ length: MAX_OPTIONS_PER_PRODUCT + 1 }, (_, i) =>
-          ProductOption.create(
-            `01JCQZ8X9Y0OPTIONID${i}`,
-            validParams.id,
-            `オプション${i}`,
-            i,
-            new Date(),
-            new Date()
-          )
+      it("オプションが最大数を超えた場合はエラー", () => {
+        const options = Array.from(
+          { length: MAX_OPTIONS_PER_PRODUCT + 1 },
+          (_, i) =>
+            ProductOption.create(
+              `01JCQZ8X9Y0OPTIONID${i}`,
+              validParams.id,
+              `オプション${i}`,
+              i,
+              new Date(),
+              new Date()
+            )
         );
         expect(() => {
           Product.create(
@@ -291,7 +294,7 @@ describe('Product Entity', () => {
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('オプションは5個以内である必要があります');
+        }).toThrow("オプションは5個以内である必要があります");
       });
     });
   });
