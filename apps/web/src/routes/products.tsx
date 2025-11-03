@@ -1,31 +1,24 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { apiGet } from '../lib/api'
-import type { ProductListResponse } from '@cloudflare-ec-app/types'
-import { z } from 'zod'
+import { 
+  ProductListQuerySchema,
+  type ProductListResponse,
+  type ProductListQuery
+} from '@cloudflare-ec-app/types'
 import { useState } from 'react'
 
-// 検索パラメータのスキーマ定義
-const productSearchSchema = z.object({
-  page: z.number().int().min(1).catch(1),
-  perPage: z.number().int().min(1).max(100).catch(20),
-  categoryId: z.string().length(26).optional(),
-  keyword: z.string().max(200).optional(),
-  minPrice: z.number().int().min(0).optional(),
-  maxPrice: z.number().int().min(0).max(999999).optional(),
-  status: z.enum(['draft', 'published', 'archived']).optional(),
-  sortBy: z.enum(['createdAt', 'price', 'name']).catch('createdAt'),
-  order: z.enum(['asc', 'desc']).catch('desc'),
-})
-
-type ProductSearch = z.infer<typeof productSearchSchema>
-
-const fetchProducts = (search: ProductSearch): Promise<ProductListResponse> => {
+const fetchProducts = (search: ProductListQuery): Promise<ProductListResponse> => {
   // クエリパラメータを構築
   const params = new URLSearchParams()
   
   Object.entries(search).forEach(([key, value]) => {
     if (value !== undefined && value !== '') {
-      params.append(key, String(value))
+      // statusesは配列なので個別に追加
+      if (key === 'statuses' && Array.isArray(value)) {
+        value.forEach((status) => params.append('statuses', status))
+      } else {
+        params.append(key, String(value))
+      }
     }
   })
   
@@ -33,7 +26,7 @@ const fetchProducts = (search: ProductSearch): Promise<ProductListResponse> => {
 }
 
 export const Route = createFileRoute('/products')({
-  validateSearch: productSearchSchema,
+  validateSearch: ProductListQuerySchema,
   loaderDeps: ({ search }) => search,
   loader: ({ deps }) => fetchProducts(deps),
   component: ProductsPage,

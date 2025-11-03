@@ -217,7 +217,7 @@ describe("ListProductsUseCase", () => {
   });
 
   describe("正常系 - デフォルト動作", () => {
-    it("statusが未指定の場合、公開済み商品のみ取得される", async () => {
+    it("statusesが未指定の場合、すべてのステータスの商品を取得する", async () => {
       // Arrange
       const categoryId = faker.string.ulid();
       const mockProduct = createMockProduct({ categoryId });
@@ -237,21 +237,28 @@ describe("ListProductsUseCase", () => {
         perPage: 20,
         sortBy: "createdAt",
         order: "desc",
-        // status未指定
+        // statuses未指定 = すべてのステータス
       };
 
       // Act
       await useCase.execute(query);
 
       // Assert
+      // statusesが未指定なので、リポジトリにはそのまま渡される（WHERE句に含まれない）
       expect(mockProductRepository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          status: "published",
+          page: 1,
+          perPage: 20,
+        })
+      );
+      expect(mockProductRepository.findMany).toHaveBeenCalledWith(
+        expect.not.objectContaining({
+          statuses: expect.anything(),
         })
       );
     });
 
-    it("statusが指定された場合、指定されたステータスで取得される", async () => {
+    it("statusesが指定された場合、指定されたステータスで取得される", async () => {
       // Arrange
       const categoryId = faker.string.ulid();
       const mockProduct = createMockProduct({
@@ -272,7 +279,7 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        status: "draft",
+        statuses: ["draft"],
         sortBy: "createdAt",
         order: "desc",
       };
@@ -283,7 +290,44 @@ describe("ListProductsUseCase", () => {
       // Assert
       expect(mockProductRepository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          status: "draft",
+          statuses: ["draft"],
+        })
+      );
+    });
+
+    it("複数のstatusesを指定した場合、それらのステータスで取得される", async () => {
+      // Arrange
+      const categoryId = faker.string.ulid();
+      const mockProducts = [
+        createMockProduct({ categoryId, status: ProductStatus.DRAFT }),
+        createMockProduct({ categoryId, status: ProductStatus.PUBLISHED }),
+      ];
+      const mockCategory = createMockCategory(categoryId);
+
+      vi.mocked(mockProductRepository.findMany).mockResolvedValue({
+        products: mockProducts,
+        total: 2,
+      });
+
+      vi.mocked(mockCategoryRepository.findByIds).mockResolvedValue(
+        new Map([[categoryId, mockCategory]])
+      );
+
+      const query: ProductListQuery = {
+        page: 1,
+        perPage: 20,
+        statuses: ["draft", "published"],
+        sortBy: "createdAt",
+        order: "desc",
+      };
+
+      // Act
+      await useCase.execute(query);
+
+      // Assert
+      expect(mockProductRepository.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          statuses: ["draft", "published"],
         })
       );
     });

@@ -17,7 +17,7 @@ export const ProductListQuerySchema = z.object({
   keyword: z.string().max(200).optional(),
   minPrice: z.coerce.number().int().min(0).optional(),
   maxPrice: z.coerce.number().int().min(0).max(999999).optional(),
-  status: ProductStatusSchema.optional(),
+  statuses: z.array(ProductStatusSchema).optional(),
   sortBy: z.enum(["createdAt", "price", "name"]).default("createdAt"),
   order: z.enum(["asc", "desc"]).default("desc"),
 });

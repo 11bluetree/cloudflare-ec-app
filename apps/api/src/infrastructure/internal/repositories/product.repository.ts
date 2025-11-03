@@ -34,7 +34,7 @@ export class ProductRepository implements IProductRepository {
       keyword,
       minPrice,
       maxPrice,
-      status: statusParam,
+      statuses,
       sortBy,
       order: orderDir,
     } = query;
@@ -43,8 +43,15 @@ export class ProductRepository implements IProductRepository {
     // WHERE句の条件を構築
     const conditions = [];
 
-    if (statusParam) {
-      conditions.push(eq(products.status, statusParam));
+    if (statuses && statuses.length > 0) {
+      // 複数のステータスをOR条件で結合
+      if (statuses.length === 1) {
+        conditions.push(eq(products.status, statuses[0]));
+      } else {
+        conditions.push(
+          or(...statuses.map((status) => eq(products.status, status)))
+        );
+      }
     }
 
     if (categoryId) {

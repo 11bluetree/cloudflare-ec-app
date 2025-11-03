@@ -24,11 +24,7 @@ export class ListProductsUseCase {
   ) {}
 
   async execute(query: ProductListQuery): Promise<ProductListResponse> {
-    // 公開済み商品のみを取得（statusが指定されていない場合）
-    const searchQuery: ProductListQuery = {
-      ...query,
-      status: query.status || "published",
-    };
+    const searchQuery: ProductListQuery = query;
 
     // 1. Product集約を取得（options, variants, images込み）
     const { products, total } = await this.productRepository.findMany(
