@@ -38,7 +38,7 @@ const ProductListItemSchema = z.object({
   categoryId: z.string().length(26),
   categoryName: z.string().max(50),
   status: ProductStatusSchema,
-  imageUrl: z.string().max(500).url().nullable(),
+  imageUrl: z.url().max(500).nullable(),
   minPrice: z.number().int().min(0).max(999999),
   maxPrice: z.number().int().min(0).max(999999),
   createdAt: z.date(),
