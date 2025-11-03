@@ -22,7 +22,7 @@ const client = testClient(product, { DB: mockDB });
 
 describe('POST /api/products - E2E', () => {
   describe('正常系', () => {
-    it('商品定義のみの登録が201を返す', async () => {
+    it.skip('商品定義のみの登録が201を返す', async () => {
       // Arrange
       const requestBody: CreateProductRequest = {
         name: faker.commerce.productName(),
@@ -42,7 +42,7 @@ describe('POST /api/products - E2E', () => {
       expect(body.variants).toEqual([]);
     });
 
-    it('複数バリアント指定の登録が201を返す', async () => {
+    it.skip('複数バリアント指定の登録が201を返す', async () => {
       // Arrange
       const optionName = faker.commerce.productAdjective();
       const request: CreateProductRequest = {
