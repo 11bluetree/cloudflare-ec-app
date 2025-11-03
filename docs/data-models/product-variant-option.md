@@ -28,7 +28,8 @@ UNIQUE(product_variant_id, option_name)
 
 ### オプション数の制約
 
-- ✅ 1つのバリアントに対して**5つ以下**のオプション
+- ✅ **すべてのバリアントには最低1つのオプションが必須**
+- ✅ 1つのバリアントに対して**1〜5個**のオプション
 - ✅ 1つのオプション（option_name）に対して**50個以下**の値（option_value）
 - ✅ `option_name`は**50文字以内**
 - ✅ `option_value`は**50文字以内**
@@ -52,15 +53,16 @@ UNIQUE(product_variant_id, option_name)
 オプションを`display_order`順に並べて `/` で連結：
 
 ```typescript
-// 例:
+// 例1: 複数オプション
 option_name="色", option_value="赤" (display_order=1)
 option_name="サイズ", option_value="L" (display_order=2)
 option_name="容量", option_value="200ml" (display_order=3)
-
 → バリアント名: "赤 / L / 200ml"
-```
 
-オプションがない場合は「デフォルト」。
+// 例2: デフォルトバリアント
+option_name="title", option_value="default" (display_order=0)
+→ バリアント名: "default"
+```
 
 ## ビジネスルール
 

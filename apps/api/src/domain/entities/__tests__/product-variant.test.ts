@@ -1,6 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { ProductVariant } from '../product-variant';
+import { ProductVariantOption } from '../product-variant-option';
 import { Money } from '../../value-objects/money';
+
+const MAX_SKU_LENGTH = 100;
+const MAX_BARCODE_LENGTH = 100;
+const MAX_IMAGE_URL_LENGTH = 500;
+const MIN_PRICE = 0;
+const MAX_PRICE = 1000000;
+const MIN_DISPLAY_ORDER = 0;
+const MAX_DISPLAY_ORDER = 100;
+const MIN_OPTIONS_PER_VARIANT = 1;
+const MAX_OPTIONS_PER_VARIANT = 5;
 
 describe('ProductVariant Entity', () => {
   const validParams = {
@@ -11,7 +22,17 @@ describe('ProductVariant Entity', () => {
     imageUrl: 'https://example.com/image.jpg',
     price: Money.create(1000),
     displayOrder: 1,
-    options: [],
+    options: [
+      ProductVariantOption.create(
+        '01JCQZ8X9Y0VAROPTID123456',
+        '01JCQZ8X9Y0VARIANTID12345',
+        'タイトル',
+        'デフォルト',
+        0,
+        new Date(),
+        new Date()
+      ),
+    ],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -104,7 +125,7 @@ describe('ProductVariant Entity', () => {
       });
 
       it('最大文字数の場合は成功', () => {
-        const sku = 'A'.repeat(100);
+        const sku = 'A'.repeat(MAX_SKU_LENGTH);
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -122,7 +143,7 @@ describe('ProductVariant Entity', () => {
       });
 
       it('最大文字数を超えた場合はエラー', () => {
-        const sku = 'A'.repeat(101);
+        const sku = 'A'.repeat(MAX_SKU_LENGTH + 1);
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -142,7 +163,7 @@ describe('ProductVariant Entity', () => {
 
     describe('barcode validation', () => {
       it('最大文字数の場合は成功', () => {
-        const barcode = '1'.repeat(100);
+        const barcode = '1'.repeat(MAX_BARCODE_LENGTH);
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -160,7 +181,7 @@ describe('ProductVariant Entity', () => {
       });
 
       it('最大文字数を超えた場合はエラー', () => {
-        const barcode = '1'.repeat(101);
+        const barcode = '1'.repeat(MAX_BARCODE_LENGTH + 1);
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -180,7 +201,8 @@ describe('ProductVariant Entity', () => {
 
     describe('imageUrl validation', () => {
       it('最大文字数の場合は成功', () => {
-        const imageUrl = 'https://example.com/' + 'a'.repeat(480);
+        const baseUrl = 'https://example.com/';
+        const imageUrl = baseUrl + 'a'.repeat(MAX_IMAGE_URL_LENGTH - baseUrl.length);
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -198,7 +220,8 @@ describe('ProductVariant Entity', () => {
       });
 
       it('最大文字数を超えた場合はエラー', () => {
-        const imageUrl = 'https://example.com/' + 'a'.repeat(481);
+        const baseUrl = 'https://example.com/';
+        const imageUrl = baseUrl + 'a'.repeat(MAX_IMAGE_URL_LENGTH - baseUrl.length + 1);
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -218,7 +241,7 @@ describe('ProductVariant Entity', () => {
 
     describe('price validation', () => {
       it('価格が最小値の場合は成功', () => {
-        const price = Money.create(0);
+        const price = Money.create(MIN_PRICE);
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -235,8 +258,8 @@ describe('ProductVariant Entity', () => {
         }).not.toThrow();
       });
 
-      it('価格が最小値の場合は成功', () => {
-        const price = Money.create(999999);
+      it('価格が最大値未満の場合は成功', () => {
+        const price = Money.create(MAX_PRICE - 1);
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -253,8 +276,8 @@ describe('ProductVariant Entity', () => {
         }).not.toThrow();
       });
 
-      it('価格が範囲外の場合はエラー', () => {
-        const price = Money.create(1000000);
+      it('価格が最大値以上の場合はエラー', () => {
+        const price = Money.create(MAX_PRICE);
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -288,7 +311,7 @@ describe('ProductVariant Entity', () => {
             validParams.barcode,
             validParams.imageUrl,
             validParams.price,
-            0,
+            MIN_DISPLAY_ORDER,
           validParams.options,
             validParams.createdAt,
             validParams.updatedAt
@@ -305,7 +328,7 @@ describe('ProductVariant Entity', () => {
             validParams.barcode,
             validParams.imageUrl,
             validParams.price,
-            100,
+            MAX_DISPLAY_ORDER,
           validParams.options,
             validParams.createdAt,
             validParams.updatedAt
@@ -313,7 +336,7 @@ describe('ProductVariant Entity', () => {
         }).not.toThrow();
       });
 
-      it('表示順序が範囲外の場合はエラー', () => {
+      it('表示順序が最小値未満の場合はエラー', () => {
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -322,7 +345,7 @@ describe('ProductVariant Entity', () => {
             validParams.barcode,
             validParams.imageUrl,
             validParams.price,
-            -1,
+            MIN_DISPLAY_ORDER - 1,
           validParams.options,
             validParams.createdAt,
             validParams.updatedAt
@@ -330,7 +353,7 @@ describe('ProductVariant Entity', () => {
         }).toThrow('表示順序は0以上100以下である必要があります');
       });
 
-      it('表示順序が範囲外の場合はエラー', () => {
+      it('表示順序が最大値超過の場合はエラー', () => {
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -339,12 +362,115 @@ describe('ProductVariant Entity', () => {
             validParams.barcode,
             validParams.imageUrl,
             validParams.price,
-            501,
+            MAX_DISPLAY_ORDER + 1,
           validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).toThrow('表示順序は0以上100以下である必要があります');
+      });
+    });
+
+    describe('options validation', () => {
+      it('オプションが最小数未満の場合はエラー', () => {
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            validParams.sku,
+            validParams.barcode,
+            validParams.imageUrl,
+            validParams.price,
+            validParams.displayOrder,
+            [],
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).toThrow('オプションは最低1個必要です');
+      });
+
+      it('オプションが最小数の場合は成功', () => {
+        const options = Array.from({ length: MIN_OPTIONS_PER_VARIANT }, (_, i) =>
+          ProductVariantOption.create(
+            `01JCQZ8X9Y0VAROPTID${i}`,
+            validParams.id,
+            i === 0 ? 'タイトル' : `オプション${i}`,
+            i === 0 ? 'デフォルト' : `値${i}`,
+            i,
+            new Date(),
+            new Date()
+          )
+        );
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            validParams.sku,
+            validParams.barcode,
+            validParams.imageUrl,
+            validParams.price,
+            validParams.displayOrder,
+            options,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
+      });
+
+      it('オプションが最大数の場合は成功', () => {
+        const options = Array.from({ length: MAX_OPTIONS_PER_VARIANT }, (_, i) =>
+          ProductVariantOption.create(
+            `01JCQZ8X9Y0VAROPTID${i}`,
+            validParams.id,
+            `オプション${i}`,
+            `値${i}`,
+            i,
+            new Date(),
+            new Date()
+          )
+        );
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            validParams.sku,
+            validParams.barcode,
+            validParams.imageUrl,
+            validParams.price,
+            validParams.displayOrder,
+            options,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).not.toThrow();
+      });
+
+      it('オプションが最大数を超えた場合はエラー', () => {
+        const options = Array.from({ length: MAX_OPTIONS_PER_VARIANT + 1 }, (_, i) =>
+          ProductVariantOption.create(
+            `01JCQZ8X9Y0VAROPTID${i}`,
+            validParams.id,
+            `オプション${i}`,
+            `値${i}`,
+            i,
+            new Date(),
+            new Date()
+          )
+        );
+        expect(() => {
+          ProductVariant.create(
+            validParams.id,
+            validParams.productId,
+            validParams.sku,
+            validParams.barcode,
+            validParams.imageUrl,
+            validParams.price,
+            validParams.displayOrder,
+            options,
+            validParams.createdAt,
+            validParams.updatedAt
+          );
+        }).toThrow('オプションは5個以内である必要があります');
       });
     });
   });

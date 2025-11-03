@@ -9,6 +9,7 @@ const MIN_PRICE = 0;
 const MAX_PRICE = 1000000;
 const MIN_DISPLAY_ORDER = 0;
 const MAX_DISPLAY_ORDER = 100;
+const MIN_OPTIONS_PER_VARIANT = 1;
 const MAX_OPTIONS_PER_VARIANT = 5;
 
 const productVariantSchema = z.object({
@@ -37,9 +38,14 @@ const productVariantSchema = z.object({
     .number()
     .min(MIN_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上${MAX_DISPLAY_ORDER}以下である必要があります` })
     .max(MAX_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上${MAX_DISPLAY_ORDER}以下である必要があります` }),
-  options: z.array(z.custom<ProductVariantOption>()).max(MAX_OPTIONS_PER_VARIANT, {
-    message: `オプションは${MAX_OPTIONS_PER_VARIANT}個以内である必要があります`,
-  }),
+  options: z
+    .array(z.custom<ProductVariantOption>())
+    .min(MIN_OPTIONS_PER_VARIANT, {
+      message: `オプションは最低${MIN_OPTIONS_PER_VARIANT}個必要です`,
+    })
+    .max(MAX_OPTIONS_PER_VARIANT, {
+      message: `オプションは${MAX_OPTIONS_PER_VARIANT}個以内である必要があります`,
+    }),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
