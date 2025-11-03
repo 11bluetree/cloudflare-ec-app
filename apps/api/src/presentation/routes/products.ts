@@ -17,50 +17,50 @@ type Bindings = {
   DB: D1Database;
 };
 
-const product = new Hono<{ Bindings: Bindings }>();
+const product = new Hono<{ Bindings: Bindings }>()
 
-/**
- * GET /api/products
- * 商品一覧を取得
- */
-product.get('/', zValidator('query', ProductListQuerySchema), async (c) => {
-  const query = c.req.valid('query');
+  /**
+   * GET /api/products
+   * 商品一覧を取得
+   */
+  .get('/', zValidator('query', ProductListQuerySchema), async (c) => {
+    const query = c.req.valid('query');
 
-  const d1Database = c.env.DB;
-  const db = createDbConnection(d1Database);
+    const d1Database = c.env.DB;
+    const db = createDbConnection(d1Database);
 
-  const productRepository = new ProductRepository(db);
-  const categoryRepository = new CategoryRepository(db);
+    const productRepository = new ProductRepository(db);
+    const categoryRepository = new CategoryRepository(db);
 
-  const listProductsUseCase = new ListProductsUseCase(productRepository, categoryRepository);
+    const listProductsUseCase = new ListProductsUseCase(productRepository, categoryRepository);
 
-  const response = await listProductsUseCase.execute(query);
+    const response = await listProductsUseCase.execute(query);
 
-  const validatedResponse = ProductListResponseSchema.parse(response);
+    const validatedResponse = ProductListResponseSchema.parse(response);
 
-  return c.json(validatedResponse);
-});
+    return c.json(validatedResponse);
+  })
 
-/**
- * POST /api/products
- * 商品を登録（管理者のみ）
- */
-product.post('/', zValidator('json', CreateProductRequestSchema), async (c) => {
-  const request = c.req.valid('json');
+  /**
+   * POST /api/products
+   * 商品を登録（管理者のみ）
+   */
+  .post('/', zValidator('json', CreateProductRequestSchema), async (c) => {
+    const request = c.req.valid('json');
 
-  const d1Database = c.env.DB;
-  const db = createDbConnection(d1Database);
+    const d1Database = c.env.DB;
+    const db = createDbConnection(d1Database);
 
-  const productRepository = new ProductRepository(db);
-  const categoryRepository = new CategoryRepository(db);
+    const productRepository = new ProductRepository(db);
+    const categoryRepository = new CategoryRepository(db);
 
-  const createProductUseCase = new CreateProductUseCase(productRepository, categoryRepository);
+    const createProductUseCase = new CreateProductUseCase(productRepository, categoryRepository);
 
-  const response = await createProductUseCase.execute(request);
+    const response = await createProductUseCase.execute(request);
 
-  const validatedResponse = CreateProductResponseSchema.parse(response);
+    const validatedResponse = CreateProductResponseSchema.parse(response);
 
-  return c.json(validatedResponse, 201);
-});
+    return c.json(validatedResponse, 201);
+  });
 
 export default product;
