@@ -76,7 +76,7 @@ describe('ProductImage Entity', () => {
         }).toThrow('画像URLは1文字以上500文字以内である必要があります');
       });
 
-      it('画像URLが500文字の場合は成功', () => {
+      it('画像URLが最大文字数の場合は成功', () => {
         const imageUrl = 'https://example.com/' + 'a'.repeat(480);
         const image = ProductImage.create(
           validParams.id,
@@ -90,7 +90,7 @@ describe('ProductImage Entity', () => {
         expect(image.imageUrl).toBe(imageUrl);
       });
 
-      it('画像URLが501文字の場合はエラー', () => {
+      it('画像URLが最大文字数を超えた場合はエラー', () => {
         const imageUrl = 'https://example.com/' + 'a'.repeat(481);
         expect(() => {
           ProductImage.create(
@@ -107,7 +107,7 @@ describe('ProductImage Entity', () => {
     });
 
     describe('displayOrder validation', () => {
-      it('表示順序が1の場合は成功', () => {
+      it('表示順序が最大値の場合は成功', () => {
         const image = ProductImage.create(
           validParams.id,
           validParams.productId,
@@ -120,7 +120,7 @@ describe('ProductImage Entity', () => {
         expect(image.displayOrder).toBe(1);
       });
 
-      it('表示順序が0の場合はエラー', () => {
+      it('表示順序が範囲外の場合はエラー', () => {
         expect(() => {
           ProductImage.create(
             validParams.id,

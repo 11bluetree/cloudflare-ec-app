@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { Category } from '../category';
+import { ProductOption } from '../product-option';
 
-describe('Category Entity', () => {
+describe('ProductOption Entity', () => {
   const validParams = {
-    id: '01JCQZ8X9Y0CATEGORYID1234',
-    name: 'カテゴリー名',
-    parentId: '01JCQZ8X9Y0PARENTID123456',
+    id: '01JCQZ8X9Y0OPTIONID123456',
+    productId: '01JCQZ8X9Y0PRODUCTID12345',
+    optionName: '色',
     displayOrder: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -14,10 +14,10 @@ describe('Category Entity', () => {
   describe('constructor', () => {
     it('正常な値でインスタンスを作成できる', () => {
       expect(() => {
-        Category.create(
+        ProductOption.create(
           validParams.id,
-          validParams.name,
-          validParams.parentId,
+          validParams.productId,
+          validParams.optionName,
           validParams.displayOrder,
           validParams.createdAt,
           validParams.updatedAt
@@ -25,52 +25,39 @@ describe('Category Entity', () => {
       }).not.toThrow();
     });
 
-    it('parentIdがnullでも作成できる（ルートカテゴリー）', () => {
-      expect(() => {
-        Category.create(
-          validParams.id,
-          validParams.name,
-          null,
-          validParams.displayOrder,
-          validParams.createdAt,
-          validParams.updatedAt
-        );
-      }).not.toThrow();
-    });
-
-    describe('name validation', () => {
+    describe('optionName validation', () => {
       it('空文字列の場合はエラー', () => {
         expect(() => {
-          Category.create(
+          ProductOption.create(
             validParams.id,
+            validParams.productId,
             '',
-            validParams.parentId,
             validParams.displayOrder,
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('カテゴリー名は空白のみにできません');
+        }).toThrow('オプション名は空白のみにできません');
       });
 
       it('空白のみの場合はエラー', () => {
         expect(() => {
-          Category.create(
+          ProductOption.create(
             validParams.id,
+            validParams.productId,
             '   ',
-            validParams.parentId,
             validParams.displayOrder,
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('カテゴリー名は空白のみにできません');
+        }).toThrow('オプション名は空白のみにできません');
       });
 
       it('前後の空白は自動でトリミングされる', () => {
         expect(() => {
-          Category.create(
+          ProductOption.create(
             validParams.id,
-            '  カテゴリー名  ',
-            validParams.parentId,
+            validParams.productId,
+            '  色  ',
             validParams.displayOrder,
             validParams.createdAt,
             validParams.updatedAt
@@ -79,12 +66,12 @@ describe('Category Entity', () => {
       });
 
       it('最大文字数の場合は成功', () => {
-        const name = 'あ'.repeat(50);
+        const optionName = 'あ'.repeat(50);
         expect(() => {
-          Category.create(
+          ProductOption.create(
             validParams.id,
-            name,
-            validParams.parentId,
+            validParams.productId,
+            optionName,
             validParams.displayOrder,
             validParams.createdAt,
             validParams.updatedAt
@@ -93,42 +80,27 @@ describe('Category Entity', () => {
       });
 
       it('最大文字数を超えた場合はエラー', () => {
-        const name = 'あ'.repeat(51);
+        const optionName = 'あ'.repeat(51);
         expect(() => {
-          Category.create(
+          ProductOption.create(
             validParams.id,
-            name,
-            validParams.parentId,
+            validParams.productId,
+            optionName,
             validParams.displayOrder,
             validParams.createdAt,
             validParams.updatedAt
           );
-        }).toThrow('カテゴリー名は50文字以内である必要があります');
-      });
-    });
-
-    describe('parentId validation', () => {
-      it('自分自身を親に指定した場合はエラー', () => {
-        expect(() => {
-          Category.create(
-            validParams.id,
-            validParams.name,
-            validParams.id, // 自分自身のIDを親に指定
-            validParams.displayOrder,
-            validParams.createdAt,
-            validParams.updatedAt
-          );
-        }).toThrow('自分自身を親カテゴリーに指定できません');
+        }).toThrow('オプション名は50文字以内である必要があります');
       });
     });
 
     describe('displayOrder validation', () => {
       it('表示順序が最小値の場合は成功', () => {
         expect(() => {
-          Category.create(
+          ProductOption.create(
             validParams.id,
-            validParams.name,
-            validParams.parentId,
+            validParams.productId,
+            validParams.optionName,
             0,
             validParams.createdAt,
             validParams.updatedAt
@@ -138,10 +110,10 @@ describe('Category Entity', () => {
 
       it('表示順序が正の整数の場合は成功', () => {
         expect(() => {
-          Category.create(
+          ProductOption.create(
             validParams.id,
-            validParams.name,
-            validParams.parentId,
+            validParams.productId,
+            validParams.optionName,
             100,
             validParams.createdAt,
             validParams.updatedAt
@@ -149,12 +121,12 @@ describe('Category Entity', () => {
         }).not.toThrow();
       });
 
-      it('表示順序が負の場合はエラー', () => {
+      it('表示順序が範囲外の場合はエラー', () => {
         expect(() => {
-          Category.create(
+          ProductOption.create(
             validParams.id,
-            validParams.name,
-            validParams.parentId,
+            validParams.productId,
+            validParams.optionName,
             -1,
             validParams.createdAt,
             validParams.updatedAt

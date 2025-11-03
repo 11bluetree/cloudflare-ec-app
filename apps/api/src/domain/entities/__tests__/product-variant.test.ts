@@ -11,6 +11,7 @@ describe('ProductVariant Entity', () => {
     imageUrl: 'https://example.com/image.jpg',
     price: Money.create(1000),
     displayOrder: 1,
+    options: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -26,6 +27,7 @@ describe('ProductVariant Entity', () => {
           validParams.imageUrl,
           validParams.price,
           validParams.displayOrder,
+          validParams.options,
           validParams.createdAt,
           validParams.updatedAt
         );
@@ -42,6 +44,7 @@ describe('ProductVariant Entity', () => {
           null,
           validParams.price,
           validParams.displayOrder,
+          validParams.options,
           validParams.createdAt,
           validParams.updatedAt
         );
@@ -59,6 +62,7 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -75,6 +79,7 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -91,13 +96,14 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('100文字の場合は成功', () => {
+      it('最大文字数の場合は成功', () => {
         const sku = 'A'.repeat(100);
         expect(() => {
           ProductVariant.create(
@@ -108,13 +114,14 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('101文字の場合はエラー', () => {
+      it('最大文字数を超えた場合はエラー', () => {
         const sku = 'A'.repeat(101);
         expect(() => {
           ProductVariant.create(
@@ -125,6 +132,7 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -133,7 +141,7 @@ describe('ProductVariant Entity', () => {
     });
 
     describe('barcode validation', () => {
-      it('100文字の場合は成功', () => {
+      it('最大文字数の場合は成功', () => {
         const barcode = '1'.repeat(100);
         expect(() => {
           ProductVariant.create(
@@ -144,13 +152,14 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('101文字の場合はエラー', () => {
+      it('最大文字数を超えた場合はエラー', () => {
         const barcode = '1'.repeat(101);
         expect(() => {
           ProductVariant.create(
@@ -161,6 +170,7 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -169,7 +179,7 @@ describe('ProductVariant Entity', () => {
     });
 
     describe('imageUrl validation', () => {
-      it('500文字の場合は成功', () => {
+      it('最大文字数の場合は成功', () => {
         const imageUrl = 'https://example.com/' + 'a'.repeat(480);
         expect(() => {
           ProductVariant.create(
@@ -180,13 +190,14 @@ describe('ProductVariant Entity', () => {
             imageUrl,
             validParams.price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('501文字の場合はエラー', () => {
+      it('最大文字数を超えた場合はエラー', () => {
         const imageUrl = 'https://example.com/' + 'a'.repeat(481);
         expect(() => {
           ProductVariant.create(
@@ -197,6 +208,7 @@ describe('ProductVariant Entity', () => {
             imageUrl,
             validParams.price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -205,7 +217,7 @@ describe('ProductVariant Entity', () => {
     });
 
     describe('price validation', () => {
-      it('価格が0円の場合は成功', () => {
+      it('価格が最小値の場合は成功', () => {
         const price = Money.create(0);
         expect(() => {
           ProductVariant.create(
@@ -216,13 +228,14 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('価格が999999円の場合は成功', () => {
+      it('価格が最小値の場合は成功', () => {
         const price = Money.create(999999);
         expect(() => {
           ProductVariant.create(
@@ -233,13 +246,14 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('価格が1000000円の場合はエラー', () => {
+      it('価格が範囲外の場合はエラー', () => {
         const price = Money.create(1000000);
         expect(() => {
           ProductVariant.create(
@@ -250,6 +264,7 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             price,
             validParams.displayOrder,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -264,7 +279,7 @@ describe('ProductVariant Entity', () => {
     });
 
     describe('displayOrder validation', () => {
-      it('表示順序が0の場合は成功', () => {
+      it('表示順序が最小値の場合は成功', () => {
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -274,13 +289,14 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             0,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('表示順序が100の場合は成功', () => {
+      it('表示順序が最大値の場合は成功', () => {
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -290,13 +306,14 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             100,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('表示順序が-1の場合はエラー', () => {
+      it('表示順序が範囲外の場合はエラー', () => {
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -306,13 +323,14 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             -1,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).toThrow('表示順序は0以上100以下である必要があります');
       });
 
-      it('表示順序が101の場合はエラー', () => {
+      it('表示順序が範囲外の場合はエラー', () => {
         expect(() => {
           ProductVariant.create(
             validParams.id,
@@ -322,6 +340,7 @@ describe('ProductVariant Entity', () => {
             validParams.imageUrl,
             validParams.price,
             501,
+          validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );

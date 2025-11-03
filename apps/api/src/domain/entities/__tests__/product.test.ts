@@ -8,6 +8,7 @@ describe('Product Entity', () => {
     description: '商品説明',
     categoryId: '01JCQZ8X9Y0CATEGORYID123',
     status: ProductStatus.DRAFT,
+    options: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -21,6 +22,7 @@ describe('Product Entity', () => {
           validParams.description,
           validParams.categoryId,
           validParams.status,
+          validParams.options,
           validParams.createdAt,
           validParams.updatedAt
         );
@@ -36,6 +38,7 @@ describe('Product Entity', () => {
             validParams.description,
             validParams.categoryId,
             validParams.status,
+            validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -50,6 +53,7 @@ describe('Product Entity', () => {
             validParams.description,
             validParams.categoryId,
             validParams.status,
+            validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -64,13 +68,14 @@ describe('Product Entity', () => {
             validParams.description,
             validParams.categoryId,
             validParams.status,
+            validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('200文字の場合は成功', () => {
+      it('最大文字数の場合は成功', () => {
         const name = 'あ'.repeat(200);
         expect(() => {
           Product.create(
@@ -79,13 +84,14 @@ describe('Product Entity', () => {
             validParams.description,
             validParams.categoryId,
             validParams.status,
+            validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('201文字の場合はエラー', () => {
+      it('最大文字数を超えた場合はエラー', () => {
         const name = 'あ'.repeat(201);
         expect(() => {
           Product.create(
@@ -94,6 +100,7 @@ describe('Product Entity', () => {
             validParams.description,
             validParams.categoryId,
             validParams.status,
+            validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -110,6 +117,7 @@ describe('Product Entity', () => {
             '',
             validParams.categoryId,
             validParams.status,
+            validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -124,6 +132,7 @@ describe('Product Entity', () => {
             '   ',
             validParams.categoryId,
             validParams.status,
+            validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
@@ -138,13 +147,14 @@ describe('Product Entity', () => {
             '  商品説明  ',
             validParams.categoryId,
             validParams.status,
+            validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('4096文字の場合は成功', () => {
+      it('最大文字数の場合は成功', () => {
         const description = 'あ'.repeat(4096);
         expect(() => {
           Product.create(
@@ -153,13 +163,14 @@ describe('Product Entity', () => {
             description,
             validParams.categoryId,
             validParams.status,
+            validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );
         }).not.toThrow();
       });
 
-      it('4097文字の場合はエラー', () => {
+      it('最大文字数を超えた場合はエラー', () => {
         const description = 'あ'.repeat(4097);
         expect(() => {
           Product.create(
@@ -168,6 +179,7 @@ describe('Product Entity', () => {
             description,
             validParams.categoryId,
             validParams.status,
+            validParams.options,
             validParams.createdAt,
             validParams.updatedAt
           );

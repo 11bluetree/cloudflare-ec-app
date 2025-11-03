@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Money } from '../value-objects/money';
+import { ProductVariantOption } from './product-variant-option';
 
 const MAX_SKU_LENGTH = 100;
 const MAX_BARCODE_LENGTH = 100;
@@ -8,6 +9,7 @@ const MIN_PRICE = 0;
 const MAX_PRICE = 1000000;
 const MIN_DISPLAY_ORDER = 0;
 const MAX_DISPLAY_ORDER = 100;
+const MAX_OPTIONS_PER_VARIANT = 5;
 
 const productVariantSchema = z.object({
   id: z.string(),
@@ -35,6 +37,9 @@ const productVariantSchema = z.object({
     .number()
     .min(MIN_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上${MAX_DISPLAY_ORDER}以下である必要があります` })
     .max(MAX_DISPLAY_ORDER, { message: `表示順序は${MIN_DISPLAY_ORDER}以上${MAX_DISPLAY_ORDER}以下である必要があります` }),
+  options: z.array(z.custom<ProductVariantOption>()).max(MAX_OPTIONS_PER_VARIANT, {
+    message: `オプションは${MAX_OPTIONS_PER_VARIANT}個以内である必要があります`,
+  }),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -49,6 +54,7 @@ export class ProductVariant {
     public readonly imageUrl: string | null,
     public readonly price: Money,
     public readonly displayOrder: number,
+    public readonly options: ProductVariantOption[],
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {}
@@ -61,6 +67,7 @@ export class ProductVariant {
     imageUrl: string | null,
     price: Money,
     displayOrder: number,
+    options: ProductVariantOption[],
     createdAt: Date,
     updatedAt: Date
   ): ProductVariant {
@@ -72,6 +79,7 @@ export class ProductVariant {
       imageUrl,
       price,
       displayOrder,
+      options,
       createdAt,
       updatedAt,
     });
@@ -84,6 +92,7 @@ export class ProductVariant {
       validated.imageUrl,
       validated.price,
       validated.displayOrder,
+      validated.options,
       validated.createdAt,
       validated.updatedAt
     );
