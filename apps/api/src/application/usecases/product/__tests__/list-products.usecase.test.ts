@@ -1,18 +1,18 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { faker } from "@faker-js/faker";
-import { ListProductsUseCase } from "../list-products.usecase";
-import type { IProductRepository } from "../../../ports/repositories/product-repository.interface";
-import type { ICategoryRepository } from "../../../ports/repositories/category-repository.interface";
-import { Product, ProductStatus } from "../../../../domain/entities/product";
-import { Category } from "../../../../domain/entities/category";
-import { ProductOption } from "../../../../domain/entities/product-option";
-import { ProductVariant } from "../../../../domain/entities/product-variant";
-import { ProductVariantOption } from "../../../../domain/entities/product-variant-option";
-import { Money } from "../../../../domain/value-objects/money";
-import type { ProductAggregate } from "../../../../domain/entities/product-aggregate";
-import type { ProductListQuery } from "@cloudflare-ec-app/types";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { faker } from '@faker-js/faker';
+import { ListProductsUseCase } from '../list-products.usecase';
+import type { IProductRepository } from '../../../ports/repositories/product-repository.interface';
+import type { ICategoryRepository } from '../../../ports/repositories/category-repository.interface';
+import { Product, ProductStatus } from '../../../../domain/entities/product';
+import { Category } from '../../../../domain/entities/category';
+import { ProductOption } from '../../../../domain/entities/product-option';
+import { ProductVariant } from '../../../../domain/entities/product-variant';
+import { ProductVariantOption } from '../../../../domain/entities/product-variant-option';
+import { Money } from '../../../../domain/value-objects/money';
+import type { ProductAggregate } from '../../../../domain/entities/product-aggregate';
+import type { ProductListQuery } from '@cloudflare-ec-app/types';
 
-describe("ListProductsUseCase", () => {
+describe('ListProductsUseCase', () => {
   let useCase: ListProductsUseCase;
   let mockProductRepository: IProductRepository;
   let mockCategoryRepository: ICategoryRepository;
@@ -114,8 +114,8 @@ describe("ListProductsUseCase", () => {
     );
   });
 
-  describe("正常系 - 基本動作", () => {
-    it("公開済み商品一覧を取得できる", async () => {
+  describe('正常系 - 基本動作', () => {
+    it('公開済み商品一覧を取得できる', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
       const mockProducts = [
@@ -136,8 +136,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -151,7 +151,7 @@ describe("ListProductsUseCase", () => {
       expect(result.pagination.totalPages).toBe(1);
     });
 
-    it("商品とカテゴリ情報が正しく結合される", async () => {
+    it('商品とカテゴリ情報が正しく結合される', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
       const mockProduct = createMockProduct({ categoryId });
@@ -169,8 +169,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -181,7 +181,7 @@ describe("ListProductsUseCase", () => {
       expect(result.items[0].categoryId).toBe(categoryId);
     });
 
-    it("ページネーション情報が正しく計算される", async () => {
+    it('ページネーション情報が正しく計算される', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
       const mockProducts = Array.from({ length: 10 }, () =>
@@ -201,8 +201,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 2,
         perPage: 10,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -216,8 +216,8 @@ describe("ListProductsUseCase", () => {
     });
   });
 
-  describe("正常系 - デフォルト動作", () => {
-    it("statusesが未指定の場合、すべてのステータスの商品を取得する", async () => {
+  describe('正常系 - デフォルト動作', () => {
+    it('statusesが未指定の場合、すべてのステータスの商品を取得する', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
       const mockProduct = createMockProduct({ categoryId });
@@ -235,8 +235,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
         // statuses未指定 = すべてのステータス
       };
 
@@ -258,7 +258,7 @@ describe("ListProductsUseCase", () => {
       );
     });
 
-    it("statusesが指定された場合、指定されたステータスで取得される", async () => {
+    it('statusesが指定された場合、指定されたステータスで取得される', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
       const mockProduct = createMockProduct({
@@ -279,9 +279,9 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        statuses: ["draft"],
-        sortBy: "createdAt",
-        order: "desc",
+        statuses: ['draft'],
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -290,12 +290,12 @@ describe("ListProductsUseCase", () => {
       // Assert
       expect(mockProductRepository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          statuses: ["draft"],
+          statuses: ['draft'],
         })
       );
     });
 
-    it("複数のstatusesを指定した場合、それらのステータスで取得される", async () => {
+    it('複数のstatusesを指定した場合、それらのステータスで取得される', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
       const mockProducts = [
@@ -316,9 +316,9 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        statuses: ["draft", "published"],
-        sortBy: "createdAt",
-        order: "desc",
+        statuses: ['draft', 'published'],
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -327,14 +327,14 @@ describe("ListProductsUseCase", () => {
       // Assert
       expect(mockProductRepository.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          statuses: ["draft", "published"],
+          statuses: ['draft', 'published'],
         })
       );
     });
   });
 
-  describe("境界値 - 空の結果", () => {
-    it("商品が0件の場合、空の配列とページネーション情報を返す", async () => {
+  describe('境界値 - 空の結果', () => {
+    it('商品が0件の場合、空の配列とページネーション情報を返す', async () => {
       // Arrange
       vi.mocked(mockProductRepository.findMany).mockResolvedValue({
         products: [],
@@ -344,8 +344,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -358,7 +358,7 @@ describe("ListProductsUseCase", () => {
       expect(mockCategoryRepository.findByIds).not.toHaveBeenCalled();
     });
 
-    it("検索条件に一致する商品がない場合、適切なレスポンスを返す", async () => {
+    it('検索条件に一致する商品がない場合、適切なレスポンスを返す', async () => {
       // Arrange
       vi.mocked(mockProductRepository.findMany).mockResolvedValue({
         products: [],
@@ -368,9 +368,9 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        keyword: "NotExistingProduct",
-        sortBy: "createdAt",
-        order: "desc",
+        keyword: 'NotExistingProduct',
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -383,8 +383,8 @@ describe("ListProductsUseCase", () => {
     });
   });
 
-  describe("異常系 - データ整合性", () => {
-    it("商品に紐づくカテゴリが存在しない場合、エラーをスローする", async () => {
+  describe('異常系 - データ整合性', () => {
+    it('商品に紐づくカテゴリが存在しない場合、エラーをスローする', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
       const mockProduct = createMockProduct({ categoryId });
@@ -400,8 +400,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act & Assert
@@ -411,8 +411,8 @@ describe("ListProductsUseCase", () => {
     });
   });
 
-  describe("パフォーマンス - N+1問題", () => {
-    it("複数商品がある場合、カテゴリは一括取得される", async () => {
+  describe('パフォーマンス - N+1問題', () => {
+    it('複数商品がある場合、カテゴリは一括取得される', async () => {
       // Arrange
       const categoryId1 = faker.string.ulid();
       const categoryId2 = faker.string.ulid();
@@ -440,8 +440,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -451,7 +451,7 @@ describe("ListProductsUseCase", () => {
       expect(mockCategoryRepository.findByIds).toHaveBeenCalledTimes(1);
     });
 
-    it("重複したカテゴリIDは排除される", async () => {
+    it('重複したカテゴリIDは排除される', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
 
@@ -475,8 +475,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -489,8 +489,8 @@ describe("ListProductsUseCase", () => {
     });
   });
 
-  describe("統合テスト - 複雑なケース", () => {
-    it("複数カテゴリの商品が混在する場合でも正しく動作する", async () => {
+  describe('統合テスト - 複雑なケース', () => {
+    it('複数カテゴリの商品が混在する場合でも正しく動作する', async () => {
       // Arrange
       const categoryIds = [
         faker.string.ulid(),
@@ -520,8 +520,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 20,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -538,8 +538,8 @@ describe("ListProductsUseCase", () => {
     });
   });
 
-  describe("エッジケース", () => {
-    it("ページ番号が総ページ数を超える場合、空の結果を返す", async () => {
+  describe('エッジケース', () => {
+    it('ページ番号が総ページ数を超える場合、空の結果を返す', async () => {
       // Arrange
       vi.mocked(mockProductRepository.findMany).mockResolvedValue({
         products: [],
@@ -549,8 +549,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 999,
         perPage: 20,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -562,7 +562,7 @@ describe("ListProductsUseCase", () => {
       expect(result.pagination.totalPages).toBe(0);
     });
 
-    it("perPageが最大値の場合でも正しく動作する", async () => {
+    it('perPageが最大値の場合でも正しく動作する', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
       const mockProducts = Array.from({ length: 100 }, () =>
@@ -582,8 +582,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 100,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act
@@ -595,7 +595,7 @@ describe("ListProductsUseCase", () => {
       expect(result.pagination.totalPages).toBe(1);
     });
 
-    it("perPageが最小値の場合でも正しく動作する", async () => {
+    it('perPageが最小値の場合でも正しく動作する', async () => {
       // Arrange
       const categoryId = faker.string.ulid();
       const mockProduct = createMockProduct({ categoryId });
@@ -613,8 +613,8 @@ describe("ListProductsUseCase", () => {
       const query: ProductListQuery = {
         page: 1,
         perPage: 1,
-        sortBy: "createdAt",
-        order: "desc",
+        sortBy: 'createdAt',
+        order: 'desc',
       };
 
       // Act

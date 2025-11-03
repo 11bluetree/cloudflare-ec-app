@@ -1,9 +1,9 @@
-import { z } from "zod";
-import { Product } from "./product";
-import { ProductVariant } from "./product-variant";
-import { ProductImage } from "./product-image";
-import { Category } from "./category";
-import { Money } from "../value-objects/money";
+import { z } from 'zod';
+import { Product } from './product';
+import { ProductVariant } from './product-variant';
+import { ProductImage } from './product-image';
+import { Category } from './category';
+import { Money } from '../value-objects/money';
 
 const MAX_PRODUCTS_PER_PAGE = 100;
 const MIN_VARIANTS_PER_PRODUCT = 1;
@@ -31,14 +31,14 @@ const productListItemSchema = z
     variants: z
       .array(z.custom<ProductVariant>())
       .min(MIN_VARIANTS_PER_PRODUCT, {
-        message: "商品には最低1つのバリアントが必要です",
+        message: '商品には最低1つのバリアントが必要です',
       })
       .max(MAX_VARIANTS_PER_PRODUCT, {
         message: `商品には最大${MAX_VARIANTS_PER_PRODUCT}個のバリアントまで登録可能です`,
       }),
   })
   .refine((data) => allBelongToProduct(data.variants, data.product.id), {
-    message: "すべてのバリアントは同じ商品に属する必要があります",
+    message: 'すべてのバリアントは同じ商品に属する必要があります',
   })
   .transform((data) => {
     const { minPrice, maxPrice } = calculatePriceRange(data.variants);

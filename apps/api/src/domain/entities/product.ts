@@ -1,10 +1,10 @@
-import { z } from "zod";
-import { ProductOption } from "./product-option";
+import { z } from 'zod';
+import { ProductOption } from './product-option';
 
 export const ProductStatus = {
-  DRAFT: "draft",
-  PUBLISHED: "published",
-  ARCHIVED: "archived",
+  DRAFT: 'draft',
+  PUBLISHED: 'published',
+  ARCHIVED: 'archived',
 } as const;
 
 const MAX_NAME_LENGTH = 200;
@@ -18,19 +18,19 @@ const productSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, { message: "商品名は空白のみにできません" })
+    .min(1, { message: '商品名は空白のみにできません' })
     .max(MAX_NAME_LENGTH, {
       message: `商品名は${MAX_NAME_LENGTH}文字以内である必要があります`,
     }),
   description: z
     .string()
     .trim()
-    .min(1, { message: "商品説明は空白のみにできません" })
+    .min(1, { message: '商品説明は空白のみにできません' })
     .max(MAX_DESCRIPTION_LENGTH, {
       message: `商品説明は${MAX_DESCRIPTION_LENGTH}文字以内である必要があります`,
     }),
   categoryId: z.string(),
-  status: z.enum(["draft", "published", "archived"]),
+  status: z.enum(['draft', 'published', 'archived']),
   options: z.array(z.custom<ProductOption>()).max(MAX_OPTIONS_PER_PRODUCT, {
     message: `オプションは${MAX_OPTIONS_PER_PRODUCT}個以内である必要があります`,
   }),

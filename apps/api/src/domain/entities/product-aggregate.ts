@@ -1,6 +1,6 @@
-import { Product } from "./product";
-import { ProductVariant } from "./product-variant";
-import { ProductImage } from "./product-image";
+import { Product } from './product';
+import { ProductVariant } from './product-variant';
+import { ProductImage } from './product-image';
 
 /**
  * Product集約ルート全体

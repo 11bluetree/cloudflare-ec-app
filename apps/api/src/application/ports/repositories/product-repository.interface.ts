@@ -1,5 +1,5 @@
-import type { ProductListQuery } from "@cloudflare-ec-app/types";
-import type { ProductAggregate } from "../../../domain/entities/product-aggregate";
+import type { ProductListQuery } from '@cloudflare-ec-app/types';
+import type { ProductAggregate } from '../../../domain/entities/product-aggregate';
 
 /**
  * 商品リポジトリのインターフェース

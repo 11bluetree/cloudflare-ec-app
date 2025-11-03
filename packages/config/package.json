@@ -2,14 +2,5 @@
   "name": "@cloudflare-ec-app/config",
   "version": "1.0.0",
   "type": "module",
-  "exports": {
-    "./eslint": {
-      "import": "./eslint.config.js"
-    }
-  },
-  "peerDependencies": {
-    "@eslint/js": "^9.38.0",
-    "eslint": "^9.38.0",
-    "typescript-eslint": "^8.46.2"
-  }
+  "description": "Shared configuration for all packages (reserved for future use)"
 }

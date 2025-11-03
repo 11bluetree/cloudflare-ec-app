@@ -1,21 +1,21 @@
-import type { ProductListQuery } from "@cloudflare-ec-app/types";
-import type { IProductRepository } from "../../../application/ports/repositories/product-repository.interface";
-import type { ProductAggregate } from "../../../domain/entities/product-aggregate";
-import { Product, ProductStatus } from "../../../domain/entities/product";
-import { ProductOption } from "../../../domain/entities/product-option";
-import { ProductVariant } from "../../../domain/entities/product-variant";
-import { ProductVariantOption } from "../../../domain/entities/product-variant-option";
-import { ProductImage } from "../../../domain/entities/product-image";
-import { Money } from "../../../domain/value-objects/money";
-import { eq, and, like, or, sql } from "drizzle-orm";
+import type { ProductListQuery } from '@cloudflare-ec-app/types';
+import type { IProductRepository } from '../../../application/ports/repositories/product-repository.interface';
+import type { ProductAggregate } from '../../../domain/entities/product-aggregate';
+import { Product, ProductStatus } from '../../../domain/entities/product';
+import { ProductOption } from '../../../domain/entities/product-option';
+import { ProductVariant } from '../../../domain/entities/product-variant';
+import { ProductVariantOption } from '../../../domain/entities/product-variant-option';
+import { ProductImage } from '../../../domain/entities/product-image';
+import { Money } from '../../../domain/value-objects/money';
+import { eq, and, like, or, sql } from 'drizzle-orm';
 import {
   products,
   productOptions,
   productVariants,
   productVariantOptions,
   productImages,
-} from "../db/schema";
-import type { DrizzleDB } from "../db/connection";
+} from '../db/schema';
+import type { DrizzleDB } from '../db/connection';
 
 /**
  * 商品リポジトリ実装（Drizzle ORM + Cloudflare D1）
@@ -84,28 +84,24 @@ export class ProductRepository implements IProductRepository {
       return { products: [], total: 0 };
     }
 
+    // ソート順を決定
+    const orderColumn =
+      sortBy === 'name'
+        ? orderDir === 'asc'
+          ? products.name
+          : sql`${products.name} DESC`
+        : orderDir === 'asc'
+        ? products.createdAt
+        : sql`${products.createdAt} DESC`;
+
     // 商品IDの一覧を取得（ソート付き）
-    let productQuery = this.db
+    const productRows = await this.db
       .select({ id: products.id })
       .from(products)
       .where(whereCondition)
+      .orderBy(orderColumn)
       .limit(perPage)
       .offset(offset);
-
-    // ソート順を適用
-    if (sortBy === "name") {
-      productQuery = productQuery.orderBy(
-        orderDir === "asc" ? products.name : sql`${products.name} DESC`
-      ) as any;
-    } else {
-      productQuery = productQuery.orderBy(
-        orderDir === "asc"
-          ? products.createdAt
-          : sql`${products.createdAt} DESC`
-      ) as any;
-    }
-
-    const productRows = await productQuery;
 
     if (productRows.length === 0) {
       return { products: [], total };
@@ -120,7 +116,7 @@ export class ProductRepository implements IProductRepository {
     let filteredProducts = productList;
     if (minPrice !== undefined || maxPrice !== undefined) {
       filteredProducts = productList.filter((product) => {
-        const variants = (product as any).variants || [];
+        const variants = product.variants || [];
         return variants.some((variant: ProductVariant) => {
           const price = variant.price.toNumber();
           if (minPrice !== undefined && price < minPrice) return false;

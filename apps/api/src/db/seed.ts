@@ -115,7 +115,7 @@ async function seed() {
       updatedAt: new Date(),
     });
 
-    console.log(`    ✅ Created option value: default`);
+    console.log('    ✅ Created option value: default');
 
     // 商品1のバリアント（単品商品）
     const variant1Id = ulid();
@@ -153,7 +153,7 @@ async function seed() {
       updatedAt: new Date(),
     });
 
-    console.log(`    ✅ Linked option: title = default`);
+    console.log('    ✅ Linked option: title = default');
 
     // 商品1の画像
     const image1Id = ulid();
@@ -171,7 +171,7 @@ async function seed() {
       updatedAt: new Date(),
     });
 
-    console.log(`  ✅ Created image for variant`);
+    console.log('  ✅ Created image for variant');
 
     // ============================================================================
     // 3. 商品2: プレミアムTシャツ（3種類のバリアント: S, M, L）
@@ -299,7 +299,7 @@ async function seed() {
         updatedAt: new Date(),
       });
 
-      console.log(`    ✅ Created image for variant`);
+      console.log('    ✅ Created image for variant');
     }
 
     // ============================================================================

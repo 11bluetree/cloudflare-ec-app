@@ -1,6 +1,6 @@
-import { z } from "zod";
-import { Money } from "../value-objects/money";
-import { ProductVariantOption } from "./product-variant-option";
+import { z } from 'zod';
+import { Money } from '../value-objects/money';
+import { ProductVariantOption } from './product-variant-option';
 
 const MAX_SKU_LENGTH = 100;
 const MAX_BARCODE_LENGTH = 100;
@@ -18,7 +18,7 @@ const productVariantSchema = z.object({
   sku: z
     .string()
     .trim()
-    .min(1, { message: "SKUは空白のみにできません" })
+    .min(1, { message: 'SKUは空白のみにできません' })
     .max(MAX_SKU_LENGTH, {
       message: `SKUは${MAX_SKU_LENGTH}文字以内である必要があります`,
     }),

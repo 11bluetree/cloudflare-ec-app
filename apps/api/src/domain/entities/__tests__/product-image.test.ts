@@ -78,7 +78,7 @@ describe('ProductImage Entity', () => {
       });
 
       it('画像URLが最大文字数の場合は成功', () => {
-        const imageUrl = 'https://example.com/' + 'a'.repeat(480);
+        const imageUrl = `https://example.com/${'a'.repeat(480)}`;
         const image = ProductImage.create(
           validParams.id,
           validParams.productId,
@@ -92,7 +92,7 @@ describe('ProductImage Entity', () => {
       });
 
       it('画像URLが最大文字数を超えた場合はエラー', () => {
-        const imageUrl = 'https://example.com/' + 'a'.repeat(481);
+        const imageUrl = `https://example.com/${'a'.repeat(481)}`;
         expect(() => {
           ProductImage.create(
             validParams.id,
