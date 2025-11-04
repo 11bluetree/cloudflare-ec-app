@@ -45,6 +45,7 @@ export interface ProductListResponse {
 ```
 
 **用途:**
+
 - **API側**: リクエストパラメータの型チェック、レスポンス構築
 - **Web側**: リクエスト送信時の型安全性、レスポンス受信時の型推論
 
@@ -67,10 +68,12 @@ export type ProductListQuery = z.infer<typeof ProductListQuerySchema>;
 ```
 
 **用途:**
+
 - **API側**: `zValidator('query', ProductListQuerySchema)` で入力検証
 - **Web側**: `ProductListQuerySchema.parse()` でURLパラメータ検証（任意）
 
 **利点:**
+
 - バリデーションルールが1箇所で管理される
 - API/Web間で同じルールが適用される
 - 型定義とバリデーションが自動で同期
@@ -84,6 +87,7 @@ export type ProductStatus = z.infer<typeof ProductStatusSchema>;
 ```
 
 **用途:**
+
 - ビジネスドメインで使用する列挙型
 - API/Web間で値の一貫性を保証
 
@@ -114,6 +118,7 @@ export interface PaginationDto {
 ```
 
 **特徴:**
+
 - API通信用の軽量なデータ構造
 - ドメインエンティティとは分離
 - JSONシリアライズ可能な型のみ使用
@@ -132,6 +137,7 @@ export class Product {
 ```
 
 **理由:**
+
 - ドメインエンティティはバックエンドの責務
 - Webはドメインロジックを直接扱わない（DTOで受け取る）
 
@@ -146,6 +152,7 @@ export const fetchProducts = async (params: ProductListQuery) => {
 ```
 
 **理由:**
+
 - Web側が好きなHTTPクライアントを選べなくなる（fetch, axios, tanstack query等）
 - URL構築やエラーハンドリングは各プロジェクトの要件による
 - 実装の柔軟性を損なう
@@ -161,6 +168,7 @@ import type { RouteContext } from '@tanstack/react-router'
 ```
 
 **理由:**
+
 - フレームワークへの依存を最小化
 - 純粋な型定義のみを共有
 
@@ -379,6 +387,7 @@ export interface ErrorResponse { /* ... */ }
 - **型契約を共有**: API仕様を型で表現
 - **実装は自由**: HTTPクライアントやURL構築は各自で
 - **Zodで一貫性**: バリデーションルールを統一
+  - V4以上を使用
 - **DRY原則**: 型定義の重複を排除
 - **柔軟性を保つ**: 実装の詳細を強制しない
 
