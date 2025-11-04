@@ -18,7 +18,7 @@ describe('ListCategoriesUseCase', () => {
   });
 
   describe('正常系', () => {
-    it('全カテゴリーを取得して正しい形式で返す', async () => {
+    it('全カテゴリーをツリー構造で返す', async () => {
       // Arrange
       const now = new Date();
       const rootCategory = Category.create(ulid(), faker.commerce.department(), null, 0, now, now);
@@ -30,8 +30,8 @@ describe('ListCategoriesUseCase', () => {
       const result = await useCase.execute();
 
       // Assert
-      expect(result.categories).toHaveLength(2);
-      expect(result.categories[0]).toEqual({
+      expect(result.categories).toHaveLength(1); // ルートカテゴリーのみ
+      expect(result.categories[0]).toMatchObject({
         id: rootCategory.id,
         name: rootCategory.name,
         parentId: null,
@@ -39,7 +39,8 @@ describe('ListCategoriesUseCase', () => {
         createdAt: now.toISOString(),
         updatedAt: now.toISOString(),
       });
-      expect(result.categories[1]).toEqual({
+      expect(result.categories[0].children).toHaveLength(1);
+      expect(result.categories[0].children[0]).toMatchObject({
         id: childCategory.id,
         name: childCategory.name,
         parentId: rootCategory.id,
@@ -60,7 +61,7 @@ describe('ListCategoriesUseCase', () => {
       expect(result.categories).toEqual([]);
     });
 
-    it('複数階層のカテゴリーを正しく返す', async () => {
+    it('複数階層のカテゴリーを正しいツリー構造で返す', async () => {
       // Arrange
       const now = new Date();
       const level1 = Category.create(ulid(), '家電', null, 0, now, now);
@@ -73,10 +74,12 @@ describe('ListCategoriesUseCase', () => {
       const result = await useCase.execute();
 
       // Assert
-      expect(result.categories).toHaveLength(3);
-      expect(result.categories[0].parentId).toBeNull();
-      expect(result.categories[1].parentId).toBe(level1.id);
-      expect(result.categories[2].parentId).toBe(level2.id);
+      expect(result.categories).toHaveLength(1); // ルートは1つ
+      expect(result.categories[0].id).toBe(level1.id);
+      expect(result.categories[0].children).toHaveLength(1); // パソコン
+      expect(result.categories[0].children[0].id).toBe(level2.id);
+      expect(result.categories[0].children[0].children).toHaveLength(1); // ノートPC
+      expect(result.categories[0].children[0].children[0].id).toBe(level3.id);
     });
   });
 
