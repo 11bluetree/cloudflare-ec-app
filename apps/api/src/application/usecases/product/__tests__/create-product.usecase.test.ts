@@ -39,6 +39,7 @@ describe('CreateProductUseCase', () => {
             ],
           ]),
         ),
+      findAll: vi.fn(),
     };
 
     useCase = new CreateProductUseCase(mockProductRepository, mockCategoryRepository);

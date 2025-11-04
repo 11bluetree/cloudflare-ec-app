@@ -10,4 +10,10 @@ export interface ICategoryRepository {
    * @returns カテゴリIDをキーとするMap
    */
   findByIds(categoryIds: string[]): Promise<Map<string, Category>>;
+
+  /**
+   * 全カテゴリを取得
+   * @returns 全カテゴリの配列（display_order順）
+   */
+  findAll(): Promise<Category[]>;
 }

@@ -1,6 +1,6 @@
 import type { ICategoryRepository } from '../../../application/ports/repositories/category-repository.interface';
 import { Category } from '../../../domain/entities/category';
-import { inArray } from 'drizzle-orm';
+import { asc, inArray } from 'drizzle-orm';
 import { categories } from '../db/schema';
 import type { DrizzleDB } from '../db/connection';
 
@@ -26,5 +26,13 @@ export class CategoryRepository implements ICategoryRepository {
     }
 
     return categoriesMap;
+  }
+
+  async findAll(): Promise<Category[]> {
+    const rows = await this.db.select().from(categories).orderBy(asc(categories.displayOrder));
+
+    return rows.map((row) =>
+      Category.create(row.id, row.name, row.parentId, row.displayOrder, row.createdAt, row.updatedAt),
+    );
   }
 }
