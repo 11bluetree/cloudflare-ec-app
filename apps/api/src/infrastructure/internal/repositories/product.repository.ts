@@ -239,70 +239,71 @@ export class ProductRepository implements IProductRepository {
 
   /**
    * 商品を作成
+   *
+   * 注: Cloudflare D1ではトランザクションが制限されているため、
+   * 順次実行で挿入を行います。本番環境ではバッチAPIを使用することを推奨します。
    */
   async create(details: ProductDetails): Promise<void> {
     const product = details.product;
     const variants = details.variants;
 
-    await this.db.transaction(async (tx) => {
-      // 1. 商品基本情報を挿入
-      await tx.insert(products).values({
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        categoryId: product.categoryId,
-        status: product.status,
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-      });
-
-      // 2. オプション定義を挿入（空配列の場合はスキップ）
-      if (product.options.length > 0) {
-        await tx.insert(productOptions).values(
-          product.options.map((option) => ({
-            id: option.id,
-            productId: product.id,
-            optionName: option.optionName,
-            displayOrder: option.displayOrder,
-            createdAt: option.createdAt,
-            updatedAt: option.updatedAt,
-          })),
-        );
-      }
-
-      // 3. バリアントを挿入（空配列の場合はスキップ）
-      if (variants.length > 0) {
-        await tx.insert(productVariants).values(
-          variants.map((variant) => ({
-            id: variant.id,
-            productId: product.id,
-            sku: variant.sku,
-            barcode: variant.barcode,
-            imageUrl: variant.imageUrl,
-            price: variant.price.toNumber(),
-            displayOrder: variant.displayOrder,
-            createdAt: variant.createdAt,
-            updatedAt: variant.updatedAt,
-          })),
-        );
-
-        // 4. バリアントオプションを挿入
-        const allVariantOptions = variants.flatMap((variant) =>
-          variant.options.map((opt) => ({
-            id: opt.id,
-            productVariantId: variant.id,
-            optionName: opt.optionName,
-            optionValue: opt.optionValue,
-            displayOrder: opt.displayOrder,
-            createdAt: opt.createdAt,
-            updatedAt: opt.updatedAt,
-          })),
-        );
-
-        if (allVariantOptions.length > 0) {
-          await tx.insert(productVariantOptions).values(allVariantOptions);
-        }
-      }
+    // 1. 商品基本情報を挿入
+    await this.db.insert(products).values({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      categoryId: product.categoryId,
+      status: product.status,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
     });
+
+    // 2. オプション定義を挿入（空配列の場合はスキップ）
+    if (product.options.length > 0) {
+      await this.db.insert(productOptions).values(
+        product.options.map((option) => ({
+          id: option.id,
+          productId: product.id,
+          optionName: option.optionName,
+          displayOrder: option.displayOrder,
+          createdAt: option.createdAt,
+          updatedAt: option.updatedAt,
+        })),
+      );
+    }
+
+    // 3. バリアントを挿入（空配列の場合はスキップ）
+    if (variants.length > 0) {
+      await this.db.insert(productVariants).values(
+        variants.map((variant) => ({
+          id: variant.id,
+          productId: product.id,
+          sku: variant.sku,
+          barcode: variant.barcode,
+          imageUrl: variant.imageUrl,
+          price: variant.price.toNumber(),
+          displayOrder: variant.displayOrder,
+          createdAt: variant.createdAt,
+          updatedAt: variant.updatedAt,
+        })),
+      );
+
+      // 4. バリアントオプションを挿入
+      const allVariantOptions = variants.flatMap((variant) =>
+        variant.options.map((opt) => ({
+          id: opt.id,
+          productVariantId: variant.id,
+          optionName: opt.optionName,
+          optionValue: opt.optionValue,
+          displayOrder: opt.displayOrder,
+          createdAt: opt.createdAt,
+          updatedAt: opt.updatedAt,
+        })),
+      );
+
+      if (allVariantOptions.length > 0) {
+        await this.db.insert(productVariantOptions).values(allVariantOptions);
+      }
+    }
   }
 }
