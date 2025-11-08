@@ -1,39 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { apiGet } from '../lib/api';
-import {
-  ProductListQuerySchema,
-  type ProductListResponse,
-  type ProductListQuery,
-  type ProductListItem,
-} from '@cloudflare-ec-app/types';
+import { ProductListQuerySchema, type ProductListItem } from '@cloudflare-ec-app/types';
+import { fetchAdminProducts } from '../lib/api/products';
 import { ProductSearchForm } from '../components/product-search-form';
 import { ProductSortControls, type SortBy } from '../components/product-sort-controls';
 import { ProductCard } from '../components/product-card';
 import { EmptyState } from '../components/ui/empty-state';
 import { Pagination } from '../components/ui/pagination';
 
-const fetchProducts = (search: ProductListQuery): Promise<ProductListResponse> => {
-  // クエリパラメータを構築
-  const params = new URLSearchParams();
-
-  Object.entries(search).forEach(([key, value]) => {
-    if (value !== undefined && value !== '') {
-      // statusesは配列なので個別に追加
-      if (key === 'statuses' && Array.isArray(value)) {
-        value.forEach((status) => params.append('statuses', status));
-      } else {
-        params.append(key, String(value));
-      }
-    }
-  });
-
-  return apiGet<ProductListResponse>(`/api/products?${params.toString()}`);
-};
-
 export const Route = createFileRoute('/products')({
   validateSearch: ProductListQuerySchema,
   loaderDeps: ({ search }) => search,
-  loader: ({ deps }) => fetchProducts(deps),
+  loader: ({ deps }) => fetchAdminProducts(deps),
   component: ProductsPage,
 });
 
