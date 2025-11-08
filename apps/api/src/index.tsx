@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import product from './presentation/routes/products';
 import category from './presentation/routes/categories';
+import adminProducts from './presentation/routes/admin-products';
 
 type Bindings = {
   ALLOWED_ORIGINS?: string;
@@ -23,6 +24,9 @@ app.get('/api/health', (c) => {
 
 /** 商品ルート */
 app.route('/api/products', product);
+
+/** 管理画面用商品ルート */
+app.route('/api/admin/products', adminProducts);
 
 /** カテゴリールート */
 app.route('/api/categories', category);
