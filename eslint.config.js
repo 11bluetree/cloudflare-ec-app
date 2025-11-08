@@ -56,6 +56,14 @@ export default [
       // any型の使用を禁止
       '@typescript-eslint/no-explicit-any': 'error',
 
+      // 型アサーション（as）の使用を禁止
+      '@typescript-eslint/consistent-type-assertions': [
+        'error',
+        {
+          assertionStyle: 'never',
+        },
+      ],
+
       // 空の関数を警告
       '@typescript-eslint/no-empty-function': 'warn',
 
@@ -112,6 +120,20 @@ export default [
       globals: {
         // Cloudflare Workers固有のグローバル変数があれば追加
       },
+    },
+  },
+
+  // テストファイルでは型アサーションを許可（モックオブジェクト作成のため）
+  {
+    files: ['**/__tests__/**/*.{ts,tsx}', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/consistent-type-assertions': [
+        'error',
+        {
+          assertionStyle: 'as',
+          objectLiteralTypeAssertions: 'allow',
+        },
+      ],
     },
   },
 ];

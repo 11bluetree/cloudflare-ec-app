@@ -5,17 +5,26 @@ import product from '../products';
 import type { CreateProductRequest } from '@cloudflare-ec-app/types';
 
 // テスト用のモックD1データベース
-const mockDB = {
-  prepare: () => ({
-    bind: () => ({
-      all: () => Promise.resolve({ results: [] }),
-      run: () => Promise.resolve({ success: true }),
-      first: () => Promise.resolve(null),
-    }),
-  }),
-  batch: () => Promise.resolve([]),
-  exec: () => Promise.resolve({ count: 0, duration: 0 }),
-} as unknown as D1Database;
+// D1Databaseの完全な型実装は複雑なため、必要最小限のメソッドのみをモック
+const mockDB: D1Database = (() => {
+  const mockPreparedStatement = {
+    bind: () => mockPreparedStatement,
+    all: () => Promise.resolve({ results: [], success: true, meta: {} }),
+    run: () => Promise.resolve({ success: true, meta: {} }),
+    first: () => Promise.resolve(null),
+    raw: () => Promise.resolve([]),
+  };
+
+  return {
+    prepare: () => mockPreparedStatement,
+    batch: () => Promise.resolve([]),
+    exec: () => Promise.resolve({ count: 0, duration: 0 }),
+    dump: () => Promise.resolve(new ArrayBuffer(0)),
+    withSession: () => {
+      throw new Error('withSession not implemented in mock');
+    },
+  } as unknown;
+})() as D1Database;
 
 // testClientはproductから型を自動推論するため、環境変数のみを渡す
 const client = testClient(product, { DB: mockDB });
@@ -78,7 +87,7 @@ describe('POST /api/products - E2E', () => {
   });
 
   describe('異常系', () => {
-    it.skip('バリデーションエラー時に400を返す', async () => {
+    it.skip('バリデーションエラー時に400を返す', () => {
       // Arrange
       const invalidRequest = {
         name: '', // 空文字（バリデーションエラー）
@@ -91,7 +100,7 @@ describe('POST /api/products - E2E', () => {
       expect(invalidRequest.name).toBe('');
     });
 
-    it.skip('カテゴリー不正時に404を返す', async () => {
+    it.skip('カテゴリー不正時に404を返す', () => {
       // Arrange
       const request: CreateProductRequest = {
         name: faker.commerce.productName(),
@@ -104,7 +113,7 @@ describe('POST /api/products - E2E', () => {
       expect(request.categoryId).toBe('invalid-category-id');
     });
 
-    it.skip('バリアント数超過時に400を返す', async () => {
+    it.skip('バリアント数超過時に400を返す', () => {
       // Arrange
       const MAX_VARIANTS = 100;
       const optionName = faker.commerce.productAdjective();

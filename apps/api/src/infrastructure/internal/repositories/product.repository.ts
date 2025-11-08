@@ -129,7 +129,7 @@ export class ProductRepository implements IProductRepository {
       row.name,
       row.description,
       row.categoryId,
-      row.status as ProductStatus,
+      row.status satisfies ProductStatus,
       opts,
       row.createdAt,
       row.updatedAt,

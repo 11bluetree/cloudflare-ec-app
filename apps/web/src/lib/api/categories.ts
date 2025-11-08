@@ -9,5 +9,5 @@ import { apiGet } from '../api';
  * カテゴリー一覧を取得
  */
 export const fetchCategories = async (): Promise<CategoryListResponse> => {
-  return apiGet<CategoryListResponse>('/api/categories');
+  return await apiGet<CategoryListResponse>('/api/categories');
 };

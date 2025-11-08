@@ -3,7 +3,8 @@ import { testClient } from 'hono/testing';
 import category from '../categories';
 
 // テスト用のモックD1データベース
-const createMockD1 = () => {
+// D1Databaseの完全な型実装は複雑なため、必要最小限のメソッドのみをモック
+const createMockD1 = (): D1Database => {
   const mockStmt = {
     bind: function () {
       return this;
@@ -19,6 +20,9 @@ const createMockD1 = () => {
     batch: () => Promise.resolve([{ results: [], success: true, meta: {} }]),
     exec: () => Promise.resolve({ count: 0, duration: 0 }),
     dump: () => Promise.resolve(new ArrayBuffer(0)),
+    withSession: () => {
+      throw new Error('withSession not implemented in mock');
+    },
   } as unknown as D1Database;
 };
 

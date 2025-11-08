@@ -506,9 +506,12 @@ function ProductNewPage() {
                         <button
                           type="button"
                           onClick={(e) => {
-                            const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                            handleAddOptionValue(optionIndex, input.value);
-                            input.value = '';
+                            const button = e.currentTarget;
+                            const input = button.previousElementSibling;
+                            if (input instanceof HTMLInputElement) {
+                              handleAddOptionValue(optionIndex, input.value);
+                              input.value = '';
+                            }
                           }}
                           className="rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
                         >

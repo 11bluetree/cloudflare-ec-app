@@ -45,7 +45,7 @@ export const fetchProducts = async (query: ProductListQuery): Promise<ProductLis
   params.append('sortBy', query.sortBy);
   params.append('order', query.order);
 
-  return apiGet<ProductListResponse>(`/api/products?${params.toString()}`);
+  return await apiGet<ProductListResponse>(`/api/products?${params.toString()}`);
 };
 
 /**
@@ -83,12 +83,12 @@ export const fetchAdminProducts = async (query: ProductListQuery): Promise<Produ
   params.append('sortBy', query.sortBy);
   params.append('order', query.order);
 
-  return apiGet<ProductListResponse>(`/api/admin/products?${params.toString()}`);
+  return await apiGet<ProductListResponse>(`/api/admin/products?${params.toString()}`);
 };
 
 /**
  * 商品を登録
  */
 export const createProduct = async (data: CreateProductRequest): Promise<CreateProductResponse> => {
-  return apiPost<CreateProductResponse>('/api/products', data);
+  return await apiPost<CreateProductResponse>('/api/products', data);
 };

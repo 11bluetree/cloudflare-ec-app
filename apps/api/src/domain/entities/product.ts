@@ -77,7 +77,7 @@ export class Product {
       validated.name,
       validated.description,
       validated.categoryId,
-      validated.status as ProductStatus,
+      validated.status satisfies ProductStatus,
       validated.options,
       validated.createdAt,
       validated.updatedAt,

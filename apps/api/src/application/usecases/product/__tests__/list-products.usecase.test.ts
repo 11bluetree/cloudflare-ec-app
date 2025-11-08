@@ -81,22 +81,16 @@ describe('ListProductsUseCase', () => {
 
   beforeEach(() => {
     // モックリポジトリを初期化
-    mockProductRepository = {
+    const productRepoMock: Partial<IProductRepository> = {
       findMany: vi.fn(),
-      findById: vi.fn(),
-      save: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-    } as unknown as IProductRepository;
+    };
+    mockProductRepository = productRepoMock as IProductRepository;
 
-    mockCategoryRepository = {
+    const categoryRepoMock: Partial<ICategoryRepository> = {
       findByIds: vi.fn(),
       findAll: vi.fn(),
-      findById: vi.fn(),
-      save: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-    } as unknown as ICategoryRepository;
+    };
+    mockCategoryRepository = categoryRepoMock as ICategoryRepository;
 
     useCase = new ListProductsUseCase(mockProductRepository, mockCategoryRepository);
   });
@@ -386,9 +380,9 @@ describe('ListProductsUseCase', () => {
       const categoryId2 = faker.string.ulid();
 
       const mockProducts = [
-        createMockProduct({ categoryId: categoryId1 } as Partial<Product>),
-        createMockProduct({ categoryId: categoryId2 } as Partial<Product>),
-        createMockProduct({ categoryId: categoryId1 } as Partial<Product>), // 重複
+        createMockProduct({ categoryId: categoryId1 }),
+        createMockProduct({ categoryId: categoryId2 }),
+        createMockProduct({ categoryId: categoryId1 }), // 重複
       ];
 
       const mockCategories = new Map([
@@ -457,9 +451,9 @@ describe('ListProductsUseCase', () => {
       const categoryIds = [faker.string.ulid(), faker.string.ulid(), faker.string.ulid()];
 
       const mockProducts = [
-        createMockProduct({ categoryId: categoryIds[0] } as Partial<Product>),
-        createMockProduct({ categoryId: categoryIds[1] } as Partial<Product>),
-        createMockProduct({ categoryId: categoryIds[2] } as Partial<Product>),
+        createMockProduct({ categoryId: categoryIds[0] }),
+        createMockProduct({ categoryId: categoryIds[1] }),
+        createMockProduct({ categoryId: categoryIds[2] }),
       ];
 
       const mockCategories = new Map(categoryIds.map((id) => [id, createMockCategory(id)]));
