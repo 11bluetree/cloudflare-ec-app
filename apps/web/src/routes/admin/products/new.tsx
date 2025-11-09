@@ -79,7 +79,13 @@ function ProductNewPage() {
           sku: '',
           price: 0,
           barcode: undefined,
-          options: [{ optionName: 'title', optionValue: 'default', displayOrder: 1 }],
+          options: [
+            {
+              optionName: 'title',
+              optionValue: 'default',
+              displayOrder: 1,
+            },
+          ],
           displayOrder: 1,
         },
       ],
@@ -104,9 +110,13 @@ function ProductNewPage() {
   useEffect(() => {
     if (selectedCategories.length > 0) {
       const lastSelectedId = selectedCategories[selectedCategories.length - 1];
-      setValue('categoryId', lastSelectedId, { shouldValidate: false });
+      setValue('categoryId', lastSelectedId, {
+        shouldValidate: false,
+      });
     } else {
-      setValue('categoryId', '', { shouldValidate: false });
+      setValue('categoryId', '', {
+        shouldValidate: false,
+      });
     }
   }, [selectedCategories, setValue]);
 
@@ -121,14 +131,26 @@ function ProductNewPage() {
           sku: '',
           price: 0,
           barcode: undefined,
-          options: [{ optionName: 'title', optionValue: 'default', displayOrder: 1 }],
+          options: [
+            {
+              optionName: 'title',
+              optionValue: 'default',
+              displayOrder: 1,
+            },
+          ],
           displayOrder: 1,
         },
       ]);
       setShowVariantForm(false);
     } else {
       // 複数商品を選択したら、デフォルトで1つのオプションを追加
-      setValue('options', [{ optionName: '', values: [], displayOrder: 1 }]);
+      setValue('options', [
+        {
+          optionName: '',
+          values: [],
+          displayOrder: 1,
+        },
+      ]);
       replaceVariants([]);
       setShowVariantForm(false);
     }
@@ -156,7 +178,9 @@ function ProductNewPage() {
 
     const variantCount = calculateVariantCount(options);
     if (variantCount > 100) {
-      toast.error('バリアントは最大100個までです', { description: `現在の組み合わせ: ${variantCount}個` });
+      toast.error('バリアントは最大100個までです', {
+        description: `現在の組み合わせ: ${variantCount}個`,
+      });
       return;
     }
     const basePrice = bulkPrice ? parseInt(bulkPrice, 10) : 0;
@@ -172,7 +196,11 @@ function ProductNewPage() {
       toast.error('オプションは最大5個までです');
       return;
     }
-    appendOption({ optionName: '', values: [], displayOrder: optionFields.length + 1 });
+    appendOption({
+      optionName: '',
+      values: [],
+      displayOrder: optionFields.length + 1,
+    });
   };
 
   // オプション削除
@@ -196,7 +224,10 @@ function ProductNewPage() {
     }
     setValue(`options.${optionIndex}.values`, [
       ...existingValues,
-      { value: trimmedValue, displayOrder: existingValues.length + 1 },
+      {
+        value: trimmedValue,
+        displayOrder: existingValues.length + 1,
+      },
     ]);
 
     // バリアントが既に生成されている場合は再生成
@@ -242,7 +273,9 @@ function ProductNewPage() {
       toast.success('商品を登録しました', {
         description: `商品ID: ${data.id}`,
       });
-      navigate({ to: '/products' });
+      navigate({
+        to: '/products',
+      });
     },
     onError: (error: Error) => {
       toast.error('商品の登録に失敗しました', {
@@ -266,8 +299,16 @@ function ProductNewPage() {
       categoryId: data.categoryId,
       status: data.status,
       options: data.hasOptions
-        ? data.options.map((opt) => ({ optionName: opt.optionName, displayOrder: opt.displayOrder }))
-        : [{ optionName: 'title', displayOrder: 1 }],
+        ? data.options.map((opt) => ({
+            optionName: opt.optionName,
+            displayOrder: opt.displayOrder,
+          }))
+        : [
+            {
+              optionName: 'title',
+              displayOrder: 1,
+            },
+          ],
       variants: data.variants.map((variant) => ({
         sku: variant.sku, // フォームではSKUSchema、APIではSKUBrandSchemaで再バリデーション
         barcode: variant.barcode || undefined,
@@ -309,9 +350,7 @@ function ProductNewPage() {
                 id="name"
                 type="text"
                 {...register('name')}
-                className={`w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2 ${
-                  errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                }`}
+                className={`w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2 ${errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
                 placeholder="例: ベーシックTシャツ"
               />
               <div className="mt-1 flex items-center justify-between">
@@ -328,9 +367,7 @@ function ProductNewPage() {
                 id="description"
                 {...register('description')}
                 rows={6}
-                className={`w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2 ${
-                  errors.description ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-                }`}
+                className={`w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2 ${errors.description ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
                 placeholder="商品の詳しい説明を入力してください"
               />
               <div className="mt-1 flex items-center justify-between">
@@ -362,11 +399,7 @@ function ProductNewPage() {
                           setSelectedCategories(selectedCategories.slice(0, levelIndex));
                         }
                       }}
-                      className={`w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2 ${
-                        errors.categoryId && levelIndex === 0
-                          ? 'border-red-500 focus:ring-red-500'
-                          : 'border-gray-300 focus:ring-blue-500'
-                      }`}
+                      className={`w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2 ${errors.categoryId && levelIndex === 0 ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
                     >
                       <option value="">
                         {levelIndex === 0 ? '大カテゴリーを選択' : `第${levelIndex + 1}階層を選択（任意）`}
@@ -525,18 +558,26 @@ function ProductNewPage() {
                         if (currentValues.length === 0) return null;
                         return (
                           <div className="flex flex-wrap gap-2">
-                            {currentValues.map((val: { value: string; displayOrder: number }, valueIndex: number) => (
-                              <Badge key={valueIndex} variant="secondary" className="gap-2 pr-1">
-                                {val.value}
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveOptionValue(optionIndex, valueIndex)}
-                                  className="ml-1 rounded-sm px-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
-                                >
-                                  ×
-                                </button>
-                              </Badge>
-                            ))}
+                            {currentValues.map(
+                              (
+                                val: {
+                                  value: string;
+                                  displayOrder: number;
+                                },
+                                valueIndex: number,
+                              ) => (
+                                <Badge key={valueIndex} variant="secondary" className="gap-2 pr-1">
+                                  {val.value}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveOptionValue(optionIndex, valueIndex)}
+                                    className="ml-1 rounded-sm px-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
+                                  >
+                                    ×
+                                  </button>
+                                </Badge>
+                              ),
+                            )}
                           </div>
                         );
                       })()}
@@ -625,11 +666,14 @@ function ProductNewPage() {
                       return (
                         <div key={field.id} className="rounded-md border border-gray-300 p-4">
                           <div className="mb-3 flex flex-wrap gap-2">
-                            {field.options.map((opt, optIndex) => (
-                              <Badge key={optIndex} variant="secondary">
-                                {opt.optionValue}
-                              </Badge>
-                            ))}
+                            <Badge variant="secondary">
+                              {field.options.map((opt, optIndex) => (
+                                <span key={optIndex}>
+                                  {opt.optionName}: {opt.optionValue}
+                                  {optIndex < field.options.length - 1 && <span>{'\u00A0/\u00A0'}</span>}
+                                </span>
+                              ))}
+                            </Badge>
                           </div>
                           <div className="grid grid-cols-3 gap-4">
                             <div>
@@ -651,7 +695,9 @@ function ProductNewPage() {
                               <label className="mb-1 block text-sm text-gray-600">価格（円）</label>
                               <input
                                 type="number"
-                                {...register(`variants.${variantIndex}.price` as const, { valueAsNumber: true })}
+                                {...register(`variants.${variantIndex}.price` as const, {
+                                  valueAsNumber: true,
+                                })}
                                 placeholder="価格"
                                 className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 min="0"
@@ -711,7 +757,9 @@ function ProductNewPage() {
                 <div className="relative">
                   <input
                     type="number"
-                    {...register('variants.0.price', { valueAsNumber: true })}
+                    {...register('variants.0.price', {
+                      valueAsNumber: true,
+                    })}
                     placeholder="2980"
                     className="w-full rounded-md border border-gray-300 px-4 py-2 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     min="0"
@@ -744,7 +792,11 @@ function ProductNewPage() {
         <div className="flex justify-end gap-4">
           <button
             type="button"
-            onClick={() => navigate({ to: '/products' })}
+            onClick={() =>
+              navigate({
+                to: '/products',
+              })
+            }
             className="rounded-md border border-gray-300 bg-white px-6 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
           >
             キャンセル
