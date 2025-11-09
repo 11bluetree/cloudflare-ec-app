@@ -240,8 +240,7 @@ describe('useProductForm', () => {
   });
 
   describe('一括価格適用', () => {
-    // TODO: フォームの値の更新タイミングを調査して修正する
-    it.skip('全バリアントに価格が適用される', async () => {
+    it('全バリアントに価格が適用される', async () => {
       const { result } = renderHook(() => useProductForm());
 
       act(() => {
@@ -264,18 +263,24 @@ describe('useProductForm', () => {
         expect(result.current.variantFields.length).toBe(2);
       });
 
+      // 生成されたバリアントのデフォルト価格を確認
+      const variantsBeforeUpdate = result.current.form.getValues('variants');
+      expect(variantsBeforeUpdate[0].price).toBe(0);
+      expect(variantsBeforeUpdate[1].price).toBe(0);
+
       // 一括価格を設定
       act(() => {
         result.current.setBulkPrice('1000');
+      });
+
+      act(() => {
         result.current.handleApplyBulkPrice();
       });
 
       // 価格が正しく設定されているか確認
-      await waitFor(() => {
-        const variants = result.current.form.watch('variants');
-        expect(variants[0].price).toBe(1000);
-        expect(variants[1].price).toBe(1000);
-      });
+      const variantsAfterUpdate = result.current.form.getValues('variants');
+      expect(variantsAfterUpdate[0].price).toBe(1000);
+      expect(variantsAfterUpdate[1].price).toBe(1000);
     });
   });
 });
