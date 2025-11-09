@@ -156,7 +156,7 @@ describe('useProductForm', () => {
   });
 
   describe('バリアント生成', () => {
-    it('2×2のオプションから4つのバリアントが生成される', async () => {
+    it('2×2のオプションから4つのバリアントが生成され、SKUが仕様通りに設定される', async () => {
       const { result } = renderHook(() => useProductForm());
 
       act(() => {
@@ -170,15 +170,15 @@ describe('useProductForm', () => {
         result.current.handleAddOptionValue(0, 'M');
       });
 
-      // 2つ目のオプション: 色（赤, 青）
+      // 2つ目のオプション: 色（Red, Blue）※英語で指定
       act(() => {
         result.current.handleAddOption();
       });
 
       act(() => {
-        result.current.form.setValue('options.1.optionName', '色');
-        result.current.handleAddOptionValue(1, '赤');
-        result.current.handleAddOptionValue(1, '青');
+        result.current.form.setValue('options.1.optionName', 'Color');
+        result.current.handleAddOptionValue(1, 'Red');
+        result.current.handleAddOptionValue(1, 'Blue');
       });
 
       // バリアント生成
@@ -191,6 +191,35 @@ describe('useProductForm', () => {
         expect(result.current.variantFields.length).toBe(4);
         expect(toast.success).toHaveBeenCalledWith('4個のバリアントを生成しました');
       });
+
+      // SKUが仕様通りに生成されていることを確認
+      // 形式: VAR-{オプション値の頭3文字(大文字)}-{連番3桁}
+      // SKUは英数字、ハイフン、アンダースコアのみ許可
+      const variants = result.current.form.getValues('variants');
+
+      // 1番目: S × Red → VAR-S-RED-001
+      expect(variants[0].sku).toBe('VAR-S-RED-001');
+      expect(variants[0].sku).toMatch(/^[A-Za-z0-9\-_]+$/); // SKU制約チェック
+      expect(variants[0].options[0].optionValue).toBe('S');
+      expect(variants[0].options[1].optionValue).toBe('Red');
+
+      // 2番目: S × Blue → VAR-S-BLU-002
+      expect(variants[1].sku).toBe('VAR-S-BLU-002');
+      expect(variants[1].sku).toMatch(/^[A-Za-z0-9\-_]+$/);
+      expect(variants[1].options[0].optionValue).toBe('S');
+      expect(variants[1].options[1].optionValue).toBe('Blue');
+
+      // 3番目: M × Red → VAR-M-RED-003
+      expect(variants[2].sku).toBe('VAR-M-RED-003');
+      expect(variants[2].sku).toMatch(/^[A-Za-z0-9\-_]+$/);
+      expect(variants[2].options[0].optionValue).toBe('M');
+      expect(variants[2].options[1].optionValue).toBe('Red');
+
+      // 4番目: M × Blue → VAR-M-BLU-004
+      expect(variants[3].sku).toBe('VAR-M-BLU-004');
+      expect(variants[3].sku).toMatch(/^[A-Za-z0-9\-_]+$/);
+      expect(variants[3].options[0].optionValue).toBe('M');
+      expect(variants[3].options[1].optionValue).toBe('Blue');
     });
 
     it('バリアントが100個を超える場合はエラーが表示される', async () => {
@@ -281,6 +310,58 @@ describe('useProductForm', () => {
       const variantsAfterUpdate = result.current.form.getValues('variants');
       expect(variantsAfterUpdate[0].price).toBe(1000);
       expect(variantsAfterUpdate[1].price).toBe(1000);
+    });
+  });
+
+  describe('日本語オプション値対応', () => {
+    it('日本語オプション値でも英数字のみのSKUが生成される', () => {
+      const { result } = renderHook(() => useProductForm());
+
+      act(() => {
+        result.current.handleHasOptionsChange(true);
+      });
+
+      act(() => {
+        result.current.handleAddOption();
+      });
+
+      act(() => {
+        result.current.form.setValue('options.0.optionName', '色');
+        result.current.handleAddOptionValue(0, '赤');
+        result.current.handleAddOptionValue(0, '青');
+      });
+
+      act(() => {
+        result.current.form.setValue('options.1.optionName', 'サイズ');
+        result.current.handleAddOptionValue(1, 'S');
+        result.current.handleAddOptionValue(1, 'M');
+      });
+
+      act(() => {
+        result.current.handleGenerateVariants();
+      });
+
+      const variants = result.current.form.getValues('variants');
+      expect(variants).toHaveLength(4);
+
+      // 日本語「赤」「青」は英数字がないので 'OPT' にフォールバック
+      // SKU regex に準拠していることを確認
+      const skuRegex = /^[A-Za-z0-9\-_]+$/;
+      variants.forEach((variant) => {
+        expect(variant.sku).toMatch(skuRegex);
+      });
+
+      // 英数字のみの 'S', 'M' は正しく抽出される
+      expect(variants[0].sku).toBe('VAR-OPT-S-001');
+      expect(variants[1].sku).toBe('VAR-OPT-M-002');
+      expect(variants[2].sku).toBe('VAR-OPT-S-003');
+      expect(variants[3].sku).toBe('VAR-OPT-M-004');
+
+      // オプション値自体は日本語のまま保持される
+      expect(variants[0].options[0].optionValue).toBe('赤');
+      expect(variants[1].options[0].optionValue).toBe('赤');
+      expect(variants[2].options[0].optionValue).toBe('青');
+      expect(variants[3].options[0].optionValue).toBe('青');
     });
   });
 });

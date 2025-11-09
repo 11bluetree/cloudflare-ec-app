@@ -20,7 +20,7 @@ export function generateVariants(options: Option[], basePrice: number = 0, skuPr
       {
         sku: `${skuPrefix}-DEFAULT`,
         price: basePrice,
-        barcode: null,
+        barcode: undefined,
         options: [
           {
             optionName: 'title',
@@ -47,14 +47,21 @@ export function generateVariants(options: Option[], basePrice: number = 0, skuPr
 
   // バリアントを生成
   return combinations.map((combination, index) => {
-    // SKUを生成（オプション値の頭文字を使用）
-    const skuSuffix = combination.map((opt) => opt.optionValue.substring(0, 3).toUpperCase()).join('-');
+    // SKUを生成（オプション値から英数字のみを抽出）
+    const skuSuffix = combination
+      .map((opt) => {
+        // 英数字のみを抽出
+        const alphanumeric = opt.optionValue.replace(/[^A-Za-z0-9]/g, '');
+        // 3文字まで使用、不足する場合は空文字
+        return alphanumeric.substring(0, 3).toUpperCase() || 'OPT';
+      })
+      .join('-');
     const sku = `${skuPrefix}-${skuSuffix}-${String(index + 1).padStart(3, '0')}`;
 
     return {
       sku,
       price: basePrice,
-      barcode: null,
+      barcode: undefined,
       options: combination,
       displayOrder: index + 1,
     };
