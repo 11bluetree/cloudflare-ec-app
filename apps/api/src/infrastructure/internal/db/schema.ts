@@ -137,8 +137,8 @@ export const productVariants = sqliteTable('product_variants', {
   productId: text('product_id')
     .notNull()
     .references(() => products.id, { onDelete: 'cascade' }),
-  sku: text('sku', { length: 100 }).notNull().unique(),
-  barcode: text('barcode', { length: 100 }).unique(),
+  sku: text('sku', { length: 50 }).notNull().unique(),
+  barcode: text('barcode', { length: 30 }).unique(),
   imageUrl: text('image_url', { length: 500 }),
   price: integer('price').notNull(), // 価格は整数（円単位）で保存
   displayOrder: integer('display_order').notNull(),
@@ -146,8 +146,8 @@ export const productVariants = sqliteTable('product_variants', {
 });
 
 export const insertProductVariantSchema = createInsertSchema(productVariants, {
-  sku: (schema) => schema.min(1).max(100),
-  barcode: (schema) => schema.max(100).nullable().optional(),
+  sku: (schema) => schema.min(1).max(50),
+  barcode: (schema) => schema.max(30).nullable().optional(),
   imageUrl: (schema) => schema.url().max(500).nullable().optional(),
   price: (schema) => schema.min(0).max(999999), // 0円以上100万円未満
   displayOrder: (schema) => schema.min(0).max(100),

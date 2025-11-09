@@ -356,5 +356,162 @@ describe('ProductDetails', () => {
         );
       }).toThrow('公開状態の商品には、最低1つのバリアントが必要です');
     });
+
+    it('バリアント間でSKUが重複している場合はエラー', () => {
+      // Arrange
+      const optionId = faker.string.alphanumeric(26);
+      const optionName = faker.commerce.productAdjective();
+      const option = ProductOption.create(optionId, productId, optionName, 1, now, now);
+
+      const product = Product.create(
+        productId,
+        faker.commerce.productName(),
+        faker.commerce.productDescription(),
+        categoryId,
+        'published',
+        [option],
+        now,
+        now,
+      );
+
+      const duplicatedSku = 'TEST-SKU-001';
+
+      const variant1Id = faker.string.alphanumeric(26);
+      const variant1 = ProductVariant.create(
+        variant1Id,
+        productId,
+        duplicatedSku, // 重複するSKU
+        null,
+        null,
+        Money.create(1000),
+        1,
+        [ProductVariantOption.create(faker.string.alphanumeric(26), variant1Id, optionName, 'Small', 1, now, now)],
+        now,
+        now,
+      );
+
+      const variant2Id = faker.string.alphanumeric(26);
+      const variant2 = ProductVariant.create(
+        variant2Id,
+        productId,
+        duplicatedSku, // 重複するSKU
+        null,
+        null,
+        Money.create(1200),
+        2,
+        [ProductVariantOption.create(faker.string.alphanumeric(26), variant2Id, optionName, 'Medium', 1, now, now)],
+        now,
+        now,
+      );
+
+      // Act & Assert
+      expect(() => {
+        ProductDetails.create(product, [variant1, variant2], []);
+      }).toThrow(`SKU "${duplicatedSku}" が重複しています`);
+    });
+
+    it('バリアント間でバーコードが重複している場合はエラー', () => {
+      // Arrange
+      const optionId = faker.string.alphanumeric(26);
+      const optionName = faker.commerce.productAdjective();
+      const option = ProductOption.create(optionId, productId, optionName, 1, now, now);
+
+      const product = Product.create(
+        productId,
+        faker.commerce.productName(),
+        faker.commerce.productDescription(),
+        categoryId,
+        'published',
+        [option],
+        now,
+        now,
+      );
+
+      const duplicatedBarcode = '4567890123456';
+
+      const variant1Id = faker.string.alphanumeric(26);
+      const variant1 = ProductVariant.create(
+        variant1Id,
+        productId,
+        'SKU-001',
+        duplicatedBarcode, // 重複するバーコード
+        null,
+        Money.create(1000),
+        1,
+        [ProductVariantOption.create(faker.string.alphanumeric(26), variant1Id, optionName, 'Small', 1, now, now)],
+        now,
+        now,
+      );
+
+      const variant2Id = faker.string.alphanumeric(26);
+      const variant2 = ProductVariant.create(
+        variant2Id,
+        productId,
+        'SKU-002',
+        duplicatedBarcode, // 重複するバーコード
+        null,
+        Money.create(1200),
+        2,
+        [ProductVariantOption.create(faker.string.alphanumeric(26), variant2Id, optionName, 'Medium', 1, now, now)],
+        now,
+        now,
+      );
+
+      // Act & Assert
+      expect(() => {
+        ProductDetails.create(product, [variant1, variant2], []);
+      }).toThrow(`バーコード "${duplicatedBarcode}" が重複しています`);
+    });
+
+    it('バーコードがnullの場合は重複チェック対象外', () => {
+      // Arrange
+      const optionId = faker.string.alphanumeric(26);
+      const optionName = faker.commerce.productAdjective();
+      const option = ProductOption.create(optionId, productId, optionName, 1, now, now);
+
+      const product = Product.create(
+        productId,
+        faker.commerce.productName(),
+        faker.commerce.productDescription(),
+        categoryId,
+        'published',
+        [option],
+        now,
+        now,
+      );
+
+      const variant1Id = faker.string.alphanumeric(26);
+      const variant1 = ProductVariant.create(
+        variant1Id,
+        productId,
+        'SKU-001',
+        null, // バーコードなし
+        null,
+        Money.create(1000),
+        1,
+        [ProductVariantOption.create(faker.string.alphanumeric(26), variant1Id, optionName, 'Small', 1, now, now)],
+        now,
+        now,
+      );
+
+      const variant2Id = faker.string.alphanumeric(26);
+      const variant2 = ProductVariant.create(
+        variant2Id,
+        productId,
+        'SKU-002',
+        null, // バーコードなし（重複しない）
+        null,
+        Money.create(1200),
+        2,
+        [ProductVariantOption.create(faker.string.alphanumeric(26), variant2Id, optionName, 'Medium', 1, now, now)],
+        now,
+        now,
+      );
+
+      // Act & Assert
+      expect(() => {
+        ProductDetails.create(product, [variant1, variant2], []);
+      }).not.toThrow();
+    });
   });
 });

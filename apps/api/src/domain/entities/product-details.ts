@@ -66,6 +66,30 @@ export class ProductDetails {
       }
     }
 
+    // バリアント間でSKUの重複チェック
+    if (this.variants.length > 1) {
+      const skuSet = new Set<string>();
+      for (const variant of this.variants) {
+        if (skuSet.has(variant.sku)) {
+          throw new Error(`SKU "${variant.sku}" が重複しています`);
+        }
+        skuSet.add(variant.sku);
+      }
+    }
+
+    // バリアント間でバーコードの重複チェック（nullでない場合のみ）
+    if (this.variants.length > 1) {
+      const barcodeSet = new Set<string>();
+      for (const variant of this.variants) {
+        if (variant.barcode !== null) {
+          if (barcodeSet.has(variant.barcode)) {
+            throw new Error(`バーコード "${variant.barcode}" が重複しています`);
+          }
+          barcodeSet.add(variant.barcode);
+        }
+      }
+    }
+
     // 公開商品には最低1つのバリアントが必要
     if (this.product.status === 'published' && this.variants.length === 0) {
       throw new Error('公開状態の商品には、最低1つのバリアントが必要です');

@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { Money } from '../value-objects/money';
 import { ProductVariantOption } from './product-variant-option';
 
-const MAX_SKU_LENGTH = 100;
-const MAX_BARCODE_LENGTH = 100;
+const MAX_SKU_LENGTH = 50;
+const MAX_BARCODE_LENGTH = 30;
 const MAX_IMAGE_URL_LENGTH = 500;
 const MIN_PRICE = 0;
 const MAX_PRICE = 1000000;

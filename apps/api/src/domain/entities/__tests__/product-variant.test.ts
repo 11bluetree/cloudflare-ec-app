@@ -4,8 +4,8 @@ import { ProductVariant } from '../product-variant';
 import { ProductVariantOption } from '../product-variant-option';
 import { Money } from '../../value-objects/money';
 
-const MAX_SKU_LENGTH = 100;
-const MAX_BARCODE_LENGTH = 100;
+const MAX_SKU_LENGTH = 50;
+const MAX_BARCODE_LENGTH = 30;
 const MAX_IMAGE_URL_LENGTH = 500;
 const MIN_PRICE = 0;
 const MAX_PRICE = 1000000;
@@ -158,7 +158,7 @@ describe('ProductVariant Entity', () => {
             validParams.createdAt,
             validParams.updatedAt,
           );
-        }).toThrow('SKUは100文字以内である必要があります');
+        }).toThrow('SKUは50文字以内である必要があります');
       });
     });
 
@@ -196,7 +196,7 @@ describe('ProductVariant Entity', () => {
             validParams.createdAt,
             validParams.updatedAt,
           );
-        }).toThrow('バーコードは100文字以内である必要があります');
+        }).toThrow('バーコードは30文字以内である必要があります');
       });
     });
 
