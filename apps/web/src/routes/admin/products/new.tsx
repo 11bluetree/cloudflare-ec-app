@@ -4,11 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
+import { Badge } from '../../../components/ui/badge';
 import { productFormSchema, type ProductFormData } from '../../../lib/schemas/product-form';
 import { createProduct } from '../../../lib/api/products';
 import { fetchCategories } from '../../../lib/api/categories';
 import type { CategoryTreeNode } from '@cloudflare-ec-app/types';
-import { generateVariants, calculateVariantCount, generateVariantName } from '../../../lib/utils/variant-generator';
+import { generateVariants, calculateVariantCount } from '../../../lib/utils/variant-generator';
 
 export const Route = createFileRoute('/admin/products/new')({
   component: ProductNewPage,
@@ -197,6 +198,15 @@ function ProductNewPage() {
       ...existingValues,
       { value: trimmedValue, displayOrder: existingValues.length + 1 },
     ]);
+
+    // バリアントが既に生成されている場合は再生成
+    if (showVariantForm) {
+      const options = watch('options');
+      const basePrice = bulkPrice ? parseInt(bulkPrice, 10) : 0;
+      const newVariants = generateVariants(options, basePrice);
+      replaceVariants(newVariants);
+      toast.success('バリアントを再生成しました');
+    }
   };
 
   // オプション値削除
@@ -204,6 +214,15 @@ function ProductNewPage() {
     const option = watch(`options.${optionIndex}`);
     const updatedValues = option.values.filter((_, index) => index !== valueIndex);
     setValue(`options.${optionIndex}.values`, updatedValues);
+
+    // バリアントが既に生成されている場合は再生成
+    if (showVariantForm) {
+      const options = watch('options');
+      const basePrice = bulkPrice ? parseInt(bulkPrice, 10) : 0;
+      const newVariants = generateVariants(options, basePrice);
+      replaceVariants(newVariants);
+      toast.success('バリアントを再生成しました');
+    }
   };
 
   // 一括価格適用
@@ -467,27 +486,6 @@ function ProductNewPage() {
                     <div className="space-y-3">
                       <label className="block text-sm text-gray-600">値（例: S, M, L）</label>
 
-                      {/* バッジ表示 */}
-                      {field.values.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {field.values.map((val, valueIndex) => (
-                            <span
-                              key={valueIndex}
-                              className="inline-flex items-center gap-1 rounded-md bg-blue-100 px-3 py-1 text-sm text-blue-800"
-                            >
-                              {val.value}
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveOptionValue(optionIndex, valueIndex)}
-                                className="ml-1 text-blue-600 hover:text-blue-800"
-                              >
-                                ×
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
                       {/* 入力フィールド */}
                       <div className="flex items-center gap-2">
                         <input
@@ -518,6 +516,28 @@ function ProductNewPage() {
                           追加
                         </button>
                       </div>
+
+                      {/* バッジ表示 */}
+                      {(() => {
+                        const currentValues = watch(`options.${optionIndex}.values`) || [];
+                        if (currentValues.length === 0) return null;
+                        return (
+                          <div className="flex flex-wrap gap-2">
+                            {currentValues.map((val: { value: string; displayOrder: number }, valueIndex: number) => (
+                              <Badge key={valueIndex} variant="secondary" className="gap-2 pr-1">
+                                {val.value}
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveOptionValue(optionIndex, valueIndex)}
+                                  className="ml-1 rounded-sm px-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900"
+                                >
+                                  ×
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 ))}
@@ -531,54 +551,10 @@ function ProductNewPage() {
 
                     if (!hasValidOptions) return null;
 
-                    // 組み合わせプレビューを生成
-                    const previewCombinations = () => {
-                      const validOptions = currentOptions.filter((opt) => opt.optionName && opt.values.length > 0);
-                      if (validOptions.length === 0) return [];
-
-                      // 最大5個までプレビュー表示
-                      const combinations: string[][] = [[]];
-                      for (const option of validOptions) {
-                        const newCombinations: string[][] = [];
-                        for (const combination of combinations) {
-                          for (const value of option.values) {
-                            newCombinations.push([...combination, value.value]);
-                          }
-                        }
-                        combinations.splice(0, combinations.length, ...newCombinations);
-                      }
-                      return combinations.slice(0, 5);
-                    };
-
-                    const combinations = previewCombinations();
                     const totalCount = calculateVariantCount(currentOptions);
 
                     return (
                       <div className="mt-4 rounded-md border-2 border-blue-200 bg-blue-50 p-4">
-                        <h4 className="mb-3 text-sm font-medium text-gray-700">生成されるバリアント</h4>
-
-                        {/* バリアント組み合わせのプレビュー */}
-                        <div className="mb-3 space-y-2">
-                          {combinations.map((combo, index) => (
-                            <div key={index} className="flex items-center gap-2">
-                              <span className="text-sm text-gray-600">{index + 1}.</span>
-                              <div className="flex flex-wrap gap-1">
-                                {combo.map((value, vIndex) => (
-                                  <span
-                                    key={vIndex}
-                                    className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-medium text-gray-700 shadow-sm"
-                                  >
-                                    {value}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                          {totalCount > 5 && (
-                            <p className="text-sm text-gray-600">...他 {totalCount - 5} 個のバリアント</p>
-                          )}
-                        </div>
-
                         <p className="mb-3 text-sm font-semibold text-gray-700">合計: {totalCount} 個のバリアント</p>
 
                         {status === 'draft' ? (
@@ -644,10 +620,15 @@ function ProductNewPage() {
                   {/* バリアント編集 */}
                   <div className="space-y-3">
                     {variantFields.map((field, variantIndex) => {
-                      const variantName = generateVariantName(field.options);
                       return (
                         <div key={field.id} className="rounded-md border border-gray-300 p-4">
-                          <div className="mb-3 font-medium text-gray-700">{variantName}</div>
+                          <div className="mb-3 flex flex-wrap gap-2">
+                            {field.options.map((opt, optIndex) => (
+                              <Badge key={optIndex} variant="secondary">
+                                {opt.optionValue}
+                              </Badge>
+                            ))}
+                          </div>
                           <div className="grid grid-cols-3 gap-4">
                             <div>
                               <label className="mb-1 block text-sm text-gray-600">SKU</label>

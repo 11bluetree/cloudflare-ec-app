@@ -20,6 +20,11 @@
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.18.2",
+  "pnpm": {
+    "overrides": {
+      "vite": "npm:rolldown-vite@7.1.14"
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
     "eslint": "^9.38.0",
