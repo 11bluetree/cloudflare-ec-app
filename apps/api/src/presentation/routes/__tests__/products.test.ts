@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { faker } from '@faker-js/faker';
 import { testClient } from 'hono/testing';
 import product from '../products';
-import type { CreateProductRequest } from '@cloudflare-ec-app/types';
+import { SKUSchema, type CreateProductRequest } from '@cloudflare-ec-app/types';
 
 // テスト用のモックD1データベース
 // D1Databaseの完全な型実装は複雑なため、必要最小限のメソッドのみをモック
@@ -28,6 +28,14 @@ const mockDB: D1Database = (() => {
 
 // testClientはproductから型を自動推論するため、環境変数のみを渡す
 const client = testClient(product, { DB: mockDB });
+
+/**
+ * テスト用のSKUを生成
+ */
+const generateTestSKU = () => {
+  const sku = faker.string.alphanumeric(10).toUpperCase();
+  return SKUSchema.parse(sku);
+};
 
 describe('POST /api/products - E2E', () => {
   describe('正常系', () => {
@@ -62,13 +70,13 @@ describe('POST /api/products - E2E', () => {
         options: [{ optionName, displayOrder: 1 }],
         variants: [
           {
-            sku: faker.string.alphanumeric(10),
+            sku: generateTestSKU(),
             price: faker.number.int({ min: 100, max: 99999 }),
             displayOrder: 1,
             options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],
           },
           {
-            sku: faker.string.alphanumeric(10),
+            sku: generateTestSKU(),
             price: faker.number.int({ min: 100, max: 99999 }),
             displayOrder: 2,
             options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],
@@ -120,7 +128,7 @@ describe('POST /api/products - E2E', () => {
 
       // 101個のバリアントを生成
       const variants = Array.from({ length: MAX_VARIANTS + 1 }, (_, i) => ({
-        sku: faker.string.alphanumeric(10),
+        sku: generateTestSKU(),
         price: faker.number.int({ min: 100, max: 99999 }),
         displayOrder: i + 1,
         options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],

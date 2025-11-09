@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SKUSchema, OptionalBarcodeSchema } from './product-variant';
 
 export const ProductStatusSchema = z.enum(['draft', 'published', 'archived']);
 export type ProductStatus = z.infer<typeof ProductStatusSchema>;
@@ -98,21 +99,8 @@ export type CreateProductVariantOption = z.infer<typeof CreateProductVariantOpti
  * バリアント（リクエスト用）
  */
 const CreateProductVariantSchema = z.object({
-  sku: z
-    .string()
-    .min(1)
-    .max(50)
-    .trim()
-    .regex(/^[a-zA-Z0-9_-]+$/, { message: 'SKUは英数字、ハイフン、アンダースコアのみ使用できます' }),
-  barcode: z
-    .string()
-    .max(30)
-    .trim()
-    .regex(/^[A-Z0-9\-.$/ +% ]{1,30}$/, {
-      message: 'バーコードはCODE39/JAN形式（大文字英数字、ハイフン、ドット、$、/、+、%、スペース）のみ使用できます',
-    })
-    .nullable()
-    .optional(),
+  sku: SKUSchema,
+  barcode: OptionalBarcodeSchema,
   imageUrl: z.string().url().max(500).nullable().optional(),
   price: z.number().int().min(0).max(999999),
   displayOrder: z.number().int().min(1).default(1),

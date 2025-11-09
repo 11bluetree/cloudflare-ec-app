@@ -1,9 +1,8 @@
 import { z } from 'zod';
+import { SKUSchema, BarcodeSchema } from '@cloudflare-ec-app/types';
 import { Money } from '../value-objects/money';
 import { ProductVariantOption } from './product-variant-option';
 
-const MAX_SKU_LENGTH = 50;
-const MAX_BARCODE_LENGTH = 30;
 const MAX_IMAGE_URL_LENGTH = 500;
 const MIN_PRICE = 0;
 const MAX_PRICE = 1000000;
@@ -15,19 +14,8 @@ const MAX_OPTIONS_PER_VARIANT = 5;
 const productVariantSchema = z.object({
   id: z.string(),
   productId: z.string(),
-  sku: z
-    .string()
-    .trim()
-    .min(1, { message: 'SKUは空白のみにできません' })
-    .max(MAX_SKU_LENGTH, {
-      message: `SKUは${MAX_SKU_LENGTH}文字以内である必要があります`,
-    }),
-  barcode: z
-    .string()
-    .max(MAX_BARCODE_LENGTH, {
-      message: `バーコードは${MAX_BARCODE_LENGTH}文字以内である必要があります`,
-    })
-    .nullable(),
+  sku: SKUSchema,
+  barcode: BarcodeSchema.nullable(),
   imageUrl: z
     .string()
     .max(MAX_IMAGE_URL_LENGTH, {

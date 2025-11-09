@@ -3,6 +3,7 @@
  */
 
 import { z } from 'zod';
+import { SKUSchema, OptionalBarcodeSchema } from '@cloudflare-ec-app/types';
 
 /**
  * オプション値のスキーマ
@@ -37,13 +38,13 @@ const variantOptionSchema = z.object({
  * バリアントのスキーマ
  */
 const variantSchema = z.object({
-  sku: z.string().min(1, 'SKUを入力してください').max(100, 'SKUは100文字以内で入力してください'),
+  sku: SKUSchema,
   price: z
     .number('価格は数値で入力してください')
     .int('価格は整数で入力してください')
     .min(0, '価格は0円以上で入力してください')
     .max(999999, '価格は999,999円以下で入力してください'),
-  barcode: z.string().max(100, 'バーコードは100文字以内で入力してください').optional().nullable(),
+  barcode: OptionalBarcodeSchema,
   options: z.array(variantOptionSchema),
   displayOrder: z.number(),
 });
@@ -91,13 +92,13 @@ export const simpleProductFormSchema = z.object({
     .trim(),
   categoryId: z.string().length(26, 'カテゴリーを選択してください'),
   status: z.enum(['draft', 'published'], 'ステータスを選択してください'),
-  sku: z.string().min(1, 'SKUを入力してください').max(100, 'SKUは100文字以内で入力してください').trim(),
+  sku: SKUSchema,
   price: z
     .number('価格は数値で入力してください')
     .int('価格は整数で入力してください')
     .min(0, '価格は0円以上で入力してください')
     .max(999999, '価格は999,999円以下で入力してください'),
-  barcode: z.string().max(100, 'バーコードは100文字以内で入力してください').trim().optional().nullable(),
+  barcode: OptionalBarcodeSchema,
 });
 
 export type SimpleProductFormData = z.infer<typeof simpleProductFormSchema>;

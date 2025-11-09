@@ -3,8 +3,16 @@ import { faker } from '@faker-js/faker';
 import { CreateProductUseCase } from '../create-product.usecase';
 import type { IProductRepository } from '../../../ports/repositories/product-repository.interface';
 import type { ICategoryRepository } from '../../../ports/repositories/category-repository.interface';
-import type { CreateProductRequest } from '@cloudflare-ec-app/types';
+import { SKUSchema, type CreateProductRequest } from '@cloudflare-ec-app/types';
 import { Category } from '../../../../domain/entities/category';
+
+/**
+ * テスト用のSKUを生成
+ */
+const generateTestSKU = () => {
+  const sku = faker.string.alphanumeric(10).toUpperCase();
+  return SKUSchema.parse(sku);
+};
 
 describe('CreateProductUseCase', () => {
   let useCase: CreateProductUseCase;
@@ -73,7 +81,7 @@ describe('CreateProductUseCase', () => {
     it('単一バリアント指定で商品が正しく作成される', async () => {
       // Arrange
       const optionName = faker.commerce.productAdjective();
-      const sku = faker.string.alphanumeric(10);
+      const sku = generateTestSKU();
       const price = faker.number.int({ min: 100, max: 99999 });
 
       const request: CreateProductRequest = {
@@ -120,19 +128,19 @@ describe('CreateProductUseCase', () => {
         options: [{ optionName, displayOrder: 1 }],
         variants: [
           {
-            sku: faker.string.alphanumeric(10),
+            sku: generateTestSKU(),
             price: faker.number.int({ min: 100, max: 99999 }),
             displayOrder: 1,
             options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],
           },
           {
-            sku: faker.string.alphanumeric(10),
+            sku: generateTestSKU(),
             price: faker.number.int({ min: 100, max: 99999 }),
             displayOrder: 2,
             options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],
           },
           {
-            sku: faker.string.alphanumeric(10),
+            sku: generateTestSKU(),
             price: faker.number.int({ min: 100, max: 99999 }),
             displayOrder: 3,
             options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],
@@ -167,7 +175,7 @@ describe('CreateProductUseCase', () => {
         ],
         variants: [
           {
-            sku: faker.string.alphanumeric(10),
+            sku: generateTestSKU(),
             price: faker.number.int({ min: 100, max: 99999 }),
             displayOrder: 1,
             options: [
@@ -244,7 +252,7 @@ describe('CreateProductUseCase', () => {
 
       // 101個のバリアントを生成
       const variants = Array.from({ length: MAX_VARIANTS + 1 }, (_, i) => ({
-        sku: faker.string.alphanumeric(10),
+        sku: generateTestSKU(),
         price: faker.number.int({ min: 100, max: 99999 }),
         displayOrder: i + 1,
         options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],

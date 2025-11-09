@@ -88,7 +88,7 @@ describe('ProductVariant Entity', () => {
             validParams.createdAt,
             validParams.updatedAt,
           );
-        }).toThrow('SKUは空白のみにできません');
+        }).toThrow('SKUを入力してください');
       });
 
       it('空白のみの場合はエラー', () => {
@@ -105,7 +105,7 @@ describe('ProductVariant Entity', () => {
             validParams.createdAt,
             validParams.updatedAt,
           );
-        }).toThrow('SKUは空白のみにできません');
+        }).toThrow('SKUは英数字、ハイフン、アンダースコアのみ使用できます');
       });
 
       it('前後の空白は自動でトリミングされる', () => {
@@ -160,6 +160,46 @@ describe('ProductVariant Entity', () => {
           );
         }).toThrow('SKUは50文字以内である必要があります');
       });
+
+      it('英数字、ハイフン、アンダースコアのみの場合は成功', () => {
+        const validSkus = ['ABC-123', 'SKU_001', 'Product-A_1'];
+        validSkus.forEach((sku) => {
+          expect(() => {
+            ProductVariant.create(
+              validParams.id,
+              validParams.productId,
+              sku,
+              validParams.barcode,
+              validParams.imageUrl,
+              validParams.price,
+              validParams.displayOrder,
+              validParams.options,
+              validParams.createdAt,
+              validParams.updatedAt,
+            );
+          }).not.toThrow();
+        });
+      });
+
+      it('特殊文字が含まれる場合はエラー', () => {
+        const invalidSkus = ['SKU[001]', 'SKU|001', 'SKU@001', 'SKU 001', 'SKU#001'];
+        invalidSkus.forEach((sku) => {
+          expect(() => {
+            ProductVariant.create(
+              validParams.id,
+              validParams.productId,
+              sku,
+              validParams.barcode,
+              validParams.imageUrl,
+              validParams.price,
+              validParams.displayOrder,
+              validParams.options,
+              validParams.createdAt,
+              validParams.updatedAt,
+            );
+          }).toThrow('SKUは英数字、ハイフン、アンダースコアのみ使用できます');
+        });
+      });
     });
 
     describe('barcode validation', () => {
@@ -197,6 +237,66 @@ describe('ProductVariant Entity', () => {
             validParams.updatedAt,
           );
         }).toThrow('バーコードは30文字以内である必要があります');
+      });
+
+      it('英数字のみの場合は成功', () => {
+        const validBarcodes = ['1234567890', 'ABC123', 'abc123XYZ'];
+        validBarcodes.forEach((barcode) => {
+          expect(() => {
+            ProductVariant.create(
+              validParams.id,
+              validParams.productId,
+              validParams.sku,
+              barcode,
+              validParams.imageUrl,
+              validParams.price,
+              validParams.displayOrder,
+              validParams.options,
+              validParams.createdAt,
+              validParams.updatedAt,
+            );
+          }).not.toThrow();
+        });
+      });
+
+      it('JAN/CODE39形式の特殊文字が使える', () => {
+        const validBarcodes = ['ABC-123', 'ABC.123', 'ABC$123', 'ABC/123', 'ABC+123', 'ABC%123', 'ABC 123'];
+        validBarcodes.forEach((barcode) => {
+          expect(() => {
+            ProductVariant.create(
+              validParams.id,
+              validParams.productId,
+              validParams.sku,
+              barcode,
+              validParams.imageUrl,
+              validParams.price,
+              validParams.displayOrder,
+              validParams.options,
+              validParams.createdAt,
+              validParams.updatedAt,
+            );
+          }).not.toThrow();
+        });
+      });
+
+      it('不正な特殊文字が含まれる場合はエラー', () => {
+        const invalidBarcodes = ['1234@5678', '1234_5678', '1234#5678'];
+        invalidBarcodes.forEach((barcode) => {
+          expect(() => {
+            ProductVariant.create(
+              validParams.id,
+              validParams.productId,
+              validParams.sku,
+              barcode,
+              validParams.imageUrl,
+              validParams.price,
+              validParams.displayOrder,
+              validParams.options,
+              validParams.createdAt,
+              validParams.updatedAt,
+            );
+          }).toThrow('バーコードはJAN/CODE39形式（英数字、ハイフン、ドット、$、/、+、%、スペース）のみ使用できます');
+        });
       });
     });
 
