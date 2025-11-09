@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SKUSchema, OptionalBarcodeSchema } from './product-variant';
+import { SKUBrandSchema, OptionalBarcodeSchema } from './product-variant';
 
 export const ProductStatusSchema = z.enum(['draft', 'published', 'archived']);
 export type ProductStatus = z.infer<typeof ProductStatusSchema>;
@@ -99,7 +99,7 @@ export type CreateProductVariantOption = z.infer<typeof CreateProductVariantOpti
  * バリアント（リクエスト用）
  */
 const CreateProductVariantSchema = z.object({
-  sku: SKUSchema,
+  sku: SKUBrandSchema,
   barcode: OptionalBarcodeSchema,
   imageUrl: z.string().url().max(500).nullable().optional(),
   price: z.number().int().min(0).max(999999),

@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker';
 import { CreateProductUseCase } from '../create-product.usecase';
 import type { IProductRepository } from '../../../ports/repositories/product-repository.interface';
 import type { ICategoryRepository } from '../../../ports/repositories/category-repository.interface';
-import { SKUSchema, type CreateProductRequest } from '@cloudflare-ec-app/types';
+import { SKUBrandSchema, type CreateProductRequest } from '@cloudflare-ec-app/types';
 import { Category } from '../../../../domain/entities/category';
 
 /**
@@ -11,7 +11,7 @@ import { Category } from '../../../../domain/entities/category';
  */
 const generateTestSKU = () => {
   const sku = faker.string.alphanumeric(10).toUpperCase();
-  return SKUSchema.parse(sku);
+  return SKUBrandSchema.parse(sku);
 };
 
 describe('CreateProductUseCase', () => {
@@ -94,6 +94,7 @@ describe('CreateProductUseCase', () => {
           {
             sku,
             price,
+            barcode: undefined,
             displayOrder: 1,
             options: [
               {
@@ -130,18 +131,21 @@ describe('CreateProductUseCase', () => {
           {
             sku: generateTestSKU(),
             price: faker.number.int({ min: 100, max: 99999 }),
+            barcode: undefined,
             displayOrder: 1,
             options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],
           },
           {
             sku: generateTestSKU(),
             price: faker.number.int({ min: 100, max: 99999 }),
+            barcode: undefined,
             displayOrder: 2,
             options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],
           },
           {
             sku: generateTestSKU(),
             price: faker.number.int({ min: 100, max: 99999 }),
+            barcode: undefined,
             displayOrder: 3,
             options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],
           },
@@ -177,6 +181,7 @@ describe('CreateProductUseCase', () => {
           {
             sku: generateTestSKU(),
             price: faker.number.int({ min: 100, max: 99999 }),
+            barcode: undefined,
             displayOrder: 1,
             options: [
               { optionName: colorOption, optionValue: faker.color.human(), displayOrder: 1 },
@@ -254,6 +259,7 @@ describe('CreateProductUseCase', () => {
       const variants = Array.from({ length: MAX_VARIANTS + 1 }, (_, i) => ({
         sku: generateTestSKU(),
         price: faker.number.int({ min: 100, max: 99999 }),
+        barcode: undefined,
         displayOrder: i + 1,
         options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],
       }));

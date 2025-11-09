@@ -38,13 +38,30 @@ const variantOptionSchema = z.object({
  * バリアントのスキーマ
  */
 const variantSchema = z.object({
-  sku: SKUSchema,
+  sku: SKUSchema, // ブランド型なしのSKU制約を使用
   price: z
     .number('価格は数値で入力してください')
     .int('価格は整数で入力してください')
     .min(0, '価格は0円以上で入力してください')
     .max(999999, '価格は999,999円以下で入力してください'),
-  barcode: OptionalBarcodeSchema,
+  barcode: z
+    .union([z.string(), z.undefined()])
+    .transform((val) => {
+      if (!val || val === '') return undefined;
+      return val;
+    })
+    .pipe(
+      z.union([
+        z.undefined(),
+        z
+          .string()
+          .max(30, 'バーコードは30文字以内である必要があります')
+          .regex(
+            /^[A-Za-z0-9\-.$/ +%]+$/,
+            'バーコードはJAN/CODE39形式（英数字、ハイフン、ドット、$、/、+、%、スペース）のみ使用できます',
+          ),
+      ]),
+    ),
   options: z.array(variantOptionSchema),
   displayOrder: z.number(),
 });
@@ -92,7 +109,7 @@ export const simpleProductFormSchema = z.object({
     .trim(),
   categoryId: z.string().length(26, 'カテゴリーを選択してください'),
   status: z.enum(['draft', 'published'], 'ステータスを選択してください'),
-  sku: SKUSchema,
+  sku: SKUSchema, // ブランド型なしのSKU制約を使用
   price: z
     .number('価格は数値で入力してください')
     .int('価格は整数で入力してください')

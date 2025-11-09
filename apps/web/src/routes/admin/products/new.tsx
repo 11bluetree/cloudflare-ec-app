@@ -78,12 +78,12 @@ function ProductNewPage() {
         {
           sku: '',
           price: 0,
-          barcode: null,
+          barcode: undefined,
           options: [{ optionName: 'title', optionValue: 'default', displayOrder: 1 }],
           displayOrder: 1,
         },
       ],
-    },
+    } satisfies ProductFormData,
   });
 
   const {
@@ -104,9 +104,9 @@ function ProductNewPage() {
   useEffect(() => {
     if (selectedCategories.length > 0) {
       const lastSelectedId = selectedCategories[selectedCategories.length - 1];
-      setValue('categoryId', lastSelectedId, { shouldValidate: true });
+      setValue('categoryId', lastSelectedId, { shouldValidate: false });
     } else {
-      setValue('categoryId', '', { shouldValidate: true });
+      setValue('categoryId', '', { shouldValidate: false });
     }
   }, [selectedCategories, setValue]);
 
@@ -120,7 +120,7 @@ function ProductNewPage() {
         {
           sku: '',
           price: 0,
-          barcode: null,
+          barcode: undefined,
           options: [{ optionName: 'title', optionValue: 'default', displayOrder: 1 }],
           displayOrder: 1,
         },
@@ -269,8 +269,8 @@ function ProductNewPage() {
         ? data.options.map((opt) => ({ optionName: opt.optionName, displayOrder: opt.displayOrder }))
         : [{ optionName: 'title', displayOrder: 1 }],
       variants: data.variants.map((variant) => ({
-        sku: variant.sku,
-        barcode: variant.barcode || null,
+        sku: variant.sku, // フォームではSKUSchema、APIではSKUBrandSchemaで再バリデーション
+        barcode: variant.barcode || undefined,
         imageUrl: null,
         price: variant.price,
         displayOrder: variant.displayOrder,
@@ -281,7 +281,9 @@ function ProductNewPage() {
         })),
       })),
     };
-    await createProductMutation.mutateAsync(requestData);
+    // API層でSKUBrandSchemaにより再バリデーションされる
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/consistent-type-assertions
+    await createProductMutation.mutateAsync(requestData as any);
   };
 
   const nameLength = watch('name')?.length || 0;
@@ -635,8 +637,15 @@ function ProductNewPage() {
                               <input
                                 {...register(`variants.${variantIndex}.sku` as const)}
                                 placeholder="SKU"
+                                pattern="[A-Za-z0-9\-_]+"
+                                title="英数字、ハイフン、アンダースコアのみ使用できます"
                                 className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
+                              {errors.variants?.[variantIndex]?.sku && (
+                                <p className="mt-1 text-sm text-red-500">
+                                  {errors.variants[variantIndex].sku?.message}
+                                </p>
+                              )}
                             </div>
                             <div>
                               <label className="mb-1 block text-sm text-gray-600">価格（円）</label>
@@ -647,14 +656,26 @@ function ProductNewPage() {
                                 className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 min="0"
                               />
+                              {errors.variants?.[variantIndex]?.price && (
+                                <p className="mt-1 text-sm text-red-500">
+                                  {errors.variants[variantIndex].price?.message}
+                                </p>
+                              )}
                             </div>
                             <div>
                               <label className="mb-1 block text-sm text-gray-600">バーコード（任意）</label>
                               <input
                                 {...register(`variants.${variantIndex}.barcode` as const)}
                                 placeholder="バーコード"
+                                pattern="[A-Za-z0-9\-.$/ +%]*"
+                                title="英数字、ハイフン、ドット、$、/、+、%、スペースのみ使用できます"
                                 className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
+                              {errors.variants?.[variantIndex]?.barcode && (
+                                <p className="mt-1 text-sm text-red-500">
+                                  {errors.variants[variantIndex].barcode?.message}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -674,8 +695,13 @@ function ProductNewPage() {
                 <input
                   {...register('variants.0.sku')}
                   placeholder="例: BASIC-001"
+                  pattern="[A-Za-z0-9\-_]+"
+                  title="英数字、ハイフン、アンダースコアのみ使用できます"
                   className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                {errors.variants?.[0]?.sku && (
+                  <p className="mt-1 text-sm text-red-500">{errors.variants[0].sku.message}</p>
+                )}
               </div>
 
               <div>
@@ -693,6 +719,9 @@ function ProductNewPage() {
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">円</span>
                 </div>
+                {errors.variants?.[0]?.price && (
+                  <p className="mt-1 text-sm text-red-500">{errors.variants[0].price.message}</p>
+                )}
               </div>
 
               <div>
@@ -700,8 +729,13 @@ function ProductNewPage() {
                 <input
                   {...register('variants.0.barcode')}
                   placeholder="例: 4901234567890"
+                  pattern="[A-Za-z0-9\-.$/ +%]*"
+                  title="英数字、ハイフン、ドット、$、/、+、%、スペースのみ使用できます"
                   className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                {errors.variants?.[0]?.barcode && (
+                  <p className="mt-1 text-sm text-red-500">{errors.variants[0].barcode.message}</p>
+                )}
               </div>
             </div>
           )}

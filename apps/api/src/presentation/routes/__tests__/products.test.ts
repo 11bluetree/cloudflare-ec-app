@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { faker } from '@faker-js/faker';
 import { testClient } from 'hono/testing';
 import product from '../products';
-import { SKUSchema, type CreateProductRequest } from '@cloudflare-ec-app/types';
+import { SKUBrandSchema, type CreateProductRequest } from '@cloudflare-ec-app/types';
 
 // テスト用のモックD1データベース
 // D1Databaseの完全な型実装は複雑なため、必要最小限のメソッドのみをモック
@@ -34,7 +34,7 @@ const client = testClient(product, { DB: mockDB });
  */
 const generateTestSKU = () => {
   const sku = faker.string.alphanumeric(10).toUpperCase();
-  return SKUSchema.parse(sku);
+  return SKUBrandSchema.parse(sku);
 };
 
 describe('POST /api/products - E2E', () => {
@@ -71,12 +71,14 @@ describe('POST /api/products - E2E', () => {
         variants: [
           {
             sku: generateTestSKU(),
+            barcode: undefined,
             price: faker.number.int({ min: 100, max: 99999 }),
             displayOrder: 1,
             options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],
           },
           {
             sku: generateTestSKU(),
+            barcode: undefined,
             price: faker.number.int({ min: 100, max: 99999 }),
             displayOrder: 2,
             options: [{ optionName, optionValue: faker.commerce.productMaterial(), displayOrder: 1 }],
