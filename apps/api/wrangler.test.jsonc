@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "api-test",
+  "compatibility_date": "2025-08-03",
+  "main": "./src/index.tsx",
+  "vars": {
+    "ALLOWED_ORIGINS": "http://localhost:5173"
+  },
+  // テスト環境のD1データベース
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ec-app-test",
+      "database_id": "3f98ad6a-2a9c-4daf-a907-732577021262",
+      "migrations_dir": "drizzle"
+    }
+  ]
+}
