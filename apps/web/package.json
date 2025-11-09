@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "deploy": "pnpm build && npx wrangler pages deploy dist --project-name=cloudflare-ec-app-web",
     "typecheck": "tsc --noEmit",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:ui": "vitest --ui"
   },
   "dependencies": {
