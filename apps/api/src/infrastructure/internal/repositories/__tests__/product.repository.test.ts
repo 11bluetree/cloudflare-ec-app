@@ -2,14 +2,7 @@ import { faker } from '@faker-js/faker';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ProductRepository } from '../product.repository';
 import { createDbConnection } from '../../db/connection';
-import {
-  products,
-  productOptions,
-  productVariants,
-  productVariantOptions,
-  productImages,
-  categories,
-} from '../../db/schema';
+import { products, productOptions, productVariants, productVariantOptions, categories } from '../../db/schema';
 import { getEnv } from '../../../../test/setup';
 import { Product, ProductStatus } from '../../../../domain/entities/product';
 import { ProductOption } from '../../../../domain/entities/product-option';
@@ -18,6 +11,13 @@ import { ProductVariantOption } from '../../../../domain/entities/product-varian
 import { Money } from '../../../../domain/value-objects/money';
 import { ProductDetails } from '../../../../domain/entities/product-details';
 import { eq } from 'drizzle-orm';
+import {
+  createProductWithVariantFixture,
+  createCategoryFixture,
+  createProductFixture,
+  createProductVariantFixture,
+  createProductImageFixture,
+} from '../../../../test/fixture/product-fixtures';
 
 describe('ProductRepository', () => {
   let repository: ProductRepository;
@@ -46,64 +46,26 @@ describe('ProductRepository', () => {
     return ProductVariantOption.create(faker.string.alphanumeric(26), variantId, 'title', 'default', 1, now, now);
   };
 
-  /**
-   * DBにデフォルトバリアントオプションを挿入するヘルパー関数
-   */
-  const insertDefaultVariantOption = async (variantId: string, now: Date) => {
-    await db.insert(productVariantOptions).values({
-      id: faker.string.alphanumeric(26),
-      productVariantId: variantId,
-      optionName: 'title',
-      optionValue: 'default',
-      displayOrder: 1,
-      createdAt: now,
-      updatedAt: now,
-    });
-  };
-
   describe('findMany', () => {
     it('商品一覧を取得できる', async () => {
-      // カテゴリーを作成
       const now = new Date();
-      const categoryId = faker.string.alphanumeric(26);
 
-      await db.insert(categories).values({
-        id: categoryId,
-        name: 'エレクトロニクス',
-        parentId: null,
-        displayOrder: 1,
-        createdAt: now,
-        updatedAt: now,
+      await createProductWithVariantFixture(db, {
+        product: {
+          name: 'テスト商品',
+          description: 'テスト商品の説明',
+          status: 'published',
+          createdAt: now,
+          updatedAt: now,
+        },
+        variant: {
+          sku: 'TEST-SKU-001',
+          price: 10000,
+          displayOrder: 1,
+          createdAt: now,
+          updatedAt: now,
+        },
       });
-
-      // 商品を作成
-      const productId = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: productId,
-        name: 'テスト商品',
-        description: 'テスト商品の説明',
-        categoryId,
-        status: 'published',
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // バリアントを作成
-      const variantId = faker.string.alphanumeric(26);
-      await db.insert(productVariants).values({
-        id: variantId,
-        productId,
-        sku: 'TEST-SKU-001',
-        barcode: null,
-        imageUrl: null,
-        price: 10000,
-        displayOrder: 1,
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // デフォルトオプションを追加
-      await insertDefaultVariantOption(variantId, now);
 
       // テスト実行
       const result = await repository.findMany({
@@ -123,73 +85,48 @@ describe('ProductRepository', () => {
 
     it('ステータスでフィルタリングできる', async () => {
       const now = new Date();
-      const categoryId = faker.string.alphanumeric(26);
-
-      await db.insert(categories).values({
-        id: categoryId,
+      const category = await createCategoryFixture(db, {
         name: 'エレクトロニクス',
-        parentId: null,
         displayOrder: 1,
         createdAt: now,
         updatedAt: now,
       });
 
-      // 公開済み商品
-      const publishedId = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: publishedId,
-        name: '公開商品',
-        description: '公開商品の説明',
-        categoryId,
-        status: 'published',
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 下書き商品
-      const draftId = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: draftId,
-        name: '下書き商品',
-        description: '下書き商品の説明',
-        categoryId,
-        status: 'draft',
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // バリアントを追加（各商品に最低1つ必要）
-      const variant1Id = faker.string.alphanumeric(26);
-      const variant2Id = faker.string.alphanumeric(26);
-
-      await db.insert(productVariants).values([
-        {
-          id: variant1Id,
-          productId: publishedId,
+      await createProductWithVariantFixture(db, {
+        product: {
+          name: '公開商品',
+          description: '公開商品の説明',
+          categoryId: category.id,
+          status: 'published',
+          createdAt: now,
+          updatedAt: now,
+        },
+        variant: {
           sku: 'PUBLISHED-SKU',
-          barcode: null,
-          imageUrl: null,
           price: 5000,
           displayOrder: 1,
           createdAt: now,
           updatedAt: now,
         },
-        {
-          id: variant2Id,
-          productId: draftId,
+      });
+
+      await createProductWithVariantFixture(db, {
+        product: {
+          name: '下書き商品',
+          description: '下書き商品の説明',
+          categoryId: category.id,
+          status: 'draft',
+          createdAt: now,
+          updatedAt: now,
+        },
+        variant: {
           sku: 'DRAFT-SKU',
-          barcode: null,
-          imageUrl: null,
           price: 3000,
           displayOrder: 1,
           createdAt: now,
           updatedAt: now,
         },
-      ]);
-
-      // デフォルトオプションを追加
-      await insertDefaultVariantOption(variant1Id, now);
-      await insertDefaultVariantOption(variant2Id, now);
+      });
 
       // 公開済みのみ取得
       const result = await repository.findMany({
@@ -208,90 +145,48 @@ describe('ProductRepository', () => {
 
     it('カテゴリーでフィルタリングできる', async () => {
       const now = new Date();
-      const category1Id = faker.string.alphanumeric(26);
-      const category2Id = faker.string.alphanumeric(26);
-
-      await db.insert(categories).values([
-        {
-          id: category1Id,
-          name: 'エレクトロニクス',
-          parentId: null,
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        },
-        {
-          id: category2Id,
-          name: 'ファッション',
-          parentId: null,
-          displayOrder: 2,
-          createdAt: now,
-          updatedAt: now,
-        },
-      ]);
-
-      // カテゴリー1の商品
-      const product1Id = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: product1Id,
-        name: 'スマートフォン',
-        description: 'スマートフォンの説明',
-        categoryId: category1Id,
-        status: 'published',
+      const category1 = await createCategoryFixture(db, {
+        name: 'エレクトロニクス',
+        displayOrder: 1,
+        createdAt: now,
+        updatedAt: now,
+      });
+      const category2 = await createCategoryFixture(db, {
+        name: 'ファッション',
+        displayOrder: 2,
         createdAt: now,
         updatedAt: now,
       });
 
-      // カテゴリー2の商品
-      const product2Id = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: product2Id,
-        name: 'Tシャツ',
-        description: 'Tシャツの説明',
-        categoryId: category2Id,
-        status: 'published',
-        createdAt: now,
-        updatedAt: now,
+      await createProductWithVariantFixture(db, {
+        product: {
+          name: 'スマートフォン',
+          description: 'スマートフォンの説明',
+          categoryId: category1.id,
+          status: 'published',
+          createdAt: now,
+          updatedAt: now,
+        },
+        variant: { sku: 'PHONE-SKU', price: 80000, createdAt: now, updatedAt: now },
       });
 
-      // バリアントを追加
-      const variant1Id = faker.string.alphanumeric(26);
-      const variant2Id = faker.string.alphanumeric(26);
-
-      await db.insert(productVariants).values([
-        {
-          id: variant1Id,
-          productId: product1Id,
-          sku: 'PHONE-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 80000,
-          displayOrder: 1,
+      await createProductWithVariantFixture(db, {
+        product: {
+          name: 'Tシャツ',
+          description: 'Tシャツの説明',
+          categoryId: category2.id,
+          status: 'published',
           createdAt: now,
           updatedAt: now,
         },
-        {
-          id: variant2Id,
-          productId: product2Id,
-          sku: 'TSHIRT-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 2000,
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        },
-      ]);
-
-      // デフォルトオプションを追加
-      await insertDefaultVariantOption(variant1Id, now);
-      await insertDefaultVariantOption(variant2Id, now);
+        variant: { sku: 'TSHIRT-SKU', price: 2000, createdAt: now, updatedAt: now },
+      });
 
       // カテゴリー1の商品のみ取得
       const result = await repository.findMany({
         page: 1,
         perPage: 10,
-        categoryId: category1Id,
+        categoryId: category1.id,
         sortBy: 'createdAt',
         order: 'desc',
       });
@@ -303,98 +198,44 @@ describe('ProductRepository', () => {
 
     it('キーワードで検索できる', async () => {
       const now = new Date();
-      const categoryId = faker.string.alphanumeric(26);
-
-      await db.insert(categories).values({
-        id: categoryId,
+      const category = await createCategoryFixture(db, {
         name: 'エレクトロニクス',
-        parentId: null,
-        displayOrder: 1,
         createdAt: now,
         updatedAt: now,
       });
 
-      // 商品1: キーワードが名前に含まれる
-      const product1Id = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: product1Id,
-        name: 'iPhone 15 Pro',
-        description: '最新のスマートフォン',
-        categoryId,
-        status: 'published',
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 商品2: キーワードが説明に含まれる
-      const product2Id = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: product2Id,
-        name: 'Galaxy S24',
-        description: 'iPhone対抗の最新モデル',
-        categoryId,
-        status: 'published',
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 商品3: キーワードが含まれない
-      const product3Id = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: product3Id,
-        name: 'Xperia 1',
-        description: 'ソニーのフラッグシップモデル',
-        categoryId,
-        status: 'published',
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // バリアントを追加
-      const variant1Id = faker.string.alphanumeric(26);
-      const variant2Id = faker.string.alphanumeric(26);
-      const variant3Id = faker.string.alphanumeric(26);
-
-      await db.insert(productVariants).values([
-        {
-          id: variant1Id,
-          productId: product1Id,
-          sku: 'IPHONE-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 150000,
-          displayOrder: 1,
+      await createProductWithVariantFixture(db, {
+        product: {
+          name: 'iPhone 15 Pro',
+          description: '最新のスマートフォン',
+          categoryId: category.id,
+          status: 'published',
           createdAt: now,
-          updatedAt: now,
         },
-        {
-          id: variant2Id,
-          productId: product2Id,
-          sku: 'GALAXY-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 140000,
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        },
-        {
-          id: variant3Id,
-          productId: product3Id,
-          sku: 'XPERIA-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 130000,
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        },
-      ]);
+        variant: { sku: 'IPHONE-SKU', price: 150000, createdAt: now },
+      });
 
-      // デフォルトオプションを追加
-      await insertDefaultVariantOption(variant1Id, now);
-      await insertDefaultVariantOption(variant2Id, now);
-      await insertDefaultVariantOption(variant3Id, now);
+      await createProductWithVariantFixture(db, {
+        product: {
+          name: 'Galaxy S24',
+          description: 'iPhone対抗の最新モデル',
+          categoryId: category.id,
+          status: 'published',
+          createdAt: now,
+        },
+        variant: { sku: 'GALAXY-SKU', price: 140000, createdAt: now },
+      });
+
+      await createProductWithVariantFixture(db, {
+        product: {
+          name: 'Xperia 1',
+          description: 'ソニーのフラッグシップモデル',
+          categoryId: category.id,
+          status: 'published',
+          createdAt: now,
+        },
+        variant: { sku: 'XPERIA-SKU', price: 130000, createdAt: now },
+      });
 
       // 'iPhone'で検索
       const result = await repository.findMany({
@@ -413,98 +254,40 @@ describe('ProductRepository', () => {
 
     it('価格範囲でフィルタリングできる', async () => {
       const now = new Date();
-      const categoryId = faker.string.alphanumeric(26);
+      const category = await createCategoryFixture(db, { name: 'エレクトロニクス', createdAt: now });
 
-      await db.insert(categories).values({
-        id: categoryId,
-        name: 'エレクトロニクス',
-        parentId: null,
-        displayOrder: 1,
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 低価格商品
-      const product1Id = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: product1Id,
-        name: '安い商品',
-        description: '安い商品の説明',
-        categoryId,
-        status: 'published',
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 中価格商品
-      const product2Id = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: product2Id,
-        name: '普通の商品',
-        description: '普通の商品の説明',
-        categoryId,
-        status: 'published',
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 高価格商品
-      const product3Id = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: product3Id,
-        name: '高い商品',
-        description: '高い商品の説明',
-        categoryId,
-        status: 'published',
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // バリアントを追加
-      const variant1Id = faker.string.alphanumeric(26);
-      const variant2Id = faker.string.alphanumeric(26);
-      const variant3Id = faker.string.alphanumeric(26);
-
-      await db.insert(productVariants).values([
-        {
-          id: variant1Id,
-          productId: product1Id,
-          sku: 'CHEAP-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 1000,
-          displayOrder: 1,
+      await createProductWithVariantFixture(db, {
+        product: {
+          name: '安い商品',
+          description: '安い商品の説明',
+          categoryId: category.id,
+          status: 'published',
           createdAt: now,
-          updatedAt: now,
         },
-        {
-          id: variant2Id,
-          productId: product2Id,
-          sku: 'MEDIUM-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 5000,
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        },
-        {
-          id: variant3Id,
-          productId: product3Id,
-          sku: 'EXPENSIVE-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 10000,
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        },
-      ]);
+        variant: { sku: 'CHEAP-SKU', price: 1000, createdAt: now },
+      });
 
-      // デフォルトオプションを追加
-      await insertDefaultVariantOption(variant1Id, now);
-      await insertDefaultVariantOption(variant2Id, now);
-      await insertDefaultVariantOption(variant3Id, now);
+      await createProductWithVariantFixture(db, {
+        product: {
+          name: '普通の商品',
+          description: '普通の商品の説明',
+          categoryId: category.id,
+          status: 'published',
+          createdAt: now,
+        },
+        variant: { sku: 'MEDIUM-SKU', price: 5000, createdAt: now },
+      });
+
+      await createProductWithVariantFixture(db, {
+        product: {
+          name: '高い商品',
+          description: '高い商品の説明',
+          categoryId: category.id,
+          status: 'published',
+          createdAt: now,
+        },
+        variant: { sku: 'EXPENSIVE-SKU', price: 10000, createdAt: now },
+      });
 
       // 2000円以上7000円以下の商品を取得
       const result = await repository.findMany({
@@ -522,95 +305,40 @@ describe('ProductRepository', () => {
 
     it('商品名でソートできる（昇順）', async () => {
       const now = new Date();
-      const categoryId = faker.string.alphanumeric(26);
+      const category = await createCategoryFixture(db, { name: 'エレクトロニクス', createdAt: now });
 
-      await db.insert(categories).values({
-        id: categoryId,
-        name: 'エレクトロニクス',
-        parentId: null,
-        displayOrder: 1,
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 商品を追加（名前順: Ccc -> Bbb -> Aaa）
-      const productIds = [faker.string.alphanumeric(26), faker.string.alphanumeric(26), faker.string.alphanumeric(26)];
-
-      await db.insert(products).values([
-        {
-          id: productIds[0],
+      await createProductWithVariantFixture(db, {
+        product: {
           name: 'Ccc 商品',
           description: '説明C',
-          categoryId,
+          categoryId: category.id,
           status: 'published',
           createdAt: now,
-          updatedAt: now,
         },
-        {
-          id: productIds[1],
+        variant: { sku: 'CCC-SKU', price: 1000, createdAt: now },
+      });
+
+      await createProductWithVariantFixture(db, {
+        product: {
           name: 'Bbb 商品',
           description: '説明B',
-          categoryId,
+          categoryId: category.id,
           status: 'published',
           createdAt: now,
-          updatedAt: now,
         },
-        {
-          id: productIds[2],
+        variant: { sku: 'BBB-SKU', price: 1000, createdAt: now },
+      });
+
+      await createProductWithVariantFixture(db, {
+        product: {
           name: 'Aaa 商品',
           description: '説明A',
-          categoryId,
+          categoryId: category.id,
           status: 'published',
           createdAt: now,
-          updatedAt: now,
         },
-      ]);
-
-      // バリアントを追加
-      const variant1Id = faker.string.alphanumeric(26);
-      const variant2Id = faker.string.alphanumeric(26);
-      const variant3Id = faker.string.alphanumeric(26);
-
-      await db.insert(productVariants).values([
-        {
-          id: variant1Id,
-          productId: productIds[0],
-          sku: 'CCC-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 1000,
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        },
-        {
-          id: variant2Id,
-          productId: productIds[1],
-          sku: 'BBB-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 1000,
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        },
-        {
-          id: variant3Id,
-          productId: productIds[2],
-          sku: 'AAA-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 1000,
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        },
-      ]);
-
-      // デフォルトオプションを追加
-      await insertDefaultVariantOption(variant1Id, now);
-      await insertDefaultVariantOption(variant2Id, now);
-      await insertDefaultVariantOption(variant3Id, now);
+        variant: { sku: 'AAA-SKU', price: 1000, createdAt: now },
+      });
 
       // 名前で昇順ソート
       const result = await repository.findMany({
@@ -627,100 +355,22 @@ describe('ProductRepository', () => {
     });
 
     it('作成日時でソートできる（降順）', async () => {
-      const categoryId = faker.string.alphanumeric(26);
-      const now = new Date();
-
-      await db.insert(categories).values({
-        id: categoryId,
-        name: 'エレクトロニクス',
-        parentId: null,
-        displayOrder: 1,
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 時系列で商品を追加
       const date1 = new Date('2024-01-01T00:00:00Z');
       const date2 = new Date('2024-06-01T00:00:00Z');
       const date3 = new Date('2024-12-01T00:00:00Z');
 
-      const productIds = [faker.string.alphanumeric(26), faker.string.alphanumeric(26), faker.string.alphanumeric(26)];
-
-      await db.insert(products).values([
-        {
-          id: productIds[0],
-          name: '古い商品',
-          description: '最初に作成',
-          categoryId,
-          status: 'published',
-          createdAt: date1,
-          updatedAt: date1,
-        },
-        {
-          id: productIds[1],
-          name: '中間商品',
-          description: '2番目に作成',
-          categoryId,
-          status: 'published',
-          createdAt: date2,
-          updatedAt: date2,
-        },
-        {
-          id: productIds[2],
-          name: '新しい商品',
-          description: '最後に作成',
-          categoryId,
-          status: 'published',
-          createdAt: date3,
-          updatedAt: date3,
-        },
-      ]);
-
-      // バリアントを追加
-      const variant1Id = faker.string.alphanumeric(26);
-      const variant2Id = faker.string.alphanumeric(26);
-      const variant3Id = faker.string.alphanumeric(26);
-
-      await db.insert(productVariants).values([
-        {
-          id: variant1Id,
-          productId: productIds[0],
-          sku: 'OLD-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 1000,
-          displayOrder: 1,
-          createdAt: date1,
-          updatedAt: date1,
-        },
-        {
-          id: variant2Id,
-          productId: productIds[1],
-          sku: 'MID-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 1000,
-          displayOrder: 1,
-          createdAt: date2,
-          updatedAt: date2,
-        },
-        {
-          id: variant3Id,
-          productId: productIds[2],
-          sku: 'NEW-SKU',
-          barcode: null,
-          imageUrl: null,
-          price: 1000,
-          displayOrder: 1,
-          createdAt: date3,
-          updatedAt: date3,
-        },
-      ]);
-
-      // デフォルトオプションを追加
-      await insertDefaultVariantOption(variant1Id, now);
-      await insertDefaultVariantOption(variant2Id, now);
-      await insertDefaultVariantOption(variant3Id, now);
+      await createProductWithVariantFixture(db, {
+        product: { name: '古い商品', description: '最初に作成', createdAt: date1, updatedAt: date1 },
+        variant: { sku: 'OLD-SKU', createdAt: date1, updatedAt: date1 },
+      });
+      await createProductWithVariantFixture(db, {
+        product: { name: '中間商品', description: '2番目に作成', createdAt: date2, updatedAt: date2 },
+        variant: { sku: 'MID-SKU', createdAt: date2, updatedAt: date2 },
+      });
+      await createProductWithVariantFixture(db, {
+        product: { name: '新しい商品', description: '最後に作成', createdAt: date3, updatedAt: date3 },
+        variant: { sku: 'NEW-SKU', createdAt: date3, updatedAt: date3 },
+      });
 
       // 作成日時で降順ソート
       const result = await repository.findMany({
@@ -738,52 +388,17 @@ describe('ProductRepository', () => {
 
     it('ページネーションが機能する', async () => {
       const now = new Date();
-      const categoryId = faker.string.alphanumeric(26);
 
-      await db.insert(categories).values({
-        id: categoryId,
-        name: 'エレクトロニクス',
-        parentId: null,
-        displayOrder: 1,
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 5件の商品を作成
-      const productIds = Array.from({ length: 5 }, () => faker.string.alphanumeric(26));
-
-      await db.insert(products).values(
-        productIds.map((id, idx) => ({
-          id,
-          name: `商品${idx + 1}`,
-          description: `商品${idx + 1}の説明`,
-          categoryId,
-          status: 'published' as const,
-          createdAt: new Date(now.getTime() + idx * 1000), // 時間をずらす
-          updatedAt: now,
-        })),
-      );
-
-      // バリアントを追加
-      const variantIds = productIds.map(() => faker.string.alphanumeric(26));
-
-      await db.insert(productVariants).values(
-        productIds.map((productId, idx) => ({
-          id: variantIds[idx],
-          productId,
-          sku: `SKU-${idx + 1}`,
-          barcode: null,
-          imageUrl: null,
-          price: 1000,
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        })),
-      );
-
-      // デフォルトオプションを追加
-      for (const variantId of variantIds) {
-        await insertDefaultVariantOption(variantId, now);
+      for (let i = 1; i <= 5; i++) {
+        await createProductWithVariantFixture(db, {
+          product: {
+            name: `商品${i}`,
+            description: `商品${i}の説明`,
+            createdAt: new Date(now.getTime() + (i - 1) * 1000),
+            updatedAt: now,
+          },
+          variant: { sku: `SKU-${i}` },
+        });
       }
 
       // 1ページ目（2件）
@@ -839,45 +454,26 @@ describe('ProductRepository', () => {
 
     it('オプションとバリアントオプションを含む商品を取得できる', async () => {
       const now = new Date();
-      const categoryId = faker.string.alphanumeric(26);
-
-      await db.insert(categories).values({
-        id: categoryId,
-        name: 'ファッション',
-        parentId: null,
-        displayOrder: 1,
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 商品を作成
-      const productId = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: productId,
+      const category = await createCategoryFixture(db, { name: 'ファッション' });
+      const productData = await createProductFixture(db, {
         name: 'Tシャツ',
         description: 'カラフルなTシャツ',
-        categoryId,
-        status: 'published',
-        createdAt: now,
-        updatedAt: now,
+        categoryId: category.id,
       });
 
       // オプション定義を作成（色、サイズ）
-      const colorOptionId = faker.string.alphanumeric(26);
-      const sizeOptionId = faker.string.alphanumeric(26);
-
       await db.insert(productOptions).values([
         {
-          id: colorOptionId,
-          productId,
+          id: faker.string.alphanumeric(26),
+          productId: productData.id,
           optionName: '色',
           displayOrder: 1,
           createdAt: now,
           updatedAt: now,
         },
         {
-          id: sizeOptionId,
-          productId,
+          id: faker.string.alphanumeric(26),
+          productId: productData.id,
           optionName: 'サイズ',
           displayOrder: 2,
           createdAt: now,
@@ -886,39 +482,26 @@ describe('ProductRepository', () => {
       ]);
 
       // バリアントを作成（赤・M、青・L）
-      const variantRedMId = faker.string.alphanumeric(26);
-      const variantBlueLId = faker.string.alphanumeric(26);
+      const variantRedM = await createProductVariantFixture(db, productData.id, {
+        sku: 'TSHIRT-RED-M',
+        price: 2000,
+        displayOrder: 1,
+      });
+      const variantBlueL = await createProductVariantFixture(db, productData.id, {
+        sku: 'TSHIRT-BLUE-L',
+        price: 2200,
+        displayOrder: 2,
+      });
 
-      await db.insert(productVariants).values([
-        {
-          id: variantRedMId,
-          productId,
-          sku: 'TSHIRT-RED-M',
-          barcode: null,
-          imageUrl: null,
-          price: 2000,
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        },
-        {
-          id: variantBlueLId,
-          productId,
-          sku: 'TSHIRT-BLUE-L',
-          barcode: null,
-          imageUrl: null,
-          price: 2200,
-          displayOrder: 2,
-          createdAt: now,
-          updatedAt: now,
-        },
-      ]);
+      // デフォルトオプションを削除して、カスタムオプションのみにする
+      await db.delete(productVariantOptions).where(eq(productVariantOptions.productVariantId, variantRedM.id));
+      await db.delete(productVariantOptions).where(eq(productVariantOptions.productVariantId, variantBlueL.id));
 
       // バリアントオプションを作成
       await db.insert(productVariantOptions).values([
         {
           id: faker.string.alphanumeric(26),
-          productVariantId: variantRedMId,
+          productVariantId: variantRedM.id,
           optionName: '色',
           optionValue: '赤',
           displayOrder: 1,
@@ -927,7 +510,7 @@ describe('ProductRepository', () => {
         },
         {
           id: faker.string.alphanumeric(26),
-          productVariantId: variantRedMId,
+          productVariantId: variantRedM.id,
           optionName: 'サイズ',
           optionValue: 'M',
           displayOrder: 2,
@@ -936,7 +519,7 @@ describe('ProductRepository', () => {
         },
         {
           id: faker.string.alphanumeric(26),
-          productVariantId: variantBlueLId,
+          productVariantId: variantBlueL.id,
           optionName: '色',
           optionValue: '青',
           displayOrder: 1,
@@ -945,7 +528,7 @@ describe('ProductRepository', () => {
         },
         {
           id: faker.string.alphanumeric(26),
-          productVariantId: variantBlueLId,
+          productVariantId: variantBlueL.id,
           optionName: 'サイズ',
           optionValue: 'L',
           displayOrder: 2,
@@ -983,68 +566,29 @@ describe('ProductRepository', () => {
     });
 
     it('画像を含む商品を取得できる', async () => {
-      const now = new Date();
-      const categoryId = faker.string.alphanumeric(26);
-
-      await db.insert(categories).values({
-        id: categoryId,
-        name: 'エレクトロニクス',
-        parentId: null,
-        displayOrder: 1,
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 商品を作成
-      const productId = faker.string.alphanumeric(26);
-      await db.insert(products).values({
-        id: productId,
+      const category = await createCategoryFixture(db, { name: 'エレクトロニクス' });
+      const productData = await createProductFixture(db, {
         name: 'ノートパソコン',
         description: '高性能ノートパソコン',
-        categoryId,
-        status: 'published',
-        createdAt: now,
-        updatedAt: now,
+        categoryId: category.id,
       });
 
-      // バリアントを作成
-      const variantId = faker.string.alphanumeric(26);
-      await db.insert(productVariants).values({
-        id: variantId,
-        productId,
+      const variant = await createProductVariantFixture(db, productData.id, {
         sku: 'LAPTOP-001',
-        barcode: null,
-        imageUrl: null,
         price: 100000,
-        displayOrder: 1,
-        createdAt: now,
-        updatedAt: now,
       });
-
-      // デフォルトオプションを追加
-      await insertDefaultVariantOption(variantId, now);
 
       // 商品画像を作成（商品全体の画像とバリアント専用の画像）
-      await db.insert(productImages).values([
-        {
-          id: faker.string.alphanumeric(26),
-          productId,
-          productVariantId: null,
-          imageUrl: 'https://example.com/product-main.jpg',
-          displayOrder: 1,
-          createdAt: now,
-          updatedAt: now,
-        },
-        {
-          id: faker.string.alphanumeric(26),
-          productId,
-          productVariantId: variantId,
-          imageUrl: 'https://example.com/variant-detail.jpg',
-          displayOrder: 2,
-          createdAt: now,
-          updatedAt: now,
-        },
-      ]);
+      await createProductImageFixture(db, productData.id, {
+        productVariantId: null,
+        imageUrl: 'https://example.com/product-main.jpg',
+        displayOrder: 1,
+      });
+      await createProductImageFixture(db, productData.id, {
+        productVariantId: variant.id,
+        imageUrl: 'https://example.com/variant-detail.jpg',
+        displayOrder: 2,
+      });
 
       // テスト実行
       const result = await repository.findMany({
@@ -1062,7 +606,7 @@ describe('ProductRepository', () => {
       expect(product.images[0].imageUrl).toBe('https://example.com/product-main.jpg');
       expect(product.images[0].productVariantId).toBeNull();
       expect(product.images[1].imageUrl).toBe('https://example.com/variant-detail.jpg');
-      expect(product.images[1].productVariantId).toBe(variantId);
+      expect(product.images[1].productVariantId).toBe(variant.id);
     });
   });
 
