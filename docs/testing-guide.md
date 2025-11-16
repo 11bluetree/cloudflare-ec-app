@@ -88,3 +88,91 @@ it('最大文字数の場合は成功', () => {
 ## 仕様の変更は先にテストケースを修正すること
 
 仕様変更が発生した場合、まずテストケースを修正し、その後に実装を更新する。これにより、テストが最新の仕様を反映し、実装が正しく動作していることを保証できる。
+
+## リポジトリテストでのデータベース利用
+
+### `getPlatformProxy` の使用
+
+テスト環境では、wranglerの`getPlatformProxy` APIを使用して、本番環境と同じD1Databaseインスタンスを取得します。
+
+```typescript
+import { getEnv } from '../../../../test/setup';
+import { createDbConnection } from '../../db/connection';
+
+describe('CategoryRepository', () => {
+  let db: ReturnType<typeof createDbConnection>;
+
+  beforeEach(async () => {
+    // envからD1Databaseを取得
+    const env = getEnv();
+    
+    // テーブルをクリーンアップ
+    await env.DB.exec('DELETE FROM categories');
+
+    // Drizzle ORMのコネクションを作成
+    db = createDbConnection(env.DB);
+  });
+
+  // テストケース...
+});
+```
+
+### 環境別のデータベース
+
+| 環境 | データベース | 実際のエンジン | アクセス方法 |
+|------|------------|--------------|------------|
+| 本番 | Cloudflare D1 | 分散SQLite | D1 API（ネイティブ） |
+| ローカル開発 | miniflare | better-sqlite3 | D1 API（wrangler devが起動） |
+| テスト | miniflare | better-sqlite3 | D1 API（getPlatformProxyが起動） |
+
+### 仕組みの説明
+
+**ローカル開発（`wrangler dev`）の場合:**
+
+- `wrangler dev`コマンドが内部で`miniflare`を起動
+- miniflareがbetter-sqlite3をD1 APIでラップ
+- コードは`env.DB`として本番と同じインターフェースでアクセス
+
+**テスト（Vitest）の場合:**
+
+- `getPlatformProxy` APIを呼び出す
+- wranglerが内部で`miniflare`を起動
+- `wrangler.test.jsonc`の設定を読み込む
+- miniflareがbetter-sqlite3をD1 APIでラップ
+- `env.DB`として本番と同じインターフェースを提供
+
+### セットアップの実装場所
+
+**`src/test/setup.ts`**: グローバルセットアップ
+
+```typescript
+import { getPlatformProxy } from 'wrangler';
+
+let platformProxy: Awaited<ReturnType<typeof getPlatformProxy<Env>>>;
+
+beforeAll(async () => {
+  // wrangler.test.jsonc の設定でプラットフォームプロキシを起動
+  platformProxy = await getPlatformProxy<Env>({
+    configPath: 'wrangler.test.jsonc',
+  });
+});
+
+afterAll(async () => {
+  await platformProxy?.dispose();
+});
+
+export function getEnv() {
+  if (!platformProxy) {
+    throw new Error('Platform proxy not initialized');
+  }
+  return platformProxy.env;
+}
+```
+
+### 重要な注意点
+
+- ✅ `getEnv()`を使用してD1Databaseインスタンスを取得
+- ✅ `beforeEach`でテーブルをクリーンアップして、テスト間の独立性を確保
+- ✅ 本番・ローカル・テストで完全に同じD1 APIを使用
+- ❌ better-sqlite3を直接使用しない（不要）
+- ❌ 各テストファイルで個別に`getPlatformProxy`を呼び出さない（`setup.ts`で一元管理）

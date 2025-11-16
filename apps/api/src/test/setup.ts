@@ -1,36 +1,24 @@
-import Database from 'better-sqlite3';
 import { afterAll, beforeAll } from 'vitest';
-import { unstable_dev, type Unstable_DevWorker } from 'wrangler';
+import { getPlatformProxy } from 'wrangler';
 
-let worker: Unstable_DevWorker;
-let db: ReturnType<typeof Database>;
+let platformProxy: Awaited<ReturnType<typeof getPlatformProxy<Env>>>;
 
 beforeAll(async () => {
-  // テスト用Workerを起動
-  worker = await unstable_dev('./src/index.tsx', {
-    config: 'wrangler.test.jsonc',
-    experimental: {
-      disableExperimentalWarning: true,
-    },
+  // wrangler.test.jsonc の設定でプラットフォームプロキシを起動
+  platformProxy = await getPlatformProxy<Env>({
+    configPath: 'wrangler.test.jsonc',
   });
-
-  // テスト用SQLiteファイルに接続
-  const sqlitePath = process.env.SQLITE_PATH;
-  if (!sqlitePath) {
-    throw new Error('SQLITE_PATH environment variable is not set. Please set it to the test database path.');
-  }
-
-  db = new Database(sqlitePath);
 });
 
 afterAll(async () => {
   // クリーンアップ
-  if (db) {
-    db.close();
-  }
-  if (worker) {
-    await worker.stop();
-  }
+  await platformProxy?.dispose();
 });
 
-export { db, worker };
+// env をエクスポート（テストから使用）
+export function getEnv() {
+  if (!platformProxy) {
+    throw new Error('Platform proxy not initialized');
+  }
+  return platformProxy.env;
+}
