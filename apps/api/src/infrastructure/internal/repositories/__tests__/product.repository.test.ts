@@ -2,8 +2,9 @@ import { faker } from '@faker-js/faker';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ProductRepository } from '../product.repository';
 import { createDbConnection } from '../../db/connection';
-import { products, productOptions, productVariants, productVariantOptions, categories } from '../../db/schema';
+import { products, productVariants, productVariantOptions, productOptions, categories } from '../../db/schema';
 import { getEnv } from '../../../../test/setup';
+import { cleanupAllTables } from '../../../../test/helpers/db-cleanup';
 import { Product, ProductStatus } from '../../../../domain/entities/product';
 import { ProductOption } from '../../../../domain/entities/product-option';
 import { ProductVariant } from '../../../../domain/entities/product-variant';
@@ -25,16 +26,11 @@ describe('ProductRepository', () => {
 
   beforeEach(async () => {
     const env = getEnv();
-
-    // テーブルをクリーンアップ（外部キー制約の順序に注意）
-    await env.DB.exec('DELETE FROM product_variant_options');
-    await env.DB.exec('DELETE FROM product_images');
-    await env.DB.exec('DELETE FROM product_variants');
-    await env.DB.exec('DELETE FROM product_options');
-    await env.DB.exec('DELETE FROM products');
-    await env.DB.exec('DELETE FROM categories');
-
     db = createDbConnection(env.DB);
+
+    // すべてのテーブルをクリーンアップ
+    await cleanupAllTables(db);
+
     repository = new ProductRepository(db);
   });
 

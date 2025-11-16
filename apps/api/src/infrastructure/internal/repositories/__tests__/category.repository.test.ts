@@ -4,6 +4,7 @@ import { CategoryRepository } from '../category.repository';
 import { createDbConnection } from '../../db/connection';
 import { categories } from '../../db/schema';
 import { getEnv } from '../../../../test/setup';
+import { cleanupAllTables } from '../../../../test/helpers/db-cleanup';
 
 describe('CategoryRepository', () => {
   let repository: CategoryRepository;
@@ -12,11 +13,11 @@ describe('CategoryRepository', () => {
   beforeEach(async () => {
     // envからD1Databaseを取得
     const env = getEnv();
-
-    // テーブルをクリーンアップ
-    await env.DB.exec('DELETE FROM categories');
-
     db = createDbConnection(env.DB);
+
+    // すべてのテーブルをクリーンアップ
+    await cleanupAllTables(db);
+
     repository = new CategoryRepository(db);
   });
 
