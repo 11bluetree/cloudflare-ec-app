@@ -2,13 +2,21 @@ import { faker } from '@faker-js/faker';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ProductRepository } from '../product.repository';
 import { createDbConnection } from '../../db/connection';
-import { products, productVariants, productVariantOptions, productOptions, categories } from '../../db/schema';
+import {
+  products,
+  productVariants,
+  productVariantOptions,
+  productOptions,
+  categories,
+  productImages,
+} from '../../db/schema';
 import { getEnv } from '../../../../test/setup';
 import { cleanupAllTables } from '../../../../test/helpers/db-cleanup';
 import { Product, ProductStatus } from '../../../../domain/entities/product';
 import { ProductOption } from '../../../../domain/entities/product-option';
 import { ProductVariant } from '../../../../domain/entities/product-variant';
 import { ProductVariantOption } from '../../../../domain/entities/product-variant-option';
+import { ProductImage } from '../../../../domain/entities/product-image';
 import { Money } from '../../../../domain/value-objects/money';
 import { ProductDetails } from '../../../../domain/entities/product-details';
 import { eq } from 'drizzle-orm';
@@ -892,6 +900,224 @@ describe('ProductRepository', () => {
       expect(savedVariants[0].sku).toBe('SHOE-SIZE-25');
       expect(savedVariants[1].sku).toBe('SHOE-SIZE-26');
       expect(savedVariants[2].sku).toBe('SHOE-SIZE-27');
+    });
+
+    it('商品作成時に画像を保存できる', async () => {
+      // Arrange
+      const now = new Date();
+      const category = await createCategoryFixture(db, {
+        name: 'エレクトロニクス',
+        displayOrder: 1,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      const productId = faker.string.alphanumeric(26);
+      const variantId = faker.string.alphanumeric(26);
+      const optionId = faker.string.alphanumeric(26);
+
+      const product = Product.create(
+        productId,
+        'テスト商品',
+        'テスト商品の説明',
+        category.id,
+        ProductStatus.PUBLISHED,
+        [ProductOption.create(optionId, productId, 'サイズ', 1, now, now)],
+        now,
+        now,
+      );
+
+      const variant = ProductVariant.create(
+        variantId,
+        productId,
+        'TEST-SKU-001',
+        null,
+        null,
+        Money.create(10000),
+        1,
+        [ProductVariantOption.create(faker.string.alphanumeric(26), variantId, 'サイズ', 'M', 1, now, now)],
+        now,
+        now,
+      );
+
+      // 商品画像を作成（3枚）
+      const imageId1 = faker.string.alphanumeric(26);
+      const imageId2 = faker.string.alphanumeric(26);
+      const imageId3 = faker.string.alphanumeric(26);
+
+      const images = [
+        ProductImage.create(
+          imageId1,
+          productId,
+          null,
+          `https://example.com/products/${productId}/image-1.jpg`,
+          1,
+          now,
+          now,
+        ),
+        ProductImage.create(
+          imageId2,
+          productId,
+          null,
+          `https://example.com/products/${productId}/image-2.jpg`,
+          2,
+          now,
+          now,
+        ),
+        ProductImage.create(
+          imageId3,
+          productId,
+          null,
+          `https://example.com/products/${productId}/image-3.jpg`,
+          3,
+          now,
+          now,
+        ),
+      ];
+
+      const productDetails = ProductDetails.create(product, [variant], images);
+
+      // Act
+      await repository.create(productDetails);
+
+      // Assert: 商品が保存されている
+      const savedProducts = await db.select().from(products).where(eq(products.id, productId));
+      expect(savedProducts).toHaveLength(1);
+
+      // Assert: 画像が保存されている
+      const savedImages = await db
+        .select()
+        .from(productImages)
+        .where(eq(productImages.productId, productId))
+        .orderBy(productImages.displayOrder);
+
+      expect(savedImages).toHaveLength(3);
+      expect(savedImages[0].imageUrl).toBe(`https://example.com/products/${productId}/image-1.jpg`);
+      expect(savedImages[0].displayOrder).toBe(1);
+      expect(savedImages[0].productVariantId).toBeNull();
+
+      expect(savedImages[1].imageUrl).toBe(`https://example.com/products/${productId}/image-2.jpg`);
+      expect(savedImages[1].displayOrder).toBe(2);
+
+      expect(savedImages[2].imageUrl).toBe(`https://example.com/products/${productId}/image-3.jpg`);
+      expect(savedImages[2].displayOrder).toBe(3);
+    });
+
+    it('商品作成時にバリアント専用画像を保存できる', async () => {
+      // Arrange
+      const now = new Date();
+      const category = await createCategoryFixture(db, {
+        name: 'エレクトロニクス',
+        displayOrder: 1,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      const productId = faker.string.alphanumeric(26);
+      const variantId = faker.string.alphanumeric(26);
+      const optionId = faker.string.alphanumeric(26);
+
+      const product = Product.create(
+        productId,
+        'テスト商品',
+        'テスト商品の説明',
+        category.id,
+        ProductStatus.PUBLISHED,
+        [ProductOption.create(optionId, productId, 'サイズ', 1, now, now)],
+        now,
+        now,
+      );
+
+      const variant = ProductVariant.create(
+        variantId,
+        productId,
+        'TEST-SKU-001',
+        null,
+        `https://example.com/products/${productId}/variant-image.jpg`, // バリアント専用画像URL
+        Money.create(10000),
+        1,
+        [ProductVariantOption.create(faker.string.alphanumeric(26), variantId, 'サイズ', 'M', 1, now, now)],
+        now,
+        now,
+      );
+
+      // バリアント専用画像
+      const imageId = faker.string.alphanumeric(26);
+      const images = [
+        ProductImage.create(
+          imageId,
+          productId,
+          variantId,
+          `https://example.com/products/${productId}/variant-image.jpg`,
+          1,
+          now,
+          now,
+        ),
+      ];
+
+      const productDetails = ProductDetails.create(product, [variant], images);
+
+      // Act
+      await repository.create(productDetails);
+
+      // Assert: 画像が保存されている
+      const savedImages = await db.select().from(productImages).where(eq(productImages.productId, productId));
+
+      expect(savedImages).toHaveLength(1);
+      expect(savedImages[0].productVariantId).toBe(variantId);
+      expect(savedImages[0].imageUrl).toBe(`https://example.com/products/${productId}/variant-image.jpg`);
+    });
+
+    it('商品作成時に画像が空配列の場合はスキップする', async () => {
+      // Arrange
+      const now = new Date();
+      const category = await createCategoryFixture(db, {
+        name: 'エレクトロニクス',
+        displayOrder: 1,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      const productId = faker.string.alphanumeric(26);
+      const variantId = faker.string.alphanumeric(26);
+      const optionId = faker.string.alphanumeric(26);
+
+      const product = Product.create(
+        productId,
+        'テスト商品',
+        'テスト商品の説明',
+        category.id,
+        ProductStatus.PUBLISHED,
+        [ProductOption.create(optionId, productId, 'サイズ', 1, now, now)],
+        now,
+        now,
+      );
+
+      const variant = ProductVariant.create(
+        variantId,
+        productId,
+        'TEST-SKU-001',
+        null,
+        null,
+        Money.create(10000),
+        1,
+        [ProductVariantOption.create(faker.string.alphanumeric(26), variantId, 'サイズ', 'M', 1, now, now)],
+        now,
+        now,
+      );
+
+      const productDetails = ProductDetails.create(product, [variant], []); // 画像なし
+
+      // Act
+      await repository.create(productDetails);
+
+      // Assert: 商品は保存されているが、画像は0件
+      const savedProducts = await db.select().from(products).where(eq(products.id, productId));
+      expect(savedProducts).toHaveLength(1);
+
+      const savedImages = await db.select().from(productImages).where(eq(productImages.productId, productId));
+
+      expect(savedImages).toHaveLength(0);
     });
   });
 });

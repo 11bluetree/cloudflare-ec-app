@@ -246,6 +246,7 @@ export class ProductRepository implements IProductRepository {
   async create(details: ProductDetails): Promise<void> {
     const product = details.product;
     const variants = details.variants;
+    const images = details.images;
 
     // 1. 商品基本情報を挿入
     await this.db.insert(products).values({
@@ -304,6 +305,21 @@ export class ProductRepository implements IProductRepository {
       if (allVariantOptions.length > 0) {
         await this.db.insert(productVariantOptions).values(allVariantOptions);
       }
+    }
+
+    // 5. 商品画像を挿入（空配列の場合はスキップ）
+    if (images.length > 0) {
+      await this.db.insert(productImages).values(
+        images.map((image) => ({
+          id: image.id,
+          productId: image.productId,
+          productVariantId: image.productVariantId,
+          imageUrl: image.imageUrl,
+          displayOrder: image.displayOrder,
+          createdAt: image.createdAt,
+          updatedAt: image.updatedAt,
+        })),
+      );
     }
   }
 }
