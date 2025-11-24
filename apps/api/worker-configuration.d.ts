@@ -9,6 +9,8 @@ declare namespace Cloudflare {
 		ALLOWED_ORIGINS: string;
 		DB_FILE_NAME: string;
 		DB: D1Database;
+		PRODUCT_IMAGES: R2Bucket;
+		R2_PUBLIC_URL: string;
 	}
 }
 interface Env extends Cloudflare.Env {}

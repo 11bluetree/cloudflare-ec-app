@@ -4,8 +4,16 @@
   "compatibility_date": "2025-08-03",
   "main": "./src/index.tsx",
   "vars": {
-    "ALLOWED_ORIGINS": "https://cloudflare-ec-app-web.pages.dev"
+    "ALLOWED_ORIGINS": "https://cloudflare-ec-app-web.pages.dev",
+    "R2_PUBLIC_URL": "https://pub-xxxxx.r2.dev"
   },
+  // R2バケット設定
+  "r2_buckets": [
+    {
+      "binding": "PRODUCT_IMAGES",
+      "bucket_name": "ec-app-product-images"
+    }
+  ],
   // 本番環境のD1データベース
   "d1_databases": [
     {
@@ -25,6 +33,12 @@
           "database_name": "ec-app-dev",
           "preview_database_id": "local",
           "migrations_dir": "drizzle"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "PRODUCT_IMAGES",
+          "bucket_name": "ec-app-product-images-dev"
         }
       ]
     }
