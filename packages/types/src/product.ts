@@ -121,9 +121,15 @@ export const CreateProductRequestSchema = z.object({
   options: z.array(CreateProductOptionSchema).min(0).max(5).optional(),
   // バリアント（省略時は空配列）
   variants: z.array(CreateProductVariantSchema).min(0).max(100).optional(),
+  // 画像ファイル（省略時は空配列）
+  // Note: z.instanceof(File)はNode.js環境で型エラーになるためz.any()を使用
+  images: z.array(z.any()).min(0).max(10).optional(),
 });
 
-export type CreateProductRequest = z.infer<typeof CreateProductRequestSchema>;
+export type CreateProductRequest = z.infer<typeof CreateProductRequestSchema> & {
+  // 型定義では明示的にFile[]を指定
+  images?: File[];
+};
 
 /**
  * 商品登録レスポンス

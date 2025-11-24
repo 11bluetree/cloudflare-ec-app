@@ -2,7 +2,10 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "moduleResolution": "Bundler",
     "strict": true,
     "skipLibCheck": true,
@@ -11,5 +14,7 @@
     "declarationMap": true,
     "outDir": "./dist"
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ]
 }

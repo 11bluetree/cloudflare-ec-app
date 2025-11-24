@@ -3,6 +3,7 @@ import { faker } from '@faker-js/faker';
 import { CreateProductUseCase } from '../create-product.usecase';
 import type { IProductRepository } from '../../../ports/repositories/product-repository.interface';
 import type { ICategoryRepository } from '../../../ports/repositories/category-repository.interface';
+import type { IImageStorage } from '../../../ports/storage/image-storage.interface';
 import { SKUBrandSchema, type CreateProductRequest } from '@cloudflare-ec-app/types';
 import { Category } from '../../../../domain/entities/category';
 
@@ -18,6 +19,7 @@ describe('CreateProductUseCase', () => {
   let useCase: CreateProductUseCase;
   let mockProductRepository: IProductRepository;
   let mockCategoryRepository: ICategoryRepository;
+  let mockImageStorage: IImageStorage;
 
   const categoryId = faker.string.alphanumeric(26);
   const now = new Date();
@@ -50,7 +52,17 @@ describe('CreateProductUseCase', () => {
       findAll: vi.fn(),
     };
 
-    useCase = new CreateProductUseCase(mockProductRepository, mockCategoryRepository);
+    // モックImageStorageの準備
+    mockImageStorage = {
+      upload: vi.fn().mockImplementation((file: File, path: string) => {
+        // R2の公開URLを模擬（実際のファイル名を使用）
+        return Promise.resolve(`https://pub-test.r2.dev/${path}`);
+      }),
+      delete: vi.fn().mockResolvedValue(undefined),
+      deleteMany: vi.fn().mockResolvedValue(undefined),
+    };
+
+    useCase = new CreateProductUseCase(mockProductRepository, mockCategoryRepository, mockImageStorage);
   });
 
   describe('正常系', () => {
@@ -276,6 +288,156 @@ describe('CreateProductUseCase', () => {
       // Act & Assert
       await expect(useCase.execute(request)).rejects.toThrow();
       expect(mockProductRepository.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('画像アップロード', () => {
+    it('画像ファイル配列を受け取りR2にアップロードしてProductDetailsに含める', async () => {
+      // Arrange
+      const optionName = 'サイズ';
+      const request: CreateProductRequest = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        categoryId,
+        status: 'published',
+        options: [{ optionName, displayOrder: 1 }],
+        variants: [
+          {
+            sku: generateTestSKU(),
+            price: 1000,
+            barcode: undefined,
+            displayOrder: 1,
+            options: [{ optionName, optionValue: 'M', displayOrder: 1 }],
+          },
+        ],
+        // 画像ファイルを追加（この時点ではFile[]の想定）
+        images: [
+          new File([new Uint8Array([1, 2, 3])], 'image1.jpg', { type: 'image/jpeg' }),
+          new File([new Uint8Array([4, 5, 6])], 'image2.jpg', { type: 'image/jpeg' }),
+        ] as unknown as File[], // File[] にキャスト
+      };
+
+      // Act
+      const result = await useCase.execute(request);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(mockProductRepository.create).toHaveBeenCalledOnce();
+
+      // ProductDetailsに画像が含まれていることを確認
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const createdProductDetails = (mockProductRepository.create as any).mock.calls[0][0];
+      expect(createdProductDetails.images).toHaveLength(2);
+
+      // 画像URLのフォーマット確認: https://...r2.dev/products/{productId}/{imageId}.jpg
+      expect(createdProductDetails.images[0].imageUrl).toMatch(
+        /^https:\/\/.+\/products\/[A-Z0-9]{26}\/[A-Z0-9]{26}\.jpg$/,
+      );
+      expect(createdProductDetails.images[1].imageUrl).toMatch(
+        /^https:\/\/.+\/products\/[A-Z0-9]{26}\/[A-Z0-9]{26}\.jpg$/,
+      );
+    });
+
+    it('画像が指定されない場合は空配列でProductDetailsを作成する', async () => {
+      // Arrange
+      const optionName = 'サイズ';
+      const request: CreateProductRequest = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        categoryId,
+        status: 'published',
+        options: [{ optionName, displayOrder: 1 }],
+        variants: [
+          {
+            sku: generateTestSKU(),
+            price: 1000,
+            barcode: undefined,
+            displayOrder: 1,
+            options: [{ optionName, optionValue: 'M', displayOrder: 1 }],
+          },
+        ],
+        // images未指定
+      };
+
+      // Act
+      const result = await useCase.execute(request);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(mockProductRepository.create).toHaveBeenCalledOnce();
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const createdProductDetails = (mockProductRepository.create as any).mock.calls[0][0];
+      expect(createdProductDetails.images).toEqual([]);
+    });
+
+    it('画像ファイルのパスはproducts/{productId}/{filename}形式になる', async () => {
+      // Arrange
+      const optionName = 'サイズ';
+      const request: CreateProductRequest = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        categoryId,
+        status: 'published',
+        options: [{ optionName, displayOrder: 1 }],
+        variants: [
+          {
+            sku: generateTestSKU(),
+            price: 1000,
+            barcode: undefined,
+            displayOrder: 1,
+            options: [{ optionName, optionValue: 'M', displayOrder: 1 }],
+          },
+        ],
+        images: [new File([new Uint8Array([1, 2, 3])], 'test-image.jpg', { type: 'image/jpeg' })] as unknown as File[],
+      };
+
+      // Act
+      await useCase.execute(request);
+
+      // Assert
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const createdProductDetails = (mockProductRepository.create as any).mock.calls[0][0];
+      const imageUrl = createdProductDetails.images[0].imageUrl;
+
+      // パス形式の検証: products/{productId}/{filename}
+      expect(imageUrl).toMatch(/\/products\/[A-Z0-9]{26}\/[A-Z0-9]+\.jpg$/);
+    });
+
+    it('画像のdisplayOrderは1から連番で設定される', async () => {
+      // Arrange
+      const optionName = 'サイズ';
+      const request: CreateProductRequest = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        categoryId,
+        status: 'published',
+        options: [{ optionName, displayOrder: 1 }],
+        variants: [
+          {
+            sku: generateTestSKU(),
+            price: 1000,
+            barcode: undefined,
+            displayOrder: 1,
+            options: [{ optionName, optionValue: 'M', displayOrder: 1 }],
+          },
+        ],
+        images: [
+          new File([new Uint8Array([1])], 'img1.jpg', { type: 'image/jpeg' }),
+          new File([new Uint8Array([2])], 'img2.jpg', { type: 'image/jpeg' }),
+          new File([new Uint8Array([3])], 'img3.jpg', { type: 'image/jpeg' }),
+        ] as unknown as File[],
+      };
+
+      // Act
+      await useCase.execute(request);
+
+      // Assert
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const createdProductDetails = (mockProductRepository.create as any).mock.calls[0][0];
+      expect(createdProductDetails.images[0].displayOrder).toBe(1);
+      expect(createdProductDetails.images[1].displayOrder).toBe(2);
+      expect(createdProductDetails.images[2].displayOrder).toBe(3);
     });
   });
 });

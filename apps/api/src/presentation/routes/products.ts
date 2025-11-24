@@ -10,11 +10,15 @@ import { ListProductsUseCase } from '../../application/usecases/product/list-pro
 import { CreateProductUseCase } from '../../application/usecases/product/create-product.usecase';
 import { ProductRepository } from '../../infrastructure/internal/repositories/product.repository';
 import { CategoryRepository } from '../../infrastructure/internal/repositories/category.repository';
+import { R2ImageStorage } from '../../infrastructure/external/storage/r2-image-storage';
+import { R2Client } from '../../infrastructure/external/storage/r2-client';
 import { createDbConnection } from '../../infrastructure/internal/db/connection';
 
 type Bindings = {
   ALLOWED_ORIGINS?: string;
   DB: D1Database;
+  PRODUCT_IMAGES: R2Bucket;
+  R2_PUBLIC_URL: string;
 };
 
 const product = new Hono<{ Bindings: Bindings }>()
@@ -54,7 +58,11 @@ const product = new Hono<{ Bindings: Bindings }>()
     const productRepository = new ProductRepository(db);
     const categoryRepository = new CategoryRepository(db);
 
-    const createProductUseCase = new CreateProductUseCase(productRepository, categoryRepository);
+    // R2ImageStorageの初期化
+    const r2Client = new R2Client(c.env.PRODUCT_IMAGES);
+    const imageStorage = new R2ImageStorage(r2Client, c.env.R2_PUBLIC_URL);
+
+    const createProductUseCase = new CreateProductUseCase(productRepository, categoryRepository, imageStorage);
 
     const response = await createProductUseCase.execute(request);
 
