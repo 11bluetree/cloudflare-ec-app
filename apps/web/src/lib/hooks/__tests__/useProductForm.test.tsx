@@ -364,4 +364,52 @@ describe('useProductForm', () => {
       expect(variants[3].options[0].optionValue).toBe('青');
     });
   });
+
+  describe('画像管理', () => {
+    // モックファイルを作成するヘルパー
+    const createMockFile = (name: string, size: number, type: string): File => {
+      const file = new File([''], name, { type });
+      Object.defineProperty(file, 'size', { value: size });
+      return file;
+    };
+
+    it('初期状態では画像は空配列', () => {
+      const { result } = renderHook(() => useProductForm());
+
+      expect(result.current.images).toEqual([]);
+    });
+
+    it('画像を設定できる', () => {
+      const { result } = renderHook(() => useProductForm());
+
+      const file1 = createMockFile('test1.jpg', 1024, 'image/jpeg');
+      const file2 = createMockFile('test2.png', 2048, 'image/png');
+
+      act(() => {
+        result.current.setImages([file1, file2]);
+      });
+
+      expect(result.current.images).toHaveLength(2);
+      expect(result.current.images[0].name).toBe('test1.jpg');
+      expect(result.current.images[1].name).toBe('test2.png');
+    });
+
+    it('画像をクリアできる', () => {
+      const { result } = renderHook(() => useProductForm());
+
+      const file = createMockFile('test.jpg', 1024, 'image/jpeg');
+
+      act(() => {
+        result.current.setImages([file]);
+      });
+
+      expect(result.current.images).toHaveLength(1);
+
+      act(() => {
+        result.current.setImages([]);
+      });
+
+      expect(result.current.images).toEqual([]);
+    });
+  });
 });

@@ -12,6 +12,7 @@ export const useProductForm = () => {
   const [hasOptions, setHasOptions] = useState(false);
   const [bulkPrice, setBulkPrice] = useState<string>('');
   const [showVariantForm, setShowVariantForm] = useState(false);
+  const [images, setImages] = useState<File[]>([]);
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productFormSchema),
@@ -226,6 +227,8 @@ export const useProductForm = () => {
     showVariantForm,
     optionFields,
     variantFields,
+    images,
+    setImages,
     setBulkPrice,
     handleHasOptionsChange,
     handleGenerateVariants,

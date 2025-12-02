@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { CreateProductRequest } from '@cloudflare-ec-app/types';
-import { createProduct } from '../../../lib/api/products';
+import { createProduct, createProductWithImages } from '../../../lib/api/products';
 import { useProductForm } from '../../../lib/hooks/useProductForm';
 import { useCategorySelector } from '../../../lib/hooks/useCategorySelector';
 import { calculateVariantCount } from '../../../lib/utils/variant-generator';
@@ -11,6 +11,7 @@ import {
   ProductOptionsForm,
   SingleProductForm,
   ProductVariantList,
+  ProductImageUpload,
 } from '../../../components/product/form';
 import { Button, FormSection } from '../../../components/ui';
 
@@ -29,6 +30,8 @@ function ProductNewPage() {
     showVariantForm,
     optionFields,
     variantFields,
+    images,
+    setImages,
     setBulkPrice,
     handleHasOptionsChange,
     handleGenerateVariants,
@@ -58,7 +61,12 @@ function ProductNewPage() {
 
   // 商品登録のミューテーション
   const createProductMutation = useMutation({
-    mutationFn: createProduct,
+    mutationFn: async (params: { data: CreateProductRequest; images: File[] }) => {
+      if (params.images.length > 0) {
+        return createProductWithImages(params.data, params.images);
+      }
+      return createProduct(params.data);
+    },
     onSuccess: (data) => {
       toast.success('商品を登録しました', {
         description: `商品ID: ${data.id}`,
@@ -114,8 +122,11 @@ function ProductNewPage() {
     };
     // SKUはフロントエンドではstring型だが、API層でブランド型（SKUBrand）にバリデーションされる
     // 型アサーションが必要なため、この行のみルールを無効化
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    await createProductMutation.mutateAsync(requestData as CreateProductRequest);
+    await createProductMutation.mutateAsync({
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      data: requestData as CreateProductRequest,
+      images,
+    });
   });
 
   const nameLength = watch('name')?.length || 0;
@@ -146,6 +157,11 @@ function ProductNewPage() {
           onCategoryChange={handleCategoryChange}
           findCategoryById={findCategoryById}
         />
+
+        {/* 商品画像 */}
+        <FormSection title="商品画像">
+          <ProductImageUpload images={images} onChange={setImages} />
+        </FormSection>
 
         {/* オプション設定 */}
         <FormSection title="商品オプション">
