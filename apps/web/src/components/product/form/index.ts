@@ -3,3 +3,4 @@ export { SingleProductForm } from './SingleProductForm';
 export { ProductOptionsForm } from './ProductOptionsForm';
 export { ProductOptionForm } from './ProductOptionForm';
 export { ProductVariantList } from './ProductVariantList';
+export { ProductImageUpload } from './ProductImageUpload';
