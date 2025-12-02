@@ -110,3 +110,44 @@ export const apiPut = <T>(endpoint: string, data?: unknown, options?: ApiRequest
 export const apiDelete = <T>(endpoint: string, options?: ApiRequestOptions): Promise<T> => {
   return apiRequest<T>(endpoint, { ...options, method: 'DELETE' });
 };
+
+/**
+ * FormData POST リクエスト（ファイルアップロード用）
+ */
+export const apiPostFormData = async <T>(
+  endpoint: string,
+  formData: FormData,
+  options?: Omit<ApiRequestOptions, 'body'>,
+): Promise<T> => {
+  const { includeAuth: _includeAuth = true, ...fetchOptions } = options || {};
+
+  const url = `${getApiBaseUrl()}${endpoint}`;
+
+  // FormDataの場合、Content-Typeは自動設定（boundaryが必要なため）
+  const headers: HeadersInit = {};
+
+  // CSRFトークンを追加
+  const csrfToken = getCsrfToken();
+  if (csrfToken) {
+    headers['X-CSRF-Token'] = csrfToken;
+  }
+
+  const response = await fetch(url, {
+    ...fetchOptions,
+    method: 'POST',
+    headers: {
+      ...headers,
+      ...fetchOptions.headers,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({
+      message: 'APIリクエストに失敗しました',
+    }));
+    throw new Error(error.message || `HTTP Error: ${response.status}`);
+  }
+
+  return response.json();
+};
