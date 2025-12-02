@@ -48,9 +48,51 @@ const product = new Hono<{ Bindings: Bindings }>()
   /**
    * POST /api/products
    * 商品を登録（管理者のみ）
+   * Content-Type: multipart/form-data
+   * - data: 商品情報（JSON文字列）
+   * - images: 画像ファイル（複数可）
    */
-  .post('/', zValidator('json', CreateProductRequestSchema), async (c) => {
-    const request = c.req.valid('json');
+  .post('/', async (c) => {
+    // FormDataをパース
+    const formData = await c.req.formData();
+
+    // 商品データをパース
+    const dataString = formData.get('data');
+    if (typeof dataString !== 'string') {
+      return c.json({ error: 'Missing or invalid data field' }, 400);
+    }
+
+    let parsedData: unknown;
+    try {
+      parsedData = JSON.parse(dataString);
+    } catch {
+      return c.json({ error: 'Invalid JSON in data field' }, 400);
+    }
+
+    // Zodでバリデーション（imagesは除外してパース）
+    const validationResult = CreateProductRequestSchema.omit({ images: true }).safeParse(parsedData);
+    if (!validationResult.success) {
+      return c.json({ error: 'Validation failed', details: validationResult.error.issues }, 400);
+    }
+
+    // 画像ファイルを取得
+    const images: File[] = [];
+    const imageEntries = formData.getAll('images');
+    for (const entry of imageEntries) {
+      if (entry instanceof File && entry.size > 0) {
+        images.push(entry);
+      }
+    }
+
+    // 画像数のバリデーション（1回のアップロードで最大10枚）
+    if (images.length > 10) {
+      return c.json({ error: 'Too many images. Maximum 10 images per upload.' }, 400);
+    }
+
+    const request = {
+      ...validationResult.data,
+      images,
+    };
 
     const d1Database = c.env.DB;
     const db = createDbConnection(d1Database);

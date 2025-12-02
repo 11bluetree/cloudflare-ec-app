@@ -48,12 +48,18 @@ describe('POST /api/products - E2E', () => {
         status: 'draft',
       };
 
+      // FormDataを構築
+      const formData = new FormData();
+      formData.append('data', JSON.stringify(requestBody));
+
       // Act
-      const res = await client.index.$post({ json: requestBody });
+      const res = await client.index.$post({
+        form: { data: JSON.stringify(requestBody) },
+      });
 
       // Assert
       expect(res.status).toBe(201);
-      const body = await res.json();
+      const body = (await res.json()) as { name: string; options: unknown[]; variants: unknown[] };
       expect(body.name).toBe(requestBody.name);
       expect(body.options).toEqual([]);
       expect(body.variants).toEqual([]);
@@ -87,11 +93,13 @@ describe('POST /api/products - E2E', () => {
       };
 
       // Act
-      const res = await client.index.$post({ json: request });
+      const res = await client.index.$post({
+        form: { data: JSON.stringify(request) },
+      });
 
       // Assert
       expect(res.status).toBe(201);
-      const body = await res.json();
+      const body = (await res.json()) as { variants: unknown[] };
       expect(body.variants).toHaveLength(2);
     });
   });
