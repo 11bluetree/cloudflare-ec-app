@@ -22,28 +22,5 @@
       "database_id": "4a472e75-3ca9-4cd0-a2d8-006f2a016a1d",
       "migrations_dir": "drizzle"
     }
-  ],
-  // 環境ごとの設定
-  "env": {
-    // ローカル開発環境
-    "dev": {
-      "vars": {
-        "R2_PUBLIC_URL": "http://localhost:3000/images"
-      },
-      "d1_databases": [
-        {
-          "binding": "DB",
-          "database_name": "ec-app-dev",
-          "preview_database_id": "local",
-          "migrations_dir": "drizzle"
-        }
-      ],
-      "r2_buckets": [
-        {
-          "binding": "PRODUCT_IMAGES",
-          "bucket_name": "ec-app-product-images-dev"
-        }
-      ]
-    }
-  }
+  ]
 }

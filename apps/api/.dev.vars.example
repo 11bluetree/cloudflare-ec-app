@@ -4,4 +4,7 @@
 # 許可するオリジン（カンマ区切りで複数指定可能）
 ALLOWED_ORIGINS=http://localhost:5173
 
+# R2公開URL（開発環境）
+R2_PUBLIC_URL=http://localhost:3000/images
+
 DB_FILE_PATH="path to .sqlite file"

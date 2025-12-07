@@ -6,9 +6,11 @@
 
 /* eslint-disable no-console */
 
+import 'dotenv/config';
 import { createClient } from '@libsql/client';
 import { drizzle } from 'drizzle-orm/libsql';
 import { ulid } from 'ulid';
+import { Miniflare } from 'miniflare';
 import {
   categories,
   products,
@@ -27,7 +29,62 @@ import {
 } from '../infrastructure/internal/db/schema';
 
 // ローカルD1データベースのパスを取得
-const localDbPath = process.env.DB_FILE_PATH!;
+const localDbPath = process.env.DB_FILE_PATH;
+if (!localDbPath) {
+  console.error('❌ DB_FILE_PATH environment variable is not set.');
+  console.error('   Please create .env file with DB_FILE_PATH=<path-to-sqlite>');
+  process.exit(1);
+}
+
+// R2バケット名を取得
+const r2BucketName = process.env.R2_BUCKET_NAME;
+if (!r2BucketName) {
+  console.error('❌ R2_BUCKET_NAME environment variable is not set.');
+  console.error('   Please create .env file with R2_BUCKET_NAME=<bucket-name>');
+  process.exit(1);
+}
+
+// Miniflareインスタンス（R2バケット用）
+const mf = new Miniflare({
+  modules: true,
+  script: `
+    export default {
+      async fetch(request, env) {
+        return new Response('OK');
+      }
+    }
+  `,
+  r2Buckets: {
+    PRODUCT_IMAGES: r2BucketName,
+  },
+  r2Persist: '.wrangler/state/v3/r2',
+});
+
+/**
+ * Placeholder画像をダウンロードしてR2に保存し、キーを返す
+ */
+async function downloadAndSaveToR2(imageKey: string, width: number, height: number, text: string): Promise<string> {
+  const url = `https://placehold.co/${width}x${height}/png?text=${encodeURIComponent(text)}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to download placeholder image: ${response.statusText}`);
+  }
+  const imageBuffer = await response.arrayBuffer();
+
+  // R2バケットを取得
+  const bucket = await mf.getR2Bucket('PRODUCT_IMAGES');
+
+  // R2にアップロード
+  await bucket.put(imageKey, imageBuffer, {
+    httpMetadata: {
+      contentType: 'image/png',
+    },
+  });
+
+  console.log(`    💾 Uploaded to R2: ${imageKey}`);
+
+  return imageKey;
+}
 
 async function seed() {
   console.log('🌱 Seeding database...');
@@ -208,10 +265,13 @@ async function seed() {
 
     // 商品1の画像
     const image1Id = ulid();
+    const image1Key = `products/${product1Id}/${image1Id}.png`;
+    console.log('  📸 Downloading and uploading placeholder image...');
+    await downloadAndSaveToR2(image1Key, 600, 600, 'Basic+T-Shirt');
     const image1Data: InsertProductImage = {
       productId: product1Id,
       productVariantId: variant1Id,
-      imageKey: `products/${product1Id}/${image1Id}.jpg`,
+      imageKey: image1Key,
       displayOrder: 1,
     };
 
@@ -335,10 +395,13 @@ async function seed() {
 
       // バリアントの画像
       const imageId = ulid();
+      const imageKey = `products/${product2Id}/${imageId}.png`;
+      console.log(`    📸 Downloading and uploading placeholder image for ${config.size}...`);
+      await downloadAndSaveToR2(imageKey, 600, 600, `Premium+${config.size}`);
       const imageData: InsertProductImage = {
         productId: product2Id,
         productVariantId: variantId,
-        imageKey: `products/${product2Id}/${imageId}.jpg`,
+        imageKey,
         displayOrder: 1,
       };
 
@@ -553,10 +616,12 @@ async function seed() {
 
           // バリアントの画像
           const imageId = ulid();
+          const imageKey = `products/${product3Id}/${imageId}.png`;
+          await downloadAndSaveToR2(imageKey, 600, 600, `${color}+${size}+${texture}`);
           const imageData: InsertProductImage = {
             productId: product3Id,
             productVariantId: variantId,
-            imageKey: `products/${product3Id}/${imageId}.jpg`,
+            imageKey,
             displayOrder: 1,
           };
 
