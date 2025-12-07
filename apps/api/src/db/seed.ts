@@ -45,6 +45,7 @@ async function seed() {
     // ============================================================================
     console.log('📁 Creating categories...');
 
+    // カテゴリー1: Tシャツ（ルートカテゴリー）
     const categoryId = ulid();
     const categoryData: InsertCategory = {
       name: 'Tシャツ',
@@ -60,6 +61,57 @@ async function seed() {
     });
 
     console.log(`✅ Created category: ${categoryData.name} (${categoryId})`);
+
+    // カテゴリー2: アウター（ルートカテゴリー） - 2階層構造の親
+    const outerCategoryId = ulid();
+    const outerCategoryData: InsertCategory = {
+      name: 'アウター',
+      parentId: null,
+      displayOrder: 2,
+    };
+
+    await db.insert(categories).values({
+      id: outerCategoryId,
+      ...outerCategoryData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    console.log(`✅ Created category: ${outerCategoryData.name} (${outerCategoryId})`);
+
+    // カテゴリー3: ジャケット（アウターの子カテゴリー）
+    const jacketCategoryId = ulid();
+    const jacketCategoryData: InsertCategory = {
+      name: 'ジャケット',
+      parentId: outerCategoryId,
+      displayOrder: 1,
+    };
+
+    await db.insert(categories).values({
+      id: jacketCategoryId,
+      ...jacketCategoryData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    console.log(`  ✅ Created child category: ${jacketCategoryData.name} (${jacketCategoryId})`);
+
+    // カテゴリー4: コート（アウターの子カテゴリー）
+    const coatCategoryId = ulid();
+    const coatCategoryData: InsertCategory = {
+      name: 'コート',
+      parentId: outerCategoryId,
+      displayOrder: 2,
+    };
+
+    await db.insert(categories).values({
+      id: coatCategoryId,
+      ...coatCategoryData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    console.log(`  ✅ Created child category: ${coatCategoryData.name} (${coatCategoryId})`);
 
     // ============================================================================
     // 2. 商品1: ベーシックTシャツ（1種類のバリアント）
@@ -143,7 +195,7 @@ async function seed() {
       productVariantId: variant1Id,
       optionName: 'title',
       optionValue: 'default',
-      displayOrder: 0,
+      displayOrder: 1,
     };
 
     await db.insert(productVariantOptions).values({
@@ -436,6 +488,8 @@ async function seed() {
 
     // 商品3のバリアント（色×サイズ×質感の組み合わせ = 3×2×2 = 12種類）
     const colorCodes: Record<string, string> = { 白: 'ffffff', 黒: '000000', グレー: '808080' };
+    const colorSkuCodes: Record<string, string> = { 白: 'WH', 黒: 'BK', グレー: 'GR' };
+    const textureSkuCodes: Record<string, string> = { スムース: 'SM', ラフ: 'RF' };
     let variantCounter = 0;
 
     for (const color of colorValues) {
@@ -446,10 +500,13 @@ async function seed() {
           const colorCode = colorCodes[color];
           const textColor = color === '白' ? '333333' : 'ffffff';
 
+          // バーコードは13桁のJAN形式で生成（チェックディジットなしの簡易版）
+          const barcodeNum = 4901234560000 + variantCounter;
+
           const variantData: InsertProductVariant = {
             productId: product3Id,
-            sku: `CUSTOM-TSH-${color[0]}-${size}-${texture === 'スムース' ? 'SM' : 'RF'}-${variantCounter.toString().padStart(3, '0')}`,
-            barcode: `490123456790${variantCounter}`,
+            sku: `CUSTOM-TSH-${colorSkuCodes[color]}-${size}-${textureSkuCodes[texture]}-${variantCounter.toString().padStart(3, '0')}`,
+            barcode: barcodeNum.toString(),
             imageUrl: `https://placehold.co/600x600/${colorCode}/${textColor}?text=${color}+${size}+${texture}`,
             price: 5980,
             displayOrder: variantCounter,
@@ -523,7 +580,7 @@ async function seed() {
 
     console.log('\n✨ Database seeded successfully!');
     console.log('\n📊 Summary:');
-    console.log('  - 1 category created');
+    console.log('  - 4 categories created (2 root + 2 children)');
     console.log('  - 3 products created');
     console.log(`  - ${4 + variantCounter} variants created (1 + 3 + ${variantCounter})`);
     console.log('  - 5 product options created');
