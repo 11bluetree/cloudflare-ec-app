@@ -1,4 +1,4 @@
-import type { UseFormRegister, FieldErrors } from 'react-hook-form';
+import type { UseFormRegister, FieldErrors, UseFormSetValue } from 'react-hook-form';
 import type { ProductFormData } from '../../../lib/schemas/product-form';
 import { FormField, FormSection, Input, Textarea, RadioGroup, RadioGroupItem, Label } from '../../ui';
 
@@ -15,6 +15,7 @@ type ProductBasicFormProps = {
   isCategoriesLoading: boolean;
   onCategoryChange: (levelIndex: number, value: string) => void;
   findCategoryById: (id: string) => { name: string } | null;
+  setValue: UseFormSetValue<ProductFormData>;
 };
 
 /**
@@ -31,6 +32,7 @@ export const ProductBasicForm: React.FC<ProductBasicFormProps> = ({
   isCategoriesLoading,
   onCategoryChange,
   findCategoryById,
+  setValue,
 }) => {
   return (
     <FormSection title="基本情報">
@@ -102,7 +104,10 @@ export const ProductBasicForm: React.FC<ProductBasicFormProps> = ({
 
         {/* ステータス */}
         <FormField label="ステータス" required error={errors.status?.message}>
-          <RadioGroup value={status} onValueChange={(value) => register('status').onChange({ target: { value } })}>
+          <RadioGroup
+            value={status}
+            onValueChange={(value: 'draft' | 'published') => setValue('status', value, { shouldValidate: true })}
+          >
             <div className="flex gap-4">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="draft" id="status-draft" />

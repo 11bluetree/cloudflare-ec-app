@@ -158,6 +158,7 @@ function ProductNewPage() {
           isCategoriesLoading={isCategoriesLoading}
           onCategoryChange={handleCategoryChange}
           findCategoryById={findCategoryById}
+          setValue={setValue}
         />
 
         {/* 商品画像 */}
