@@ -84,13 +84,11 @@ function ProductNewPage() {
   });
 
   const onSubmit = handleSubmit(async (data) => {
-    // 公開ステータスでオプションありの場合、バリアントが必須
-    if (data.status === 'published' && data.hasOptions) {
-      if (data.variants.length === 0) {
-        toast.error('公開ステータスの場合、バリアントを作成してください');
-        return;
-      }
-    }
+    // 下書きの場合、SKU/価格が未入力のバリアントは除外
+    const filteredVariants =
+      data.status === 'draft'
+        ? data.variants.filter((v) => v.sku && v.sku.trim() !== '' && v.price !== undefined && v.price > 0)
+        : data.variants;
 
     const requestData = {
       name: data.name,
@@ -108,7 +106,7 @@ function ProductNewPage() {
               displayOrder: 1,
             },
           ],
-      variants: data.variants.map((variant) => ({
+      variants: filteredVariants.map((variant) => ({
         sku: variant.sku,
         barcode: variant.barcode || undefined,
         imageUrl: null,
@@ -184,10 +182,11 @@ function ProductNewPage() {
             variantCount={variantCount}
             register={register}
             watch={watch}
+            errors={errors}
           />
 
           {/* 単一商品フォーム */}
-          {!hasOptions && <SingleProductForm register={register} errors={errors} />}
+          {!hasOptions && <SingleProductForm register={register} errors={errors} status={status} />}
 
           {/* バリアント一覧 */}
           {hasOptions && showVariantForm && variantFields.length > 0 && (

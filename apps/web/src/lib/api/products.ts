@@ -8,7 +8,7 @@ import type {
   ProductListQuery,
   ProductListResponse,
 } from '@cloudflare-ec-app/types';
-import { apiGet, apiPost, apiPostFormData } from '../api';
+import { apiGet, apiPostFormData } from '../api';
 
 /**
  * 商品一覧を取得（コマース向け）
@@ -87,14 +87,16 @@ export const fetchAdminProducts = async (query: ProductListQuery): Promise<Produ
 };
 
 /**
- * 商品を登録
+ * 商品を登録（画像なし）
  */
 export const createProduct = async (data: CreateProductRequest): Promise<CreateProductResponse> => {
-  return await apiPost<CreateProductResponse>('/api/products', data);
+  const formData = new FormData();
+  formData.append('data', JSON.stringify(data));
+  return await apiPostFormData<CreateProductResponse>('/api/products', formData);
 };
 
 /**
- * 商品を登録
+ * 商品を登録（画像あり）
  */
 export const createProductWithImages = async (
   data: CreateProductRequest,

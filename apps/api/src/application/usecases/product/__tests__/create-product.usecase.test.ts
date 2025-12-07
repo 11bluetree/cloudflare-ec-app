@@ -510,4 +510,178 @@ describe('CreateProductUseCase', () => {
       expect(greenVariantImage).toBeUndefined();
     });
   });
+
+  describe('商品オプションとバリアントのバリデーション', () => {
+    it('下書き・オプションなし・バリアントなしで作成できる', async () => {
+      // Arrange
+      const request: CreateProductRequest = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        categoryId,
+        status: 'draft',
+        options: [],
+        variants: [],
+      };
+
+      // Act
+      const result = await useCase.execute(request);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result.status).toBe('draft');
+      expect(result.options).toEqual([]);
+      expect(result.variants).toEqual([]);
+      expect(mockProductRepository.create).toHaveBeenCalledOnce();
+    });
+
+    it('下書き・オプションあり・バリアントなしで作成できる', async () => {
+      // Arrange
+      const request: CreateProductRequest = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        categoryId,
+        status: 'draft',
+        options: [{ optionName: '色', displayOrder: 1 }],
+        variants: [],
+      };
+
+      // Act
+      const result = await useCase.execute(request);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result.status).toBe('draft');
+      expect(result.options).toHaveLength(1);
+      expect(result.options[0].optionName).toBe('色');
+      expect(result.variants).toEqual([]);
+      expect(mockProductRepository.create).toHaveBeenCalledOnce();
+    });
+
+    it('公開・オプションなし・バリアント1つで作成できる', async () => {
+      // Arrange
+      const sku = generateTestSKU();
+      const price = faker.number.int({ min: 100, max: 99999 });
+
+      const request: CreateProductRequest = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        categoryId,
+        status: 'published',
+        options: [{ optionName: 'title', displayOrder: 1 }],
+        variants: [
+          {
+            sku,
+            barcode: undefined,
+            imageUrl: null,
+            imageIndex: null,
+            price,
+            displayOrder: 1,
+            options: [{ optionName: 'title', optionValue: 'default', displayOrder: 1 }],
+          },
+        ],
+      };
+
+      // Act
+      const result = await useCase.execute(request);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result.status).toBe('published');
+      expect(result.variants).toHaveLength(1);
+      expect(result.variants[0].options[0].optionName).toBe('title');
+      expect(result.variants[0].options[0].optionValue).toBe('default');
+      expect(mockProductRepository.create).toHaveBeenCalledOnce();
+    });
+
+    it('公開・オプションあり・バリアント1つ以上で作成できる', async () => {
+      // Arrange
+      const skuRed = generateTestSKU();
+      const skuBlue = generateTestSKU();
+      const price = faker.number.int({ min: 100, max: 99999 });
+
+      const request: CreateProductRequest = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        categoryId,
+        status: 'published',
+        options: [{ optionName: '色', displayOrder: 1 }],
+        variants: [
+          {
+            sku: skuRed,
+            barcode: undefined,
+            imageUrl: null,
+            imageIndex: null,
+            price,
+            displayOrder: 1,
+            options: [{ optionName: '色', optionValue: '赤', displayOrder: 1 }],
+          },
+          {
+            sku: skuBlue,
+            barcode: undefined,
+            imageUrl: null,
+            imageIndex: null,
+            price: price + 100,
+            displayOrder: 2,
+            options: [{ optionName: '色', optionValue: '青', displayOrder: 1 }],
+          },
+        ],
+      };
+
+      // Act
+      const result = await useCase.execute(request);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result.status).toBe('published');
+      expect(result.variants).toHaveLength(2);
+      expect(result.variants[0].options[0].optionValue).toBe('赤');
+      expect(result.variants[1].options[0].optionValue).toBe('青');
+      expect(mockProductRepository.create).toHaveBeenCalledOnce();
+    });
+
+    it('オプションありでオプション名が空の場合エラー', async () => {
+      // Arrange
+      const request: CreateProductRequest = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        categoryId,
+        status: 'draft',
+        options: [{ optionName: '', displayOrder: 1 }],
+        variants: [],
+      };
+
+      // Act & Assert
+      await expect(useCase.execute(request)).rejects.toThrow();
+    });
+
+    it('バリアントのオプション名が商品オプションに存在しない場合エラー', async () => {
+      // Arrange
+      const sku = generateTestSKU();
+      const price = faker.number.int({ min: 100, max: 99999 });
+
+      const request: CreateProductRequest = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        categoryId,
+        status: 'draft',
+        options: [{ optionName: '色', displayOrder: 1 }],
+        variants: [
+          {
+            sku,
+            barcode: undefined,
+            imageUrl: null,
+            imageIndex: null,
+            price,
+            displayOrder: 1,
+            options: [{ optionName: 'サイズ', optionValue: 'M', displayOrder: 1 }],
+          },
+        ],
+      };
+
+      // Act & Assert
+      await expect(useCase.execute(request)).rejects.toThrow(
+        'バリアントオプション "サイズ" は商品オプションに存在しません',
+      );
+    });
+  });
 });

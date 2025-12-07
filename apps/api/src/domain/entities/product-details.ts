@@ -43,9 +43,9 @@ export class ProductDetails {
    * 商品全体のビジネスルールを検証
    */
   private validateBusinessRules(): void {
-    // オプションが定義されている場合、最低1つのバリアントが必要
-    if (this.product.options.length > 0 && this.variants.length === 0) {
-      throw new Error('オプションが定義されている商品には、最低1つのバリアントが必要です');
+    // 公開商品には最低1つのバリアントが必要
+    if (this.product.status === 'published' && this.variants.length === 0) {
+      throw new Error('公開状態の商品には、最低1つのバリアントが必要です');
     }
 
     // バリアントが存在する場合、オプションも必要

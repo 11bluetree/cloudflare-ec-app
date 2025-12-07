@@ -1,7 +1,7 @@
 import { Button, FormSection, RadioGroup, RadioGroupItem, Label } from '../../ui';
 import { ProductOptionForm } from './ProductOptionForm';
 import type { Option, ProductFormData } from '../../../lib/schemas/product-form';
-import type { UseFormRegister, UseFormWatch } from 'react-hook-form';
+import type { UseFormRegister, UseFormWatch, FieldErrors } from 'react-hook-form';
 
 type ProductOptionsFormProps = {
   hasOptions: boolean;
@@ -19,6 +19,7 @@ type ProductOptionsFormProps = {
   variantCount: number;
   register: UseFormRegister<ProductFormData>;
   watch: UseFormWatch<ProductFormData>;
+  errors: FieldErrors<ProductFormData>;
 };
 
 /**
@@ -40,7 +41,42 @@ export const ProductOptionsForm: React.FC<ProductOptionsFormProps> = ({
   variantCount,
   register,
   watch,
+  errors,
 }) => {
+  const renderVariantGenerationArea = () => {
+    if (showVariantForm) return null;
+
+    // watchで現在のオプションの値を取得
+    const currentOptions = watch('options');
+    const hasValidOptions = currentOptions.some((opt) => opt.optionName && opt.values.length > 0);
+
+    if (!hasValidOptions) return null;
+
+    return (
+      <div className="mt-4 rounded-md border-2 border-blue-200 bg-blue-50 p-4">
+        <p className="mb-3 text-sm font-semibold text-gray-700">合計: {variantCount} 個のバリアント</p>
+
+        {status === 'draft' ? (
+          <div className="space-y-2">
+            <p className="text-sm text-gray-600">下書きの場合、バリアントは後で登録できます</p>
+            <div className="flex gap-2">
+              <Button type="button" onClick={onGenerateVariants} variant="primary">
+                続けてバリアントを登録する
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-orange-700">公開ステータスの場合、バリアントの登録が必要です</p>
+            <Button type="button" onClick={onGenerateVariants} variant="primary">
+              バリアントを作成する
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <FormSection title="商品オプション">
       {/* オプション有無の選択 */}
@@ -75,6 +111,11 @@ export const ProductOptionsForm: React.FC<ProductOptionsFormProps> = ({
               </Button>
             </div>
 
+            {/* バリデーションエラーメッセージ */}
+            {errors.options && Array.isArray(errors.options) && errors.options.length > 0 && (
+              <p className="mb-4 text-sm text-red-600">オプション名と値を入力してください</p>
+            )}
+
             {options.map((_option, optionIndex) => (
               <ProductOptionForm
                 key={optionIndex}
@@ -90,41 +131,12 @@ export const ProductOptionsForm: React.FC<ProductOptionsFormProps> = ({
             ))}
 
             {/* バリアント作成フロー */}
-            {options.length > 0 &&
-              !showVariantForm &&
-              (() => {
-                // watchで現在のオプションの値を取得
-                const currentOptions = watch('options');
-                const hasValidOptions = currentOptions.some((opt) => opt.optionName && opt.values.length > 0);
+            {options.length > 0 && renderVariantGenerationArea()}
 
-                if (!hasValidOptions) return null;
-
-                return (
-                  <div className="mt-4 rounded-md border-2 border-blue-200 bg-blue-50 p-4">
-                    <p className="mb-3 text-sm font-semibold text-gray-700">合計: {variantCount} 個のバリアント</p>
-
-                    {status === 'draft' ? (
-                      <div className="space-y-2">
-                        <p className="text-sm text-gray-600">下書きの場合、バリアントは後で登録できます</p>
-                        <div className="flex gap-2">
-                          <Button type="button" onClick={onGenerateVariants} variant="primary">
-                            続けてバリアントを登録する
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium text-orange-700">
-                          公開ステータスの場合、バリアントの登録が必要です
-                        </p>
-                        <Button type="button" onClick={onGenerateVariants} variant="primary">
-                          バリアントを作成する
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
+            {/* バリアント不足のエラーメッセージ */}
+            {errors.variants?.root?.message && (
+              <p className="mt-4 text-sm text-red-600">{errors.variants.root.message}</p>
+            )}
           </div>
         </div>
       )}

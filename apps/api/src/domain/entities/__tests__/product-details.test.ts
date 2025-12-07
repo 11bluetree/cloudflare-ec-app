@@ -209,7 +209,7 @@ describe('ProductDetails', () => {
   });
 
   describe('異常系', () => {
-    it('オプション定義があるがバリアントがない場合はエラー', () => {
+    it('公開状態でオプション定義があるがバリアントがない場合はエラー', () => {
       // Arrange
       const optionId = faker.string.alphanumeric(26);
       const option = ProductOption.create(optionId, productId, faker.commerce.productAdjective(), 1, now, now);
@@ -219,7 +219,7 @@ describe('ProductDetails', () => {
         faker.commerce.productName(),
         faker.commerce.productDescription(),
         categoryId,
-        'draft',
+        'published', // 公開状態に変更
         [option], // オプションあり
         now,
         now,
@@ -232,7 +232,7 @@ describe('ProductDetails', () => {
           [], // バリアントなし
           [],
         );
-      }).toThrow('オプションが定義されている商品には、最低1つのバリアントが必要です');
+      }).toThrow('公開状態の商品には、最低1つのバリアントが必要です'); // エラーメッセージ更新
     });
 
     it('バリアントがあるがオプション定義がない場合はエラー', () => {
