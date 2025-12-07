@@ -11,7 +11,7 @@
 | id | ULID | PRIMARY KEY | 画像ID |
 | product_id | ULID | FOREIGN KEY, NOT NULL | 商品ID |
 | product_variant_id | ULID | FOREIGN KEY, NULLABLE | バリアントID（バリアント専用画像の場合に指定） |
-| image_url | string(500) | NOT NULL | 画像URL（R2） |
+| image_key | string(500) | NOT NULL | 画像キー（R2のオブジェクトキー） |
 | display_order | integer | NOT NULL | 商品全体での表示順序（1〜100の通し番号） |
 | variant_display_order | integer | NULLABLE | バリアント内での表示順序（1〜2、バリアント専用画像の場合のみ） |
 | created_at | timestamp | NOT NULL | 作成日時 |
