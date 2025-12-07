@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, GripVertical } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { cn } from '../../../lib/utils';
 import {
@@ -81,6 +81,11 @@ const SortableImage = ({
       </div>
       {/* 画像番号 */}
       <div className="absolute left-2 top-2 rounded bg-black/70 px-2 py-1 text-xs text-white">{index + 1}</div>
+
+      {/* グリップアイコン */}
+      <div className="absolute right-2 top-2 rounded bg-black/30 p-1 text-white opacity-70 transition-opacity group-hover:opacity-100">
+        <GripVertical className="h-4 w-4" />
+      </div>
     </div>
   );
 };

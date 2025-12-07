@@ -15,6 +15,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
 import { Badge, Button, Input } from '../../ui';
 import type { ProductFormData } from '../../../lib/schemas/product-form';
 import type { UseFormRegister, UseFormWatch } from 'react-hook-form';
@@ -41,7 +42,8 @@ const SortableBadge = ({ id, value, onRemove }: { id: string; value: string; onR
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <Badge variant="secondary" className="cursor-move gap-2 pr-1">
+      <Badge variant="secondary" className="cursor-move gap-1 pr-1 pl-1.5 flex items-center">
+        <GripVertical className="mr-1 h-3 w-3 text-slate-400" />
         {value}
         <button
           type="button"
