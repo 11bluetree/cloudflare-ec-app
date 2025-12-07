@@ -30,7 +30,32 @@ export class CreateProductUseCase {
     const productId = ulid();
     const now = new Date();
 
-    // 3. オプション処理（指定された場合のみ生成）
+    // 3. 画像処理（指定された場合のみアップロード）
+    const uploadedImages: { id: string; url: string; displayOrder: number; variantId: string | null }[] = [];
+
+    if (request.images && request.images.length > 0) {
+      for (let i = 0; i < request.images.length; i++) {
+        const file = request.images[i];
+        const imageId = ulid();
+
+        // ファイル名を生成（画像ID + 拡張子）
+        const extension = file.name.split('.').pop() || 'jpg';
+        const filename = `${imageId}.${extension}`;
+
+        // R2にアップロード: products/{productId}/{filename}
+        const imagePath = `products/${productId}/${filename}`;
+        const imageUrl = await this.imageStorage.upload(file, imagePath);
+
+        uploadedImages.push({
+          id: imageId,
+          url: imageUrl,
+          displayOrder: i + 1,
+          variantId: null,
+        });
+      }
+    }
+
+    // 4. オプション処理（指定された場合のみ生成）
     const options: ProductOption[] = [];
     if (request.options && request.options.length > 0) {
       for (const optionData of request.options) {
@@ -41,7 +66,7 @@ export class CreateProductUseCase {
       }
     }
 
-    // 4. バリアント処理（指定された場合のみ生成）
+    // 5. バリアント処理（指定された場合のみ生成）
     const variants: ProductVariant[] = [];
     if (request.variants && request.variants.length > 0) {
       for (const variantData of request.variants) {
@@ -64,13 +89,21 @@ export class CreateProductUseCase {
           );
         }
 
+        // 画像の割り当て
+        if (
+          variantData.imageIndex !== undefined &&
+          variantData.imageIndex !== null &&
+          uploadedImages[variantData.imageIndex]
+        ) {
+          uploadedImages[variantData.imageIndex].variantId = variantId;
+        }
+
         // バリアントを構築
         const variant = ProductVariant.create(
           variantId,
           productId,
           variantData.sku,
           variantData.barcode ?? null,
-          variantData.imageUrl ?? null,
           Money.create(variantData.price),
           variantData.displayOrder,
           variantOptions,
@@ -82,7 +115,12 @@ export class CreateProductUseCase {
       }
     }
 
-    // 5. Productエンティティを構築
+    // ProductImageエンティティを作成
+    const images: ProductImage[] = uploadedImages.map((img) =>
+      ProductImage.create(img.id, productId, img.variantId, img.url, img.displayOrder, now, now),
+    );
+
+    // 6. Productエンティティを構築
     const product = Product.create(
       productId,
       request.name,
@@ -94,35 +132,7 @@ export class CreateProductUseCase {
       now,
     );
 
-    // 6. 画像処理（指定された場合のみアップロード）
-    const images: ProductImage[] = [];
-    if (request.images && request.images.length > 0) {
-      for (let i = 0; i < request.images.length; i++) {
-        const file = request.images[i];
-        const imageId = ulid();
-
-        // ファイル名を生成（画像ID + 拡張子）
-        const extension = file.name.split('.').pop() || 'jpg';
-        const filename = `${imageId}.${extension}`;
-
-        // R2にアップロード: products/{productId}/{filename}
-        const imagePath = `products/${productId}/${filename}`;
-        const imageUrl = await this.imageStorage.upload(file, imagePath);
-
-        // ProductImageエンティティを作成
-        images.push(
-          ProductImage.create(
-            imageId,
-            productId,
-            null, // productVariantId（商品全体の画像なのでnull）
-            imageUrl,
-            i + 1, // displayOrderは1から連番
-            now,
-            now,
-          ),
-        );
-      }
-    } // 7. ProductDetails集約ルートを構築（ビジネスルール検証）
+    // 7. ProductDetails集約ルートを構築（ビジネスルール検証）
     const productDetails = ProductDetails.create(product, variants, images);
 
     // 8. リポジトリで永続化

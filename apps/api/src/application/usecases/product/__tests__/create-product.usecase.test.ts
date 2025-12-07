@@ -440,4 +440,74 @@ describe('CreateProductUseCase', () => {
       expect(createdProductDetails.images[2].displayOrder).toBe(3);
     });
   });
+
+  describe('バリアント画像割り当て', () => {
+    it('バリアントにimageIndexを指定すると、対応するProductImageのproductVariantIdが設定される', async () => {
+      // Arrange
+      const optionName = 'カラー';
+      const request: CreateProductRequest = {
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        categoryId,
+        status: 'published',
+        options: [{ optionName, displayOrder: 1 }],
+        variants: [
+          {
+            sku: generateTestSKU(),
+            price: 1000,
+            barcode: undefined,
+            displayOrder: 1,
+            options: [{ optionName, optionValue: 'Red', displayOrder: 1 }],
+            imageIndex: 0, // 1枚目の画像を割り当て
+          },
+          {
+            sku: generateTestSKU(),
+            price: 1000,
+            barcode: undefined,
+            displayOrder: 2,
+            options: [{ optionName, optionValue: 'Blue', displayOrder: 2 }],
+            imageIndex: 1, // 2枚目の画像を割り当て
+          },
+          {
+            sku: generateTestSKU(),
+            price: 1000,
+            barcode: undefined,
+            displayOrder: 3,
+            options: [{ optionName, optionValue: 'Green', displayOrder: 3 }],
+            imageIndex: undefined, // 画像なし
+          },
+        ],
+        images: [
+          new File([new Uint8Array([1])], 'red.jpg', { type: 'image/jpeg' }),
+          new File([new Uint8Array([2])], 'blue.jpg', { type: 'image/jpeg' }),
+        ] as unknown as File[],
+      };
+
+      // Act
+      const result = await useCase.execute(request);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(mockProductRepository.create).toHaveBeenCalledOnce();
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const createdProductDetails = (mockProductRepository.create as any).mock.calls[0][0];
+      const variants = createdProductDetails.variants;
+      const images = createdProductDetails.images;
+
+      expect(variants).toHaveLength(3);
+      expect(images).toHaveLength(2);
+
+      // 画像1 (Red) は バリアント1 (Red) に紐付いていること
+      expect(images[0].productVariantId).toBe(variants[0].id);
+
+      // 画像2 (Blue) は バリアント2 (Blue) に紐付いていること
+      expect(images[1].productVariantId).toBe(variants[1].id);
+
+      // バリアント3 (Green) に紐付く画像はないこと（images配列に含まれる画像で確認）
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const greenVariantImage = images.find((img: any) => img.productVariantId === variants[2].id);
+      expect(greenVariantImage).toBeUndefined();
+    });
+  });
 });

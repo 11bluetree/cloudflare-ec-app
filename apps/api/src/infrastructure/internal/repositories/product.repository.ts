@@ -202,7 +202,6 @@ export class ProductRepository implements IProductRepository {
           row.productId,
           row.sku,
           row.barcode,
-          row.imageUrl,
           Money.create(row.price), // number → Money
           row.displayOrder,
           options,
@@ -281,7 +280,6 @@ export class ProductRepository implements IProductRepository {
           productId: product.id,
           sku: variant.sku,
           barcode: variant.barcode,
-          imageUrl: variant.imageUrl,
           price: variant.price.toNumber(),
           displayOrder: variant.displayOrder,
           createdAt: variant.createdAt,

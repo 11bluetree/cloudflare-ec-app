@@ -76,7 +76,6 @@ describe('ProductDetails', () => {
         productId,
         faker.string.alphanumeric(10),
         null,
-        null,
         Money.create(faker.number.int({ min: 100, max: 99999 })),
         1,
         [variantOption],
@@ -135,7 +134,6 @@ describe('ProductDetails', () => {
         productId,
         faker.string.alphanumeric(10),
         null,
-        null,
         Money.create(faker.number.int({ min: 100, max: 99999 })),
         1,
         [
@@ -159,7 +157,6 @@ describe('ProductDetails', () => {
         productId,
         faker.string.alphanumeric(10),
         null,
-        null,
         Money.create(faker.number.int({ min: 100, max: 99999 })),
         2,
         [
@@ -182,7 +179,6 @@ describe('ProductDetails', () => {
         variantLId,
         productId,
         faker.string.alphanumeric(10),
-        null,
         null,
         Money.create(faker.number.int({ min: 100, max: 99999 })),
         3,
@@ -268,7 +264,6 @@ describe('ProductDetails', () => {
         productId,
         faker.string.alphanumeric(10),
         null,
-        null,
         Money.create(faker.number.int({ min: 100, max: 99999 })),
         1,
         [variantOption],
@@ -319,7 +314,6 @@ describe('ProductDetails', () => {
         variantId,
         productId,
         faker.string.alphanumeric(10),
-        null,
         null,
         Money.create(faker.number.int({ min: 100, max: 99999 })),
         1,
@@ -382,7 +376,6 @@ describe('ProductDetails', () => {
         productId,
         duplicatedSku, // 重複するSKU
         null,
-        null,
         Money.create(1000),
         1,
         [ProductVariantOption.create(faker.string.alphanumeric(26), variant1Id, optionName, 'Small', 1, now, now)],
@@ -395,7 +388,6 @@ describe('ProductDetails', () => {
         variant2Id,
         productId,
         duplicatedSku, // 重複するSKU
-        null,
         null,
         Money.create(1200),
         2,
@@ -435,7 +427,6 @@ describe('ProductDetails', () => {
         productId,
         'SKU-001',
         duplicatedBarcode, // 重複するバーコード
-        null,
         Money.create(1000),
         1,
         [ProductVariantOption.create(faker.string.alphanumeric(26), variant1Id, optionName, 'Small', 1, now, now)],
@@ -449,7 +440,6 @@ describe('ProductDetails', () => {
         productId,
         'SKU-002',
         duplicatedBarcode, // 重複するバーコード
-        null,
         Money.create(1200),
         2,
         [ProductVariantOption.create(faker.string.alphanumeric(26), variant2Id, optionName, 'Medium', 1, now, now)],
@@ -486,7 +476,6 @@ describe('ProductDetails', () => {
         productId,
         'SKU-001',
         null, // バーコードなし
-        null,
         Money.create(1000),
         1,
         [ProductVariantOption.create(faker.string.alphanumeric(26), variant1Id, optionName, 'Small', 1, now, now)],
@@ -500,7 +489,6 @@ describe('ProductDetails', () => {
         productId,
         'SKU-002',
         null, // バーコードなし（重複しない）
-        null,
         Money.create(1200),
         2,
         [ProductVariantOption.create(faker.string.alphanumeric(26), variant2Id, optionName, 'Medium', 1, now, now)],

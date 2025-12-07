@@ -47,7 +47,6 @@ describe('ListProductsUseCase', () => {
       productId,
       faker.string.alphanumeric(10),
       null,
-      null,
       Money.create(faker.number.int({ min: 1000, max: 10000 })),
       0,
       [variantOption],

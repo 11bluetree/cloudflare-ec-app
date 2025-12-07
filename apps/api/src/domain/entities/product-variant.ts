@@ -3,7 +3,6 @@ import { SKUSchema, BarcodeSchema } from '@cloudflare-ec-app/types';
 import { Money } from '../value-objects/money';
 import { ProductVariantOption } from './product-variant-option';
 
-const MAX_IMAGE_URL_LENGTH = 500;
 const MIN_PRICE = 0;
 const MAX_PRICE = 1000000;
 const MIN_DISPLAY_ORDER = 0;
@@ -16,12 +15,6 @@ const productVariantSchema = z.object({
   productId: z.string(),
   sku: SKUSchema,
   barcode: BarcodeSchema.nullable(),
-  imageUrl: z
-    .string()
-    .max(MAX_IMAGE_URL_LENGTH, {
-      message: `画像URLは${MAX_IMAGE_URL_LENGTH}文字以内である必要があります`,
-    })
-    .nullable(),
   price: z.custom<Money>((val) => val instanceof Money && val.toNumber() >= MIN_PRICE && val.toNumber() < MAX_PRICE, {
     message: `価格は${MIN_PRICE}以上${MAX_PRICE}円未満である必要があります`,
   }),
@@ -51,7 +44,6 @@ export class ProductVariant {
     public readonly productId: string,
     public readonly sku: string,
     public readonly barcode: string | null,
-    public readonly imageUrl: string | null,
     public readonly price: Money,
     public readonly displayOrder: number,
     public readonly options: ProductVariantOption[],
@@ -64,7 +56,6 @@ export class ProductVariant {
     productId: string,
     sku: string,
     barcode: string | null,
-    imageUrl: string | null,
     price: Money,
     displayOrder: number,
     options: ProductVariantOption[],
@@ -76,7 +67,6 @@ export class ProductVariant {
       productId,
       sku,
       barcode,
-      imageUrl,
       price,
       displayOrder,
       options,
@@ -89,7 +79,6 @@ export class ProductVariant {
       validated.productId,
       validated.sku,
       validated.barcode,
-      validated.imageUrl,
       validated.price,
       validated.displayOrder,
       validated.options,

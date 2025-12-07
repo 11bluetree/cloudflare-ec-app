@@ -113,7 +113,6 @@ export async function createProductVariantFixture(
     id?: string;
     sku?: string;
     barcode?: string | null;
-    imageUrl?: string | null;
     price?: number;
     displayOrder?: number;
     createdAt?: Date;
@@ -128,7 +127,6 @@ export async function createProductVariantFixture(
     productId,
     sku: overrides.sku ?? faker.string.alphanumeric(12).toUpperCase(),
     barcode: overrides.barcode ?? null,
-    imageUrl: overrides.imageUrl ?? null,
     price: overrides.price ?? 1000,
     displayOrder: overrides.displayOrder ?? 1,
     createdAt: now,

@@ -6,7 +6,6 @@ import { Money } from '../../value-objects/money';
 
 const MAX_SKU_LENGTH = 50;
 const MAX_BARCODE_LENGTH = 30;
-const MAX_IMAGE_URL_LENGTH = 500;
 const MIN_PRICE = 0;
 const MAX_PRICE = 1000000;
 const MIN_DISPLAY_ORDER = 0;
@@ -20,7 +19,6 @@ describe('ProductVariant Entity', () => {
     productId: faker.string.uuid(),
     sku: faker.string.alphanumeric(10).toUpperCase(),
     barcode: faker.string.numeric(13),
-    imageUrl: faker.image.url(),
     price: Money.create(faker.number.int({ min: 100, max: 99999 })),
     displayOrder: faker.number.int({ min: 1, max: 50 }),
     options: [
@@ -46,7 +44,6 @@ describe('ProductVariant Entity', () => {
           validParams.productId,
           validParams.sku,
           validParams.barcode,
-          validParams.imageUrl,
           validParams.price,
           validParams.displayOrder,
           validParams.options,
@@ -56,13 +53,12 @@ describe('ProductVariant Entity', () => {
       }).not.toThrow();
     });
 
-    it('barcodeとimageUrlがnullでも作成できる', () => {
+    it('barcodeがnullでも作成できる', () => {
       expect(() => {
         ProductVariant.create(
           validParams.id,
           validParams.productId,
           validParams.sku,
-          null,
           null,
           validParams.price,
           validParams.displayOrder,
@@ -81,7 +77,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             '',
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
             validParams.options,
@@ -98,7 +93,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             '   ',
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
             validParams.options,
@@ -115,7 +109,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             '  SKU-001  ',
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
             validParams.options,
@@ -133,7 +126,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             sku,
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
             validParams.options,
@@ -151,7 +143,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             sku,
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
             validParams.options,
@@ -170,7 +161,6 @@ describe('ProductVariant Entity', () => {
               validParams.productId,
               sku,
               validParams.barcode,
-              validParams.imageUrl,
               validParams.price,
               validParams.displayOrder,
               validParams.options,
@@ -190,7 +180,6 @@ describe('ProductVariant Entity', () => {
               validParams.productId,
               sku,
               validParams.barcode,
-              validParams.imageUrl,
               validParams.price,
               validParams.displayOrder,
               validParams.options,
@@ -211,7 +200,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             barcode,
-            validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
             validParams.options,
@@ -229,7 +217,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             barcode,
-            validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
             validParams.options,
@@ -248,7 +235,6 @@ describe('ProductVariant Entity', () => {
               validParams.productId,
               validParams.sku,
               barcode,
-              validParams.imageUrl,
               validParams.price,
               validParams.displayOrder,
               validParams.options,
@@ -268,7 +254,6 @@ describe('ProductVariant Entity', () => {
               validParams.productId,
               validParams.sku,
               barcode,
-              validParams.imageUrl,
               validParams.price,
               validParams.displayOrder,
               validParams.options,
@@ -288,7 +273,6 @@ describe('ProductVariant Entity', () => {
               validParams.productId,
               validParams.sku,
               barcode,
-              validParams.imageUrl,
               validParams.price,
               validParams.displayOrder,
               validParams.options,
@@ -297,46 +281,6 @@ describe('ProductVariant Entity', () => {
             );
           }).toThrow('バーコードはJAN/CODE39形式（英数字、ハイフン、ドット、$、/、+、%、スペース）のみ使用できます');
         });
-      });
-    });
-
-    describe('imageUrl validation', () => {
-      it('最大文字数の場合は成功', () => {
-        const baseUrl = 'https://example.com/';
-        const imageUrl = baseUrl + 'a'.repeat(MAX_IMAGE_URL_LENGTH - baseUrl.length);
-        expect(() => {
-          ProductVariant.create(
-            validParams.id,
-            validParams.productId,
-            validParams.sku,
-            validParams.barcode,
-            imageUrl,
-            validParams.price,
-            validParams.displayOrder,
-            validParams.options,
-            validParams.createdAt,
-            validParams.updatedAt,
-          );
-        }).not.toThrow();
-      });
-
-      it('最大文字数を超えた場合はエラー', () => {
-        const baseUrl = 'https://example.com/';
-        const imageUrl = baseUrl + 'a'.repeat(MAX_IMAGE_URL_LENGTH - baseUrl.length + 1);
-        expect(() => {
-          ProductVariant.create(
-            validParams.id,
-            validParams.productId,
-            validParams.sku,
-            validParams.barcode,
-            imageUrl,
-            validParams.price,
-            validParams.displayOrder,
-            validParams.options,
-            validParams.createdAt,
-            validParams.updatedAt,
-          );
-        }).toThrow('画像URLは500文字以内である必要があります');
       });
     });
 
@@ -349,7 +293,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             validParams.barcode,
-            validParams.imageUrl,
             price,
             validParams.displayOrder,
             validParams.options,
@@ -367,7 +310,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             validParams.barcode,
-            validParams.imageUrl,
             price,
             validParams.displayOrder,
             validParams.options,
@@ -385,7 +327,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             validParams.barcode,
-            validParams.imageUrl,
             price,
             validParams.displayOrder,
             validParams.options,
@@ -410,7 +351,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             MIN_DISPLAY_ORDER,
             validParams.options,
@@ -427,7 +367,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             MAX_DISPLAY_ORDER,
             validParams.options,
@@ -444,7 +383,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             MIN_DISPLAY_ORDER - 1,
             validParams.options,
@@ -461,7 +399,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             MAX_DISPLAY_ORDER + 1,
             validParams.options,
@@ -480,7 +417,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
             [],
@@ -508,7 +444,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
             options,
@@ -536,7 +471,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
             options,
@@ -564,7 +498,6 @@ describe('ProductVariant Entity', () => {
             validParams.productId,
             validParams.sku,
             validParams.barcode,
-            validParams.imageUrl,
             validParams.price,
             validParams.displayOrder,
             options,
