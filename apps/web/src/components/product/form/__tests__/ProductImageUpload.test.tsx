@@ -295,42 +295,69 @@ describe('ProductImageUpload', () => {
 
   describe('並び替え', () => {
     it('画像の順序を変更できる', async () => {
-      const files = [
-        createMockFile('test1.jpg', 1024 * 1024, 'image/jpeg'),
-        createMockFile('test2.png', 1024 * 1024, 'image/png'),
-        createMockFile('test3.webp', 1024 * 1024, 'image/webp'),
-      ];
-      render(<ProductImageUpload {...defaultProps} images={files} />);
-
-      // 2番目の画像を1番目に移動
-      const moveUpButtons = screen.getAllByLabelText(/上へ移動/i);
-      fireEvent.click(moveUpButtons[1]);
-
-      await waitFor(() => {
-        expect(mockOnChange).toHaveBeenCalledWith([files[1], files[0], files[2]]);
+      // JSDOM環境ではレイアウト計算が行われないため、getBoundingClientRectをモックする
+      const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+      HTMLElement.prototype.getBoundingClientRect = vi.fn(function (this: HTMLElement) {
+        if (this.classList.contains('group') && this.getAttribute('role') === 'button') {
+          const parent = this.parentElement;
+          if (parent) {
+            const index = Array.from(parent.children).indexOf(this);
+            return {
+              width: 100,
+              height: 100,
+              top: 0,
+              left: index * 100,
+              bottom: 100,
+              right: (index + 1) * 100,
+              x: index * 100,
+              y: 0,
+              toJSON: () => {},
+            };
+          }
+        }
+        return {
+          width: 0,
+          height: 0,
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          x: 0,
+          y: 0,
+          toJSON: () => {},
+        };
       });
-    });
 
-    it('最初の画像は上に移動できない', () => {
-      const files = [
-        createMockFile('test1.jpg', 1024 * 1024, 'image/jpeg'),
-        createMockFile('test2.png', 1024 * 1024, 'image/png'),
-      ];
-      render(<ProductImageUpload {...defaultProps} images={files} />);
+      try {
+        const files = [
+          createMockFile('test1.jpg', 1024 * 1024, 'image/jpeg'),
+          createMockFile('test2.png', 1024 * 1024, 'image/png'),
+          createMockFile('test3.webp', 1024 * 1024, 'image/webp'),
+        ];
+        render(<ProductImageUpload {...defaultProps} images={files} />);
 
-      const moveUpButtons = screen.getAllByLabelText(/上へ移動/i);
-      expect(moveUpButtons[0]).toBeDisabled();
-    });
+        const image2 = screen.getByAltText('test2.png').closest('div[role="button"]');
+        if (!image2) throw new Error('Sortable item not found');
 
-    it('最後の画像は下に移動できない', () => {
-      const files = [
-        createMockFile('test1.jpg', 1024 * 1024, 'image/jpeg'),
-        createMockFile('test2.png', 1024 * 1024, 'image/png'),
-      ];
-      render(<ProductImageUpload {...defaultProps} images={files} />);
+        (image2 as HTMLElement).focus();
 
-      const moveDownButtons = screen.getAllByLabelText(/下へ移動/i);
-      expect(moveDownButtons[1]).toBeDisabled();
+        // Spaceキーで持ち上げる
+        fireEvent.keyDown(image2, { code: 'Space', key: ' ' });
+        await new Promise((r) => setTimeout(r, 100));
+
+        // 左矢印キーで移動
+        fireEvent.keyDown(image2, { code: 'ArrowLeft', key: 'ArrowLeft' });
+        await new Promise((r) => setTimeout(r, 100));
+
+        // Spaceキーでドロップ
+        fireEvent.keyDown(image2, { code: 'Space', key: ' ' });
+
+        await waitFor(() => {
+          expect(mockOnChange).toHaveBeenCalledWith([files[1], files[0], files[2]]);
+        });
+      } finally {
+        HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+      }
     });
   });
 
