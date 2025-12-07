@@ -175,7 +175,6 @@ async function seed() {
       productId: product1Id,
       sku: 'BASIC-TSH-001',
       barcode: '4901234567890',
-      imageUrl: 'https://placehold.co/600x600/e3e3e3/333333?text=Basic+T-Shirt',
       price: 2980,
       displayOrder: 1,
     };
@@ -303,7 +302,6 @@ async function seed() {
         productId: product2Id,
         sku: config.sku,
         barcode: config.barcode,
-        imageUrl: `https://placehold.co/600x600/4a90e2/ffffff?text=Premium+${config.size}`,
         price: config.price,
         displayOrder: i + 1,
       };
@@ -507,7 +505,6 @@ async function seed() {
             productId: product3Id,
             sku: `CUSTOM-TSH-${colorSkuCodes[color]}-${size}-${textureSkuCodes[texture]}-${variantCounter.toString().padStart(3, '0')}`,
             barcode: barcodeNum.toString(),
-            imageUrl: `https://placehold.co/600x600/${colorCode}/${textColor}?text=${color}+${size}+${texture}`,
             price: 5980,
             displayOrder: variantCounter,
           };
