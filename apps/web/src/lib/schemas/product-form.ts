@@ -62,6 +62,7 @@ const variantSchema = z.object({
           ),
       ]),
     ),
+  imageIndex: z.number().int().min(0).max(9).optional(),
   options: z.array(variantOptionSchema),
   displayOrder: z.number(),
 });

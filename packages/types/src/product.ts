@@ -102,6 +102,7 @@ const CreateProductVariantSchema = z.object({
   sku: SKUBrandSchema,
   barcode: OptionalBarcodeSchema,
   imageUrl: z.string().url().max(500).nullable().optional(),
+  imageIndex: z.number().int().min(0).max(9).nullable().optional(),
   price: z.number().int().min(0).max(999999),
   displayOrder: z.number().int().min(1).default(1),
   options: z.array(CreateProductVariantOptionSchema).min(1),

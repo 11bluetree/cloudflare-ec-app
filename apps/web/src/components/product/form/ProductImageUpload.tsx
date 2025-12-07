@@ -1,7 +1,24 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { Upload, X, ChevronUp, ChevronDown } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { cn } from '../../../lib/utils';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface ProductImageUploadProps {
   images: File[];
@@ -15,9 +32,58 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const ALLOWED_MIME_TYPES = 'image/jpeg,image/png,image/webp,image/gif';
 
 interface ImagePreview {
+  id: string;
   file: File;
   url: string;
 }
+
+// Sortable Image Component
+const SortableImage = ({
+  id,
+  preview,
+  index,
+  onRemove,
+}: {
+  id: string;
+  preview: ImagePreview;
+  index: number;
+  onRemove: () => void;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="group relative aspect-square cursor-move overflow-hidden rounded-lg border"
+    >
+      <img src={preview.url} alt={preview.file.name} className="h-full w-full object-cover" />
+      {/* 画像操作ボタン */}
+      <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+        <Button
+          type="button"
+          size="sm"
+          variant="destructive"
+          onPointerDown={(e) => e.stopPropagation()} // Prevent drag start
+          onClick={onRemove}
+          aria-label="削除"
+          className="h-8 w-8 p-0"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+      {/* 画像番号 */}
+      <div className="absolute left-2 top-2 rounded bg-black/70 px-2 py-1 text-xs text-white">{index + 1}</div>
+    </div>
+  );
+};
 
 export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({ images, onChange }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -32,6 +98,7 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({ images, 
 
     // 新しいプレビューを作成
     const newPreviews = images.map((file) => ({
+      id: `${file.name}-${file.size}-${file.lastModified}`,
       file,
       url: URL.createObjectURL(file),
     }));
@@ -128,20 +195,23 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({ images, 
     onChange(newImages);
   };
 
-  // 並び替え（上へ）
-  const handleMoveUp = (index: number) => {
-    if (index === 0) return;
-    const newImages = [...images];
-    [newImages[index - 1], newImages[index]] = [newImages[index], newImages[index - 1]];
-    onChange(newImages);
-  };
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
-  // 並び替え（下へ）
-  const handleMoveDown = (index: number) => {
-    if (index === images.length - 1) return;
-    const newImages = [...images];
-    [newImages[index], newImages[index + 1]] = [newImages[index + 1], newImages[index]];
-    onChange(newImages);
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = previews.findIndex((p) => p.id === active.id);
+      const newIndex = previews.findIndex((p) => p.id === over.id);
+
+      const newImages = arrayMove(images, oldIndex, newIndex);
+      onChange(newImages);
+    }
   };
 
   return (
@@ -185,50 +255,21 @@ export const ProductImageUpload: React.FC<ProductImageUploadProps> = ({ images, 
 
       {/* プレビュー */}
       {previews.length > 0 && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {previews.map((preview, index) => (
-            <div key={index} className="group relative aspect-square overflow-hidden rounded-lg border">
-              <img src={preview.url} alt={preview.file.name} className="h-full w-full object-cover" />
-              {/* 画像操作ボタン */}
-              <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleMoveUp(index)}
-                  disabled={index === 0}
-                  aria-label="上へ移動"
-                  className="h-8 w-8 p-0 text-white hover:bg-white/20"
-                >
-                  <ChevronUp className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleMoveDown(index)}
-                  disabled={index === images.length - 1}
-                  aria-label="下へ移動"
-                  className="h-8 w-8 p-0 text-white hover:bg-white/20"
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => handleRemove(index)}
-                  aria-label="削除"
-                  className="h-8 w-8 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              {/* 画像番号 */}
-              <div className="absolute left-2 top-2 rounded bg-black/70 px-2 py-1 text-xs text-white">{index + 1}</div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={previews.map((p) => p.id)} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {previews.map((preview, index) => (
+                <SortableImage
+                  key={preview.id}
+                  id={preview.id}
+                  preview={preview}
+                  index={index}
+                  onRemove={() => handleRemove(index)}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
     </div>
   );

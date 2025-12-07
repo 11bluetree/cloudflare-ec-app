@@ -12,6 +12,7 @@ type ProductOptionsFormProps = {
   onAddOptionValue: (optionIndex: number, value: string) => void;
   onRemoveOptionValue: (optionIndex: number, valueIndex: number) => void;
   onOptionNameChange: (index: number, name: string) => void;
+  onReorderOptionValues: (optionIndex: number, newValues: { value: string; displayOrder: number }[]) => void;
   onGenerateVariants: () => void;
   showVariantForm: boolean;
   status: 'draft' | 'published';
@@ -32,6 +33,7 @@ export const ProductOptionsForm: React.FC<ProductOptionsFormProps> = ({
   onAddOptionValue,
   onRemoveOptionValue,
   onOptionNameChange,
+  onReorderOptionValues,
   onGenerateVariants,
   showVariantForm,
   status,
@@ -81,6 +83,7 @@ export const ProductOptionsForm: React.FC<ProductOptionsFormProps> = ({
                 onAddValue={onAddOptionValue}
                 onRemoveValue={onRemoveOptionValue}
                 onOptionNameChange={onOptionNameChange}
+                onReorderValues={onReorderOptionValues}
                 register={register}
                 watch={watch}
               />

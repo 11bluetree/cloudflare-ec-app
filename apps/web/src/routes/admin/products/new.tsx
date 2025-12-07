@@ -41,6 +41,7 @@ function ProductNewPage() {
     handleRemoveOptionValue,
     handleApplyBulkPrice,
     handleOptionNameChange,
+    handleReorderOptionValues,
   } = useProductForm();
 
   const {
@@ -111,6 +112,7 @@ function ProductNewPage() {
         sku: variant.sku,
         barcode: variant.barcode || undefined,
         imageUrl: null,
+        imageIndex: variant.imageIndex,
         price: variant.price,
         displayOrder: variant.displayOrder,
         options: variant.options.map((opt) => ({
@@ -174,6 +176,7 @@ function ProductNewPage() {
             onAddOptionValue={handleAddOptionValue}
             onRemoveOptionValue={handleRemoveOptionValue}
             onOptionNameChange={handleOptionNameChange}
+            onReorderOptionValues={handleReorderOptionValues}
             onGenerateVariants={handleGenerateVariants}
             showVariantForm={showVariantForm}
             status={status}
@@ -194,6 +197,9 @@ function ProductNewPage() {
               bulkPrice={bulkPrice}
               onBulkPriceChange={setBulkPrice}
               onApplyBulkPrice={handleApplyBulkPrice}
+              images={images}
+              setValue={setValue}
+              watch={watch}
             />
           )}
         </FormSection>

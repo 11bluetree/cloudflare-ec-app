@@ -220,6 +220,20 @@ export const useProductForm = () => {
     toast.success('全バリアントに価格を適用しました');
   };
 
+  // オプション値の並び替え
+  const handleReorderOptionValues = (optionIndex: number, newValues: { value: string; displayOrder: number }[]) => {
+    form.setValue(`options.${optionIndex}.values`, newValues);
+
+    // バリアントが既に生成されている場合は再生成
+    if (showVariantForm) {
+      const options = form.watch('options');
+      const basePrice = bulkPrice ? parseInt(bulkPrice, 10) : 0;
+      const newVariants = generateVariants(options, basePrice);
+      replaceVariants(newVariants);
+      toast.success('バリアントを再生成しました');
+    }
+  };
+
   return {
     form,
     hasOptions,
@@ -238,5 +252,6 @@ export const useProductForm = () => {
     handleRemoveOptionValue,
     handleApplyBulkPrice,
     handleOptionNameChange,
+    handleReorderOptionValues,
   };
 };
