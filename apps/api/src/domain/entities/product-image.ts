@@ -7,6 +7,7 @@ const productImageSchema = z.object({
   id: z.string(),
   productId: z.string().min(1, { message: 'product_idは必須です' }),
   productVariantId: z.string().nullable(),
+  imageKey: z.string().min(1, { message: '画像キーは必須です' }),
   imageUrl: z
     .string()
     .min(1, { message: `画像URLは1文字以上${MAX_IMAGE_URL_LENGTH}文字以内である必要があります` })
@@ -26,6 +27,7 @@ export class ProductImage {
     public readonly id: string,
     public readonly productId: string,
     public readonly productVariantId: string | null,
+    public readonly imageKey: string,
     public readonly imageUrl: string,
     public readonly displayOrder: number,
     public readonly createdAt: Date,
@@ -36,6 +38,7 @@ export class ProductImage {
     id: string,
     productId: string,
     productVariantId: string | null,
+    imageKey: string,
     imageUrl: string,
     displayOrder: number,
     createdAt: Date,
@@ -45,6 +48,7 @@ export class ProductImage {
       id,
       productId,
       productVariantId,
+      imageKey,
       imageUrl,
       displayOrder,
       createdAt,
@@ -55,6 +59,7 @@ export class ProductImage {
       validated.id,
       validated.productId,
       validated.productVariantId,
+      validated.imageKey,
       validated.imageUrl,
       validated.displayOrder,
       validated.createdAt,

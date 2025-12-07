@@ -52,6 +52,7 @@ describe('AdminProductListItem', () => {
       faker.string.uuid(),
       productId,
       null,
+      faker.system.fileName(),
       faker.image.url(),
       displayOrder,
       faker.date.past(),

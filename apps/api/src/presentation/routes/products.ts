@@ -33,7 +33,7 @@ const product = new Hono<{ Bindings: Bindings }>()
     const d1Database = c.env.DB;
     const db = createDbConnection(d1Database);
 
-    const productRepository = new ProductRepository(db);
+    const productRepository = new ProductRepository(db, c.env.R2_PUBLIC_URL);
     const categoryRepository = new CategoryRepository(db);
 
     const listProductsUseCase = new ListProductsUseCase(productRepository, categoryRepository);
@@ -97,7 +97,7 @@ const product = new Hono<{ Bindings: Bindings }>()
     const d1Database = c.env.DB;
     const db = createDbConnection(d1Database);
 
-    const productRepository = new ProductRepository(db);
+    const productRepository = new ProductRepository(db, c.env.R2_PUBLIC_URL);
     const categoryRepository = new CategoryRepository(db);
 
     // R2ImageStorageの初期化

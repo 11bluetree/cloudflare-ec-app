@@ -6,6 +6,7 @@ import adminProducts from './presentation/routes/admin-products';
 type Bindings = {
   ALLOWED_ORIGINS?: string;
   DB: D1Database;
+  PRODUCT_IMAGES: R2Bucket;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();

@@ -180,7 +180,7 @@ export async function createProductImageFixture(
   overrides: {
     id?: string;
     productVariantId?: string | null;
-    imageUrl?: string;
+    imageKey?: string;
     displayOrder?: number;
     createdAt?: Date;
     updatedAt?: Date;
@@ -191,7 +191,7 @@ export async function createProductImageFixture(
     id: overrides.id ?? faker.string.alphanumeric(26),
     productId,
     productVariantId: overrides.productVariantId ?? null,
-    imageUrl: overrides.imageUrl ?? faker.image.url(),
+    imageKey: overrides.imageKey ?? faker.system.fileName(),
     displayOrder: overrides.displayOrder ?? 1,
     createdAt: now,
     updatedAt: overrides.updatedAt ?? now,

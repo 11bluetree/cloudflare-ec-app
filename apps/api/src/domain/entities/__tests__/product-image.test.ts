@@ -7,6 +7,7 @@ describe('ProductImage Entity', () => {
     id: faker.string.uuid(),
     productId: faker.string.uuid(),
     productVariantId: faker.string.uuid(),
+    imageKey: 'path/to/image.jpg',
     imageUrl: faker.image.url(),
     displayOrder: faker.number.int({ min: 1, max: 10 }),
     createdAt: new Date(),
@@ -19,6 +20,7 @@ describe('ProductImage Entity', () => {
         validParams.id,
         validParams.productId,
         validParams.productVariantId,
+        validParams.imageKey,
         validParams.imageUrl,
         validParams.displayOrder,
         validParams.createdAt,
@@ -28,6 +30,7 @@ describe('ProductImage Entity', () => {
       expect(image.id).toBe(validParams.id);
       expect(image.productId).toBe(validParams.productId);
       expect(image.productVariantId).toBe(validParams.productVariantId);
+      expect(image.imageKey).toBe(validParams.imageKey);
       expect(image.imageUrl).toBe(validParams.imageUrl);
       expect(image.displayOrder).toBe(validParams.displayOrder);
     });
@@ -37,6 +40,7 @@ describe('ProductImage Entity', () => {
         validParams.id,
         validParams.productId,
         null,
+        validParams.imageKey,
         validParams.imageUrl,
         validParams.displayOrder,
         validParams.createdAt,
@@ -53,6 +57,7 @@ describe('ProductImage Entity', () => {
             validParams.id,
             '',
             validParams.productVariantId,
+            validParams.imageKey,
             validParams.imageUrl,
             validParams.displayOrder,
             validParams.createdAt,
@@ -69,6 +74,7 @@ describe('ProductImage Entity', () => {
             validParams.id,
             validParams.productId,
             validParams.productVariantId,
+            validParams.imageKey,
             '',
             validParams.displayOrder,
             validParams.createdAt,
@@ -83,6 +89,7 @@ describe('ProductImage Entity', () => {
           validParams.id,
           validParams.productId,
           validParams.productVariantId,
+          validParams.imageKey,
           imageUrl,
           validParams.displayOrder,
           validParams.createdAt,
@@ -98,6 +105,7 @@ describe('ProductImage Entity', () => {
             validParams.id,
             validParams.productId,
             validParams.productVariantId,
+            validParams.imageKey,
             imageUrl,
             validParams.displayOrder,
             validParams.createdAt,
@@ -113,6 +121,7 @@ describe('ProductImage Entity', () => {
           validParams.id,
           validParams.productId,
           validParams.productVariantId,
+          validParams.imageKey,
           validParams.imageUrl,
           1,
           validParams.createdAt,
@@ -127,6 +136,7 @@ describe('ProductImage Entity', () => {
             validParams.id,
             validParams.productId,
             validParams.productVariantId,
+            validParams.imageKey,
             validParams.imageUrl,
             0,
             validParams.createdAt,
@@ -141,6 +151,7 @@ describe('ProductImage Entity', () => {
             validParams.id,
             validParams.productId,
             validParams.productVariantId,
+            validParams.imageKey,
             validParams.imageUrl,
             -1,
             validParams.createdAt,

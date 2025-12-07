@@ -211,7 +211,7 @@ async function seed() {
     const image1Data: InsertProductImage = {
       productId: product1Id,
       productVariantId: variant1Id,
-      imageUrl: 'https://placehold.co/800x800/e3e3e3/333333?text=Basic+T-Shirt+Front',
+      imageKey: `products/${product1Id}/${image1Id}.jpg`,
       displayOrder: 1,
     };
 
@@ -338,7 +338,7 @@ async function seed() {
       const imageData: InsertProductImage = {
         productId: product2Id,
         productVariantId: variantId,
-        imageUrl: `https://placehold.co/800x800/4a90e2/ffffff?text=Premium+${config.size}+Front`,
+        imageKey: `products/${product2Id}/${imageId}.jpg`,
         displayOrder: 1,
       };
 
@@ -485,7 +485,6 @@ async function seed() {
     }
 
     // 商品3のバリアント（色×サイズ×質感の組み合わせ = 3×2×2 = 12種類）
-    const colorCodes: Record<string, string> = { 白: 'ffffff', 黒: '000000', グレー: '808080' };
     const colorSkuCodes: Record<string, string> = { 白: 'WH', 黒: 'BK', グレー: 'GR' };
     const textureSkuCodes: Record<string, string> = { スムース: 'SM', ラフ: 'RF' };
     let variantCounter = 0;
@@ -495,8 +494,6 @@ async function seed() {
         for (const texture of textureValues) {
           variantCounter++;
           const variantId = ulid();
-          const colorCode = colorCodes[color];
-          const textColor = color === '白' ? '333333' : 'ffffff';
 
           // バーコードは13桁のJAN形式で生成（チェックディジットなしの簡易版）
           const barcodeNum = 4901234560000 + variantCounter;
@@ -559,7 +556,7 @@ async function seed() {
           const imageData: InsertProductImage = {
             productId: product3Id,
             productVariantId: variantId,
-            imageUrl: `https://placehold.co/800x800/${colorCode}/${textColor}?text=${color}+${size}+${texture}+Front`,
+            imageKey: `products/${product3Id}/${imageId}.jpg`,
             displayOrder: 1,
           };
 

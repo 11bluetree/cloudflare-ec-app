@@ -31,7 +31,8 @@ export class CreateProductUseCase {
     const now = new Date();
 
     // 3. 画像処理（指定された場合のみアップロード）
-    const uploadedImages: { id: string; url: string; displayOrder: number; variantId: string | null }[] = [];
+    const uploadedImages: { id: string; key: string; url: string; displayOrder: number; variantId: string | null }[] =
+      [];
 
     if (request.images && request.images.length > 0) {
       for (let i = 0; i < request.images.length; i++) {
@@ -48,6 +49,7 @@ export class CreateProductUseCase {
 
         uploadedImages.push({
           id: imageId,
+          key: imagePath,
           url: imageUrl,
           displayOrder: i + 1,
           variantId: null,
@@ -117,7 +119,7 @@ export class CreateProductUseCase {
 
     // ProductImageエンティティを作成
     const images: ProductImage[] = uploadedImages.map((img) =>
-      ProductImage.create(img.id, productId, img.variantId, img.url, img.displayOrder, now, now),
+      ProductImage.create(img.id, productId, img.variantId, img.key, img.url, img.displayOrder, now, now),
     );
 
     // 6. Productエンティティを構築

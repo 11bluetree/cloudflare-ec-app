@@ -16,7 +16,10 @@ import type { DrizzleDB } from '../db/connection';
  * 商品リポジトリ実装（Drizzle ORM + Cloudflare D1）
  */
 export class ProductRepository implements IProductRepository {
-  constructor(private readonly db: DrizzleDB) {}
+  constructor(
+    private readonly db: DrizzleDB,
+    private readonly imageBaseUrl: string,
+  ) {}
 
   async findMany(query: ProductListQuery): Promise<{
     products: ProductAggregate[];
@@ -168,17 +171,24 @@ export class ProductRepository implements IProductRepository {
       .where(eq(productImages.productId, productId))
       .orderBy(productImages.displayOrder);
 
-    return rows.map((row) =>
-      ProductImage.create(
+    return rows.map((row) => {
+      // URL生成ロジック: ベースURLとキーを結合
+      // 末尾のスラッシュ処理などは簡易的に実装
+      const baseUrl = this.imageBaseUrl.endsWith('/') ? this.imageBaseUrl.slice(0, -1) : this.imageBaseUrl;
+      const key = row.imageKey.startsWith('/') ? row.imageKey.slice(1) : row.imageKey;
+      const imageUrl = `${baseUrl}/${key}`;
+
+      return ProductImage.create(
         row.id,
         row.productId,
         row.productVariantId,
-        row.imageUrl,
+        row.imageKey,
+        imageUrl,
         row.displayOrder,
         row.createdAt,
         row.updatedAt,
-      ),
-    );
+      );
+    });
   }
 
   /**
@@ -312,7 +322,7 @@ export class ProductRepository implements IProductRepository {
           id: image.id,
           productId: image.productId,
           productVariantId: image.productVariantId,
-          imageUrl: image.imageUrl,
+          imageKey: image.imageKey,
           displayOrder: image.displayOrder,
           createdAt: image.createdAt,
           updatedAt: image.updatedAt,

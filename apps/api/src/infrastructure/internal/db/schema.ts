@@ -198,14 +198,14 @@ export const productImages = sqliteTable('product_images', {
     .notNull()
     .references(() => products.id, { onDelete: 'cascade' }),
   productVariantId: text('product_variant_id').references(() => productVariants.id, { onDelete: 'cascade' }),
-  imageUrl: text('image_url', { length: 500 }).notNull(),
+  imageKey: text('image_key', { length: 500 }).notNull(),
   displayOrder: integer('display_order').notNull(),
   variantDisplayOrder: integer('variant_display_order'),
   ...timestamps,
 });
 
 export const insertProductImageSchema = createInsertSchema(productImages, {
-  imageUrl: (schema) => schema.min(1).max(500).url(),
+  imageKey: (schema) => schema.min(1).max(500),
   displayOrder: (schema) => schema.min(1).max(100),
   variantDisplayOrder: (schema) => schema.min(1).max(1).optional(), // 現在は1枚のみ、将来2枚まで拡張予定
 }).omit({ id: true, createdAt: true, updatedAt: true });

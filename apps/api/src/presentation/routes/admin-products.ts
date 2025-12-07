@@ -9,6 +9,7 @@ import { createDbConnection } from '../../infrastructure/internal/db/connection'
 type Bindings = {
   ALLOWED_ORIGINS?: string;
   DB: D1Database;
+  R2_PUBLIC_URL: string;
 };
 
 const adminProducts = new Hono<{ Bindings: Bindings }>();
@@ -25,7 +26,7 @@ adminProducts
     const d1Database = c.env.DB;
     const db = createDbConnection(d1Database);
 
-    const productRepository = new ProductRepository(db);
+    const productRepository = new ProductRepository(db, c.env.R2_PUBLIC_URL);
     const categoryRepository = new CategoryRepository(db);
 
     const listAdminProductsUseCase = new ListAdminProductsUseCase(productRepository, categoryRepository);

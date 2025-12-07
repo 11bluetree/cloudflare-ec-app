@@ -39,7 +39,7 @@ describe('ProductRepository', () => {
     // すべてのテーブルをクリーンアップ
     await cleanupAllTables(db);
 
-    repository = new ProductRepository(db);
+    repository = new ProductRepository(db, 'https://assets.example.com');
   });
 
   /**
@@ -585,12 +585,12 @@ describe('ProductRepository', () => {
       // 商品画像を作成（商品全体の画像とバリアント専用の画像）
       await createProductImageFixture(db, productData.id, {
         productVariantId: null,
-        imageUrl: 'https://example.com/product-main.jpg',
+        imageKey: 'product-main.jpg',
         displayOrder: 1,
       });
       await createProductImageFixture(db, productData.id, {
         productVariantId: variant.id,
-        imageUrl: 'https://example.com/variant-detail.jpg',
+        imageKey: 'variant-detail.jpg',
         displayOrder: 2,
       });
 
@@ -607,9 +607,9 @@ describe('ProductRepository', () => {
       const product = result.products[0];
 
       expect(product.images).toHaveLength(2);
-      expect(product.images[0].imageUrl).toBe('https://example.com/product-main.jpg');
+      expect(product.images[0].imageUrl).toBe('https://assets.example.com/product-main.jpg');
       expect(product.images[0].productVariantId).toBeNull();
-      expect(product.images[1].imageUrl).toBe('https://example.com/variant-detail.jpg');
+      expect(product.images[1].imageUrl).toBe('https://assets.example.com/variant-detail.jpg');
       expect(product.images[1].productVariantId).toBe(variant.id);
     });
   });
@@ -944,6 +944,7 @@ describe('ProductRepository', () => {
           imageId1,
           productId,
           null,
+          `products/${productId}/image-1.jpg`,
           `https://example.com/products/${productId}/image-1.jpg`,
           1,
           now,
@@ -953,6 +954,7 @@ describe('ProductRepository', () => {
           imageId2,
           productId,
           null,
+          `products/${productId}/image-2.jpg`,
           `https://example.com/products/${productId}/image-2.jpg`,
           2,
           now,
@@ -962,6 +964,7 @@ describe('ProductRepository', () => {
           imageId3,
           productId,
           null,
+          `products/${productId}/image-3.jpg`,
           `https://example.com/products/${productId}/image-3.jpg`,
           3,
           now,
@@ -986,14 +989,14 @@ describe('ProductRepository', () => {
         .orderBy(productImages.displayOrder);
 
       expect(savedImages).toHaveLength(3);
-      expect(savedImages[0].imageUrl).toBe(`https://example.com/products/${productId}/image-1.jpg`);
+      expect(savedImages[0].imageKey).toBe(`products/${productId}/image-1.jpg`);
       expect(savedImages[0].displayOrder).toBe(1);
       expect(savedImages[0].productVariantId).toBeNull();
 
-      expect(savedImages[1].imageUrl).toBe(`https://example.com/products/${productId}/image-2.jpg`);
+      expect(savedImages[1].imageKey).toBe(`products/${productId}/image-2.jpg`);
       expect(savedImages[1].displayOrder).toBe(2);
 
-      expect(savedImages[2].imageUrl).toBe(`https://example.com/products/${productId}/image-3.jpg`);
+      expect(savedImages[2].imageKey).toBe(`products/${productId}/image-3.jpg`);
       expect(savedImages[2].displayOrder).toBe(3);
     });
 
@@ -1041,6 +1044,7 @@ describe('ProductRepository', () => {
           imageId,
           productId,
           variantId,
+          `products/${productId}/variant-image.jpg`,
           `https://example.com/products/${productId}/variant-image.jpg`,
           1,
           now,
@@ -1058,7 +1062,7 @@ describe('ProductRepository', () => {
 
       expect(savedImages).toHaveLength(1);
       expect(savedImages[0].productVariantId).toBe(variantId);
-      expect(savedImages[0].imageUrl).toBe(`https://example.com/products/${productId}/variant-image.jpg`);
+      expect(savedImages[0].imageKey).toBe(`products/${productId}/variant-image.jpg`);
     });
 
     it('商品作成時に画像が空配列の場合はスキップする', async () => {
