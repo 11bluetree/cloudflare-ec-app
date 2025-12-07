@@ -5,7 +5,7 @@
   "main": "./src/index.tsx",
   "vars": {
     "ALLOWED_ORIGINS": "https://cloudflare-ec-app-web.pages.dev",
-    "R2_PUBLIC_URL": "https://pub-xxxxx.r2.dev"
+    "R2_PUBLIC_URL": "https://pub-bc5fc81a0f6e46c8aa4823406988ab60.r2.dev"
   },
   // R2バケット設定
   "r2_buckets": [
@@ -27,6 +27,9 @@
   "env": {
     // ローカル開発環境
     "dev": {
+      "vars": {
+        "R2_PUBLIC_URL": "http://localhost:3000/images"
+      },
       "d1_databases": [
         {
           "binding": "DB",
