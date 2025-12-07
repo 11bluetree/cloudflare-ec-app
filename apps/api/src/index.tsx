@@ -32,4 +32,26 @@ app.route('/api/admin/products', adminProducts);
 /** カテゴリールート */
 app.route('/api/categories', category);
 
+/**
+ * 画像配信エンドポイント（開発環境専用）
+ * R2バケットから画像を取得して返す
+ */
+if (import.meta.env.DEV) {
+  app.get('/images/*', async (c) => {
+    const path = c.req.path.replace('/images/', '');
+    const object = await c.env.PRODUCT_IMAGES.get(path);
+
+    if (!object) {
+      return c.notFound();
+    }
+
+    const headers = new Headers();
+    object.writeHttpMetadata(headers);
+    headers.set('etag', object.httpEtag);
+    headers.set('cache-control', 'public, max-age=31536000, immutable');
+
+    return c.body(object.body, 200, Object.fromEntries(headers));
+  });
+}
+
 export default app;
