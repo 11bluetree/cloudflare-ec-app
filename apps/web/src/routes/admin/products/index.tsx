@@ -3,6 +3,7 @@ import { ProductListQuerySchema, type ProductListItem } from '@cloudflare-ec-app
 import { fetchAdminProducts } from '../../../lib/api/products';
 import { EmptyState } from '../../../components/ui/empty-state';
 import { Pagination } from '../../../components/ui/pagination';
+import { StatusBadge } from '../../../components/ui/status-badge';
 
 export const Route = createFileRoute('/admin/products/')({
   validateSearch: ProductListQuerySchema,
@@ -35,30 +36,12 @@ function ProductsPage() {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      published: 'bg-green-100 text-green-800',
-      draft: 'bg-gray-100 text-gray-800',
-      archived: 'bg-red-100 text-red-800',
-    };
-    const labels: Record<string, string> = {
-      published: '公開',
-      draft: '下書き',
-      archived: 'アーカイブ',
-    };
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status] ?? 'bg-gray-100 text-gray-800'}`}>
-        {labels[status] ?? status}
-      </span>
-    );
-  };
-
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(price);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ja-JP', {
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('ja-JP', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -150,18 +133,22 @@ function ProductsPage() {
                             : `${formatPrice(product.minPrice)} - ${formatPrice(product.maxPrice)}`}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(product.status)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <StatusBadge status={product.status} />
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDate(product.createdAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Link
+                        {/* TODO: 編集ルート実装後に有効化 */}
+                        {/* <Link
                           to="/admin/products/$productId"
                           params={{ productId: product.id }}
                           className="text-blue-600 hover:text-blue-900 mr-4"
                         >
                           編集
-                        </Link>
+                        </Link> */}
+                        <span className="text-gray-400 mr-4">編集</span>
                         <button className="text-red-600 hover:text-red-900">削除</button>
                       </td>
                     </tr>
