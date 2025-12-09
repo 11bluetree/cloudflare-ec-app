@@ -1,0 +1,154 @@
+import type { CreateProductRequest, CreateProductResponse } from '@cloudflare-ec-app/types';
+import type { IProductRepository } from '../../ports/repositories/product-repository.interface';
+import type { ICategoryRepository } from '../../ports/repositories/category-repository.interface';
+import type { IImageStorage } from '../../ports/storage/image-storage.interface';
+import { Product } from '../../../domain/entities/product';
+import { ProductOption } from '../../../domain/entities/product-option';
+import { ProductVariant } from '../../../domain/entities/product-variant';
+import { ProductVariantOption } from '../../../domain/entities/product-variant-option';
+import { ProductImage } from '../../../domain/entities/product-image';
+import { ProductDetails } from '../../../domain/entities/product-details';
+import { Money } from '../../../domain/value-objects/money';
+import { ProductMapper } from '../../../infrastructure/internal/mappers/product.mapper';
+import { ulid } from 'ulid';
+
+/**
+ * 管理画面用商品登録ユースケース
+ *
+ * 商品の新規登録を行う（管理者専用）
+ * - 画像アップロード対応
+ * - バリアント・オプション対応
+ * - 下書き状態での保存可能
+ */
+export class CreateAdminProductUseCase {
+  constructor(
+    private readonly productRepository: IProductRepository,
+    private readonly categoryRepository: ICategoryRepository,
+    private readonly imageStorage: IImageStorage,
+  ) {}
+
+  async execute(request: CreateProductRequest): Promise<CreateProductResponse> {
+    // 1. カテゴリーの存在確認
+    const categoriesMap = await this.categoryRepository.findByIds([request.categoryId]);
+    if (!categoriesMap.has(request.categoryId)) {
+      throw new Error(`Category not found: ${request.categoryId}`);
+    }
+
+    // 2. ID生成
+    const productId = ulid();
+    const now = new Date();
+
+    // 3. 画像処理（指定された場合のみアップロード）
+    const uploadedImages: { id: string; key: string; url: string; displayOrder: number; variantId: string | null }[] =
+      [];
+
+    if (request.images && request.images.length > 0) {
+      for (let i = 0; i < request.images.length; i++) {
+        const file = request.images[i];
+        const imageId = ulid();
+
+        // ファイル名を生成（画像ID + 拡張子）
+        const extension = file.name.split('.').pop() || 'jpg';
+        const filename = `${imageId}.${extension}`;
+
+        // R2にアップロード: products/{productId}/{filename}
+        const imagePath = `products/${productId}/${filename}`;
+        const imageUrl = await this.imageStorage.upload(file, imagePath);
+
+        uploadedImages.push({
+          id: imageId,
+          key: imagePath,
+          url: imageUrl,
+          displayOrder: i + 1,
+          variantId: null,
+        });
+      }
+    }
+
+    // 4. オプション処理（指定された場合のみ生成）
+    const options: ProductOption[] = [];
+    if (request.options && request.options.length > 0) {
+      for (const optionData of request.options) {
+        const optionId = ulid();
+        options.push(
+          ProductOption.create(optionId, productId, optionData.optionName, optionData.displayOrder, now, now),
+        );
+      }
+    }
+
+    // 5. バリアント処理（指定された場合のみ生成）
+    const variants: ProductVariant[] = [];
+    if (request.variants && request.variants.length > 0) {
+      for (const variantData of request.variants) {
+        const variantId = ulid();
+
+        // バリアントオプションを構築
+        const variantOptions: ProductVariantOption[] = [];
+        for (const optionData of variantData.options) {
+          const variantOptionId = ulid();
+          variantOptions.push(
+            ProductVariantOption.create(
+              variantOptionId,
+              variantId,
+              optionData.optionName,
+              optionData.optionValue,
+              optionData.displayOrder,
+              now,
+              now,
+            ),
+          );
+        }
+
+        // 画像の割り当て
+        if (
+          variantData.imageIndex !== undefined &&
+          variantData.imageIndex !== null &&
+          uploadedImages[variantData.imageIndex]
+        ) {
+          uploadedImages[variantData.imageIndex].variantId = variantId;
+        }
+
+        // バリアントを構築
+        const variant = ProductVariant.create(
+          variantId,
+          productId,
+          variantData.sku,
+          variantData.barcode ?? null,
+          Money.create(variantData.price),
+          variantData.displayOrder,
+          variantOptions,
+          now,
+          now,
+        );
+
+        variants.push(variant);
+      }
+    }
+
+    // ProductImageエンティティを作成
+    const images: ProductImage[] = uploadedImages.map((img) =>
+      ProductImage.create(img.id, productId, img.variantId, img.key, img.url, img.displayOrder, now, now),
+    );
+
+    // 6. Productエンティティを構築
+    const product = Product.create(
+      productId,
+      request.name,
+      request.description,
+      request.categoryId,
+      request.status,
+      options,
+      now,
+      now,
+    );
+
+    // 7. ProductDetails集約ルートを構築（ビジネスルール検証）
+    const productDetails = ProductDetails.create(product, variants, images);
+
+    // 8. リポジトリで永続化
+    await this.productRepository.create(productDetails);
+
+    // 9. レスポンスDTOを返却
+    return ProductMapper.toCreateProductResponseDTO(productDetails);
+  }
+}

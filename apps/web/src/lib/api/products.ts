@@ -88,15 +88,17 @@ export const fetchAdminProducts = async (query: ProductListQuery): Promise<Produ
 
 /**
  * 商品を登録（画像なし）
+ * 管理者専用
  */
 export const createProduct = async (data: CreateProductRequest): Promise<CreateProductResponse> => {
   const formData = new FormData();
   formData.append('data', JSON.stringify(data));
-  return await apiPostFormData<CreateProductResponse>('/api/products', formData);
+  return await apiPostFormData<CreateProductResponse>('/api/admin/products', formData);
 };
 
 /**
  * 商品を登録（画像あり）
+ * 管理者専用
  */
 export const createProductWithImages = async (
   data: CreateProductRequest,
@@ -111,5 +113,5 @@ export const createProductWithImages = async (
     formData.append('images', image, image.name);
   });
 
-  return await apiPostFormData<CreateProductResponse>('/api/products', formData);
+  return await apiPostFormData<CreateProductResponse>('/api/admin/products', formData);
 };

@@ -18,7 +18,12 @@ export const ProductListQuerySchema = z.object({
   keyword: z.string().max(200).optional(),
   minPrice: z.coerce.number().int().min(0).optional(),
   maxPrice: z.coerce.number().int().min(0).max(999999).optional(),
-  statuses: z.array(ProductStatusSchema).optional(),
+  // URLSearchParamsで複数値を送ると文字列または配列になるため、配列に変換
+  statuses: z
+    .union([z.string(), z.array(z.string())])
+    .transform((val) => (Array.isArray(val) ? val : [val]))
+    .pipe(z.array(ProductStatusSchema))
+    .optional(),
   sortBy: z.enum(['createdAt', 'price', 'name']).default('createdAt'),
   order: z.enum(['asc', 'desc']).default('desc'),
 });

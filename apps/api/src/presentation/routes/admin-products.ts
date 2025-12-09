@@ -1,14 +1,23 @@
 import { zValidator } from '@hono/zod-validator';
-import { ProductListQuerySchema, ProductListResponseSchema } from '@cloudflare-ec-app/types';
+import {
+  ProductListQuerySchema,
+  ProductListResponseSchema,
+  CreateProductRequestSchema,
+  CreateProductResponseSchema,
+} from '@cloudflare-ec-app/types';
 import { Hono } from 'hono';
 import { ListAdminProductsUseCase } from '../../application/usecases/admin/list-admin-products.usecase';
+import { CreateAdminProductUseCase } from '../../application/usecases/admin/create-admin-product.usecase';
 import { ProductRepository } from '../../infrastructure/internal/repositories/product.repository';
 import { CategoryRepository } from '../../infrastructure/internal/repositories/category.repository';
+import { R2ImageStorage } from '../../infrastructure/external/storage/r2-image-storage';
+import { R2Client } from '../../infrastructure/external/storage/r2-client';
 import { createDbConnection } from '../../infrastructure/internal/db/connection';
 
 type Bindings = {
   ALLOWED_ORIGINS?: string;
   DB: D1Database;
+  PRODUCT_IMAGES: R2Bucket;
   R2_PUBLIC_URL: string;
 };
 
@@ -36,6 +45,78 @@ adminProducts
     const validatedResponse = ProductListResponseSchema.parse(response);
 
     return c.json(validatedResponse);
+  })
+
+  /**
+   * POST /api/admin/products
+   * 商品を登録（管理者のみ）
+   * Content-Type: multipart/form-data
+   * - data: 商品情報（JSON文字列）
+   * - images: 画像ファイル（複数可）
+   */
+  .post('/', async (c) => {
+    // FormDataをパース
+    const formData = await c.req.formData();
+
+    // 商品データをパース
+    const dataString = formData.get('data');
+    if (typeof dataString !== 'string') {
+      return c.json({ error: 'Missing or invalid data field' }, 400);
+    }
+
+    let parsedData: unknown;
+    try {
+      parsedData = JSON.parse(dataString);
+    } catch {
+      return c.json({ error: 'Invalid JSON in data field' }, 400);
+    }
+
+    // Zodでバリデーション（imagesは除外してパース）
+    const validationResult = CreateProductRequestSchema.omit({ images: true }).safeParse(parsedData);
+    if (!validationResult.success) {
+      return c.json({ error: 'Validation failed', details: validationResult.error.issues }, 400);
+    }
+
+    // 画像ファイルを取得
+    const images: File[] = [];
+    const imageEntries = formData.getAll('images');
+    for (const entry of imageEntries) {
+      if (entry instanceof File && entry.size > 0) {
+        images.push(entry);
+      }
+    }
+
+    // 画像数のバリデーション（1回のアップロードで最大10枚）
+    if (images.length > 10) {
+      return c.json({ error: 'Too many images. Maximum 10 images per upload.' }, 400);
+    }
+
+    const request = {
+      ...validationResult.data,
+      images,
+    };
+
+    const d1Database = c.env.DB;
+    const db = createDbConnection(d1Database);
+
+    const productRepository = new ProductRepository(db, c.env.R2_PUBLIC_URL);
+    const categoryRepository = new CategoryRepository(db);
+
+    // R2ImageStorageの初期化
+    const r2Client = new R2Client(c.env.PRODUCT_IMAGES);
+    const imageStorage = new R2ImageStorage(r2Client, c.env.R2_PUBLIC_URL);
+
+    const createAdminProductUseCase = new CreateAdminProductUseCase(
+      productRepository,
+      categoryRepository,
+      imageStorage,
+    );
+
+    const response = await createAdminProductUseCase.execute(request);
+
+    const validatedResponse = CreateProductResponseSchema.parse(response);
+
+    return c.json(validatedResponse, 201);
   });
 
 export default adminProducts;

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { ProductListQuerySchema, type ProductListItem } from '@cloudflare-ec-app/types';
-import { fetchAdminProducts } from '../lib/api/products';
+import { fetchProducts } from '../lib/api/products';
 import { ProductSearchForm } from '../components/product-search-form';
 import { ProductSortControls, type SortBy } from '../components/product-sort-controls';
 import { ProductCard } from '../components/product-card';
@@ -10,7 +10,13 @@ import { Pagination } from '../components/ui/pagination';
 export const Route = createFileRoute('/products')({
   validateSearch: ProductListQuerySchema,
   loaderDeps: ({ search }) => search,
-  loader: ({ deps }) => fetchAdminProducts(deps),
+  loader: ({ deps }) => {
+    // 公開用は必ず published のみを取得
+    return fetchProducts({
+      ...deps,
+      statuses: ['published'],
+    });
+  },
   component: ProductsPage,
 });
 
