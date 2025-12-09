@@ -2,11 +2,12 @@
  * 商品関連のAPI通信関数
  */
 
-import type {
-  CreateProductRequest,
-  CreateProductResponse,
-  ProductListQuery,
-  ProductListResponse,
+import {
+  ProductListResponseSchema,
+  type CreateProductRequest,
+  type CreateProductResponse,
+  type ProductListQuery,
+  type ProductListResponse,
 } from '@cloudflare-ec-app/types';
 import { apiGet, apiPostFormData } from '../api';
 
@@ -45,7 +46,10 @@ export const fetchProducts = async (query: ProductListQuery): Promise<ProductLis
   params.append('sortBy', query.sortBy);
   params.append('order', query.order);
 
-  return await apiGet<ProductListResponse>(`/api/products?${params.toString()}`);
+  const response = await apiGet<unknown>(`/api/products?${params.toString()}`);
+
+  // Zodでバリデーション＆日付変換
+  return ProductListResponseSchema.parse(response);
 };
 
 /**
@@ -83,7 +87,10 @@ export const fetchAdminProducts = async (query: ProductListQuery): Promise<Produ
   params.append('sortBy', query.sortBy);
   params.append('order', query.order);
 
-  return await apiGet<ProductListResponse>(`/api/admin/products?${params.toString()}`);
+  const response = await apiGet<unknown>(`/api/admin/products?${params.toString()}`);
+
+  // Zodでバリデーション＆日付変換
+  return ProductListResponseSchema.parse(response);
 };
 
 /**

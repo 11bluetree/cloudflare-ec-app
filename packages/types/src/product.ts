@@ -47,8 +47,8 @@ const ProductListItemSchema = z.object({
   imageUrl: z.url().max(500).nullable(),
   minPrice: z.number().int().min(0).max(999999),
   maxPrice: z.number().int().min(0).max(999999),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.coerce.date(), // APIからは文字列で来るのでcoerceで変換
+  updatedAt: z.coerce.date(), // APIからは文字列で来るのでcoerceで変換
 });
 
 export type ProductListItem = z.infer<typeof ProductListItemSchema>;
